@@ -9,6 +9,11 @@ import com.rca.RCA.type.SeccionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Array;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/grado")
@@ -43,7 +48,10 @@ public class GradoRESTController {
     public ApiResponse<GradoDTO> add(@RequestBody GradoDTO gradoDTO){
         return this.gradoService.add(gradoDTO);
     }
-
+    @PostMapping("/addSection")
+    public ApiResponse<GradoDTO> addSxG(@RequestBody Map ids){
+        return this.gradoService.addSxG(ids);
+    }
     @PutMapping
     public ApiResponse<GradoDTO> update(@RequestBody GradoDTO gradoDTO){
         return this.gradoService.update(gradoDTO);

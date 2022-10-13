@@ -75,6 +75,7 @@ public class SeccionService {
 
         Optional<SeccionEntity> optionalSeccionEntity = this.seccionRepository.findByName(seccionDTO.getName());
         if (optionalSeccionEntity.isPresent()) {
+            log.warn("No se agregó el registro");
             apiResponse.setSuccessful(false);
             apiResponse.setCode("SECTION_EXISTS");
             apiResponse.setMessage("No se resgistró, la sección existe");
@@ -112,12 +113,15 @@ public class SeccionService {
             apiResponse.setData(this.seccionRepository.save(seccionEntity).getSeccionDTO());
             return apiResponse;
         }else{
+            log.warn("No se actualizó el registro");
             apiResponse.setSuccessful(false);
             apiResponse.setCode("SECTION_DOES_NOT_EXISTS");
             apiResponse.setMessage("No existe la sección para poder actualizar");
         }
         return apiResponse;
     }
+
+    //Función para cambiar estado a eliminado- START
     //id dto=uniqueIdentifier Entity
     public ApiResponse<SeccionDTO> delete(String id){
         ApiResponse<SeccionDTO> apiResponse = new ApiResponse<>();
@@ -132,10 +136,12 @@ public class SeccionService {
             apiResponse.setMessage("ok");
             apiResponse.setData(this.seccionRepository.save(seccionEntity).getSeccionDTO());
         } else{
+            log.warn("No se eliminó el registro");
             apiResponse.setSuccessful(false);
             apiResponse.setCode("SECTION_DOES_NOT_EXISTS");
             apiResponse.setMessage("No existe la sección para poder eliminar");
         }
         return apiResponse;
     }
+    //Función para cambiar estado a eliminado- END
 }
