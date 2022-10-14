@@ -53,7 +53,7 @@ public class UsuarioService {
         if (optionalUsuarioEntity.isPresent()) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("Usuario_EXISTS");
-            apiResponse.setMessage("No se registro, la categoria existe");
+            apiResponse.setMessage("No se registro, el usuario existe");
             return apiResponse;
         }
         //change dto to entity

@@ -16,6 +16,9 @@ public class Code {
     public static final String USUARIO_CODE = "USU";
     public static final int USUARIO_LENGTH = 6;
 
+    public static final String IMAGEN_CODE = "IMG";
+    public static final int IMAGEN_LENGTH = 6;
+
     public static String generateCode(String prefix, long current, int maxLength) {
         String complement =  completeZero(prefix, maxLength - (prefix.length() + String.valueOf(current).length()));
         return complement + current;

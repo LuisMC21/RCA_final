@@ -17,12 +17,12 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
             "and ( u.code like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') ) " +
             "order by u.name")
     Optional<List<UsuarioEntity>> findEntities(String status, String filter, Pageable pageable);
-
     @Query(value = "select count(c) from UsuarioEntity u " +
             "where u.status = :status " +
             "and ( u.code like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') ) " +
             "order by u.name")
     Long findCountEntities(String status, String filter);
+
 
     Optional<UsuarioEntity> findByUniqueIdentifier(String uniqueIdentifier);
 
