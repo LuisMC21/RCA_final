@@ -11,13 +11,37 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "Rol")
-public class RolEntity {
+public class RolEntity extends AuditoryEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true, nullable = false)
     private Integer id;
-    @Column(name = "cod", length = 40)
+    @Column(name = "code", length = 15)
     private String code;
-    @Column(name = "nom")
-    private String nombre;
+    @Column(name = "name")
+    private String name;
+
+
+
+    public RolDTO getRolDTO(){
+        RolDTO RolDTO = new RolDTO();
+        RolDTO.setId(this.getUniqueIdentifier());
+        RolDTO.setCode(this.code);
+        RolDTO.setName(this.name);
+        RolDTO.setStatus(this.getStatus());
+        RolDTO.setCreateAt(this.getCreateAt());
+        RolDTO.setUpdateAt(this.getUpdateAt());
+        RolDTO.setDeleteAt(this.getDeleteAt());
+        return RolDTO;
+    }
+
+    public void setRolDTO(RolDTO RolDTO){
+        this.setUniqueIdentifier(RolDTO.getId());
+        this.code= RolDTO.getCode();
+        this.name= RolDTO.getName();
+        this.setStatus(RolDTO.getStatus());
+        this.setCreateAt(RolDTO.getCreateAt());
+        this.setUpdateAt(RolDTO.getUpdateAt());
+        this.setDeleteAt(RolDTO.getDeleteAt());
+    }
 }
