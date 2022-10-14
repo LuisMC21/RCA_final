@@ -1,7 +1,6 @@
 package com.rca.RCA.entity;
 
 import com.rca.RCA.type.CursoDTO;
-import com.rca.RCA.type.GradoDTO;
 import lombok.Data;
 
 import javax.persistence.*;

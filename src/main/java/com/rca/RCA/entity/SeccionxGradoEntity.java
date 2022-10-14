@@ -1,7 +1,6 @@
 package com.rca.RCA.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.rca.RCA.type.PeriodoDTO;
 import com.rca.RCA.type.SeccionxGradoDTO;
 import lombok.Data;
 
