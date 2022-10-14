@@ -3,8 +3,8 @@ package com.rca.RCA.type;
 import lombok.Data;
 
 @Data
-public class ApoderadoDTO {
+public class ApoderadoDTO extends AuditoryDTO{
     private String code;
-    private String correo;
-    private int usuario_id;
+    private String email;
+    private UsuarioDTO usuarioDTO;
 }

@@ -3,7 +3,7 @@ package com.rca.RCA.type;
 import lombok.Data;
 
 @Data
-public class AlumnoDTO {
+public class AlumnoDTO extends AuditoryDTO{
     private String code;
     private String enf;
     private String nomcon_pri;

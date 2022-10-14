@@ -13,7 +13,7 @@ public class UsuarioEntity extends AuditoryEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "iduser", unique = true, nullable = false)
     private Integer id;
-    @Column(name = "code", length = 40)
+    @Column(name = "code", length = 15)
     private String code;
     @Column(name = "name")
     private String name;
