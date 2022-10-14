@@ -13,6 +13,9 @@ public class Code {
     public static final String ROL_CODE = "ROL";
     public static final int ROL_LENGTH = 6;
 
+    public static final String USUARIO_CODE = "USU";
+    public static final int USUARIO_LENGTH = 6;
+
     public static String generateCode(String prefix, long current, int maxLength) {
         String complement =  completeZero(prefix, maxLength - (prefix.length() + String.valueOf(current).length()));
         return complement + current;
