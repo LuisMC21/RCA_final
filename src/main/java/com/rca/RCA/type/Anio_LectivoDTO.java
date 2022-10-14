@@ -1,8 +1,9 @@
 package com.rca.RCA.type;
 
 import lombok.Data;
+
 @Data
-public class SeccionDTO extends AuditoryDTO{
+public class Anio_LectivoDTO extends AuditoryDTO{
     private String code;
-    private Character name;
+    private String name;
 }

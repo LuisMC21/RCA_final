@@ -73,8 +73,9 @@ public class GradoService {
         return apiResponse;
     }
     //Función para agregar un grado - END
+/*
     //Función para agregar una sección a un grado- START
-    public ApiResponse<GradoDTO> addSxG(Map ids){
+   public ApiResponse<GradoDTO> addSxG(Map ids){
         log.info("idGrado idSeccion {} {}", ids.get("idGrado"), ids.get("idSeccion"));
         ApiResponse<GradoDTO> apiResponse = new ApiResponse<>();
         Optional<GradoEntity> optionalGradoEntity=this.gradoRepository.findByUniqueIdentifier(ids.get("idGrado").toString());
@@ -107,7 +108,7 @@ public class GradoService {
             return apiResponse;
     }
     //Función para agregar una sección a un grado- END
-
+*/
     //Función para actualizar un grado- START
     public ApiResponse<GradoDTO> update(GradoDTO gradoDTO){
         ApiResponse<GradoDTO> apiResponse = new ApiResponse<>();

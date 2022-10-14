@@ -4,19 +4,24 @@ import com.rca.RCA.type.SeccionDTO;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "Seccion")
+@Table(name = "seccion")
 public class SeccionEntity extends AuditoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true, nullable = false)
     private Integer id;
-    @Column(name = "cod", length = 40)
+    @Column(name = "cod", length = 15)
     private String code;
     @Column(name = "nom")
     private Character name;
+
+    @OneToMany(mappedBy = "seccionEntity", cascade=CascadeType.ALL)
+    private Set<SeccionxGradoEntity> seccionxGradoEntities = new HashSet<>();
 
     public SeccionDTO getSeccionDTO(){
         SeccionDTO seccionDTO = new SeccionDTO();

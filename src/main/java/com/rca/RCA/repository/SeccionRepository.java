@@ -11,6 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface SeccionRepository extends JpaRepository<SeccionEntity, Integer> {
+
     //Función para listar las seccioens activass con filro de código o nombre
     @Query(value = "select s from SeccionEntity s " +
             "where s.status = :status " +
@@ -30,7 +31,7 @@ public interface SeccionRepository extends JpaRepository<SeccionEntity, Integer>
 
     //Función para obtener una sección con su nombre
     Optional<SeccionEntity> findByName(Character name);
-
+/*
     //Función para contar las secciones existentes y activas de un grado, con filtro de código y nombre
     @Query(value = "SELECT count(s) FROM GradoEntity g JOIN g.secciones s " +
             "WHERE g.uniqueIdentifier = :id " +
@@ -46,4 +47,6 @@ public interface SeccionRepository extends JpaRepository<SeccionEntity, Integer>
             "and (s.code like concat('%', :filter, '%') or s.name like concat('%', :filter, '%'))" +
             "order by s.name")
     Optional<List<SeccionEntity>> findSeccionxGrado(String id, String status, String filter, Pageable pageable);
+*/
 }
+

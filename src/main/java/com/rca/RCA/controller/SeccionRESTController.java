@@ -40,5 +40,4 @@ public class SeccionRESTController {
     public ApiResponse<SeccionDTO> delete(@PathVariable String id){
         return this.seccionService.delete(id);
     }
-
 }

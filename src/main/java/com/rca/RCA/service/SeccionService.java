@@ -3,7 +3,6 @@ package com.rca.RCA.service;
 import com.rca.RCA.entity.SeccionEntity;
 import com.rca.RCA.repository.SeccionRepository;
 import com.rca.RCA.type.ApiResponse;
-import com.rca.RCA.type.GradoDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.SeccionDTO;
 import com.rca.RCA.util.Code;
@@ -45,7 +44,7 @@ public class SeccionService {
         return apiResponse;
     }
     //Función para listar con paginación de seccion-END
-
+/*
     //Función para listar con paginación de secciones por el grado indicado-START
     public ApiResponse<Pagination<SeccionDTO>> getListSxG(String id, String filter, int page, int size){
         log.info("id filter page size {} {} {}", id, filter, page, size);
@@ -65,7 +64,7 @@ public class SeccionService {
         return apiResponse;
     }
     //Función para listar con paginación de secciones por el grado indicado-END
-
+*/
     public ApiResponse<SeccionDTO> add(SeccionDTO seccionDTO){
         ApiResponse<SeccionDTO> apiResponse = new ApiResponse<>();
         seccionDTO.setId(UUID.randomUUID().toString());
@@ -81,7 +80,6 @@ public class SeccionService {
             apiResponse.setMessage("No se resgistró, la sección existe");
             return apiResponse;
         }
-
 
         //change DTO to entity
         SeccionEntity seccionEntity =new SeccionEntity();
@@ -125,7 +123,6 @@ public class SeccionService {
     //id dto=uniqueIdentifier Entity
     public ApiResponse<SeccionDTO> delete(String id){
         ApiResponse<SeccionDTO> apiResponse = new ApiResponse<>();
-
         Optional<SeccionEntity> optionalSeccionEntity=this.seccionRepository.findByUniqueIdentifier(id);
         if(optionalSeccionEntity.isPresent()){
             SeccionEntity seccionEntity =optionalSeccionEntity.get();

@@ -1,33 +1,27 @@
 package com.rca.RCA.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.rca.RCA.type.GradoDTO;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "Grado")
+@Table(name = "grado")
 public class GradoEntity extends AuditoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true, nullable = false)
     private Integer id;
-    @Column(name = "cod", length = 40)
+    @Column(name = "cod", length = 15)
     private String code;
     @Column(name = "nom")
     private Character name;
 
-    @ManyToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonBackReference
-    @JoinTable(name = "seccionxgrado",
-            joinColumns = {@JoinColumn(name = "grado_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "seccion_id", referencedColumnName = "id")}
-    )
-    private List<SeccionEntity> secciones = new ArrayList<>();
+    @OneToMany(mappedBy = "gradoEntity", cascade=CascadeType.ALL)
+    private Set<SeccionxGradoEntity> seccionxGradoEntities = new HashSet<>();
 
     public GradoDTO getGradoDTO(){
         GradoDTO gradoDTO = new GradoDTO();
