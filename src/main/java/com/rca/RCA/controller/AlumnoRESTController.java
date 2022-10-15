@@ -1,4 +1,4 @@
-package com.rca.RCA.controller;
+/* package com.rca.RCA.controller;
 
 import com.rca.RCA.service.AlumnoService;
 import com.rca.RCA.type.ApiResponse;
@@ -42,3 +42,4 @@ public class AlumnoRESTController {
         this.alumnoService.delete(id);
     }
 }
+*/

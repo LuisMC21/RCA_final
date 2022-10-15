@@ -17,7 +17,7 @@ public interface ImagenRepository extends JpaRepository<ImagenEntity, Integer> {
             "order by i.name")
     Optional<List<ImagenEntity>> findEntities(String status, String filter, Pageable pageable);
 
-    @Query(value = "select count(c) from ImagenEntity i " +
+    @Query(value = "select count(i) from ImagenEntity i " +
             "where i.status = :status " +
             "and ( i.code like concat('%', :filter, '%') or i.name like concat('%', :filter, '%') ) " +
             "order by i.name")

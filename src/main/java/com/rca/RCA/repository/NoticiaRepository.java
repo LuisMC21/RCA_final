@@ -12,13 +12,13 @@ public interface NoticiaRepository extends JpaRepository<NoticiaEntity, Integer>
 
     @Query(value = "select n from NoticiaEntity n " +
             "where n.status = :status " +
-            "and ( n.code like concat('%', :filter, '%') or n.title like concat('%', :filter, '%') ) " +
+            "and (n.code like concat('%', :filter, '%') or n.title like concat('%', :filter, '%') ) " +
             "order by n.title")
     Optional<List<NoticiaEntity>> findEntities(String status, String filter, Pageable pageable);
 
-    @Query(value = "select count(c) from NoticiaEntity n " +
+    @Query(value = "select count(n) from NoticiaEntity n " +
             "where n.status = :status " +
-            "and ( n.code like concat('%', :filter, '%') or n.title like concat('%', :filter, '%') ) " +
+            "and (n.code like concat('%', :filter, '%') or n.title like concat('%', :filter, '%') ) " +
             "order by n.title")
     Long findCountEntities(String status, String filter);
 
@@ -28,6 +28,6 @@ public interface NoticiaRepository extends JpaRepository<NoticiaEntity, Integer>
     Optional<NoticiaEntity> findByTitle(String title);
 
     @Query(value = "select n from NoticiaEntity n " +
-            "where n.num_doc = :num_doc and n.uniqueIdentifier <> :uniqueIdentifier ")
+            "where n.title = :title and n.uniqueIdentifier <> :uniqueIdentifier ")
     Optional<NoticiaEntity> findByTitle(String title, String uniqueIdentifier);
 }

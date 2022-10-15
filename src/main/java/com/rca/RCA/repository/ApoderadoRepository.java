@@ -14,7 +14,7 @@ public interface ApoderadoRepository extends JpaRepository<ApoderadoEntity, Inte
             "and ( a.code like concat('%', :filter, '%') or a.email like concat('%', :filter, '%') ) " +
             "order by a.email")
     Optional<List<ApoderadoEntity>> findEntities(String status, String filter, Pageable pageable);
-    @Query(value = "select count(c) from ApoderadoEntity a " +
+    @Query(value = "select count(a) from ApoderadoEntity a " +
             "where a.status = :status " +
             "and ( a.code like concat('%', :filter, '%') or a.email like concat('%', :filter, '%') ) " +
             "order by a.email")

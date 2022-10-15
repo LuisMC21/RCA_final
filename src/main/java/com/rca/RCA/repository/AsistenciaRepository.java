@@ -15,7 +15,7 @@ public interface AsistenciaRepository extends JpaRepository<AsistenciaEntity, In
             "order by a.type")
     Optional<List<AsistenciaEntity>> findEntities(String status, String filter, Pageable pageable);
 
-    @Query(value = "select count(c) from AsistenciaEntity a " +
+    @Query(value = "select count(a) from AsistenciaEntity a " +
             "where a.status = :status " +
             "and ( a.code like concat('%', :filter, '%') or a.type like concat('%', :filter, '%') ) " +
             "order by a.type")
