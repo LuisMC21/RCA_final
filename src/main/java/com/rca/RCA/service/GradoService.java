@@ -2,7 +2,6 @@ package com.rca.RCA.service;
 
 import com.rca.RCA.entity.GradoEntity;
 import com.rca.RCA.repository.GradoRepository;
-import com.rca.RCA.repository.SeccionRepository;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.GradoDTO;
 import com.rca.RCA.type.Pagination;

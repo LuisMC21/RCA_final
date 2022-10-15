@@ -44,27 +44,7 @@ public class SeccionService {
         return apiResponse;
     }
     //Función para listar con paginación de seccion-END
-/*
-    //Función para listar con paginación de secciones por el grado indicado-START
-    public ApiResponse<Pagination<SeccionDTO>> getListSxG(String id, String filter, int page, int size){
-        log.info("id filter page size {} {} {}", id, filter, page, size);
-        ApiResponse<Pagination<SeccionDTO>> apiResponse = new ApiResponse<>();
-        Pagination<SeccionDTO> pagination = new Pagination<>();
-        pagination.setCountFilter(this.seccionRepository.findCountSeccionxGrado(id,ConstantsGeneric.CREATED_STATUS, filter));
-        System.out.println(pagination.getCountFilter());
-        if(pagination.getCountFilter()>0){
-            Pageable pageable= PageRequest.of(page, size);
-            List<SeccionEntity> seccionEntities=this.seccionRepository.findSeccionxGrado(id, ConstantsGeneric.CREATED_STATUS, filter, pageable).orElse(new ArrayList<>());
-            pagination.setList(seccionEntities.stream().map(SeccionEntity::getSeccionDTO).collect(Collectors.toList()));
-        }
-        pagination.setTotalPages(pagination.processAndGetTotalPages(size));
-        apiResponse.setData(pagination);
-        apiResponse.setSuccessful(true);
-        apiResponse.setMessage("ok");
-        return apiResponse;
-    }
-    //Función para listar con paginación de secciones por el grado indicado-END
-*/
+
     public ApiResponse<SeccionDTO> add(SeccionDTO seccionDTO){
         ApiResponse<SeccionDTO> apiResponse = new ApiResponse<>();
         seccionDTO.setId(UUID.randomUUID().toString());
