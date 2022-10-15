@@ -13,12 +13,12 @@ public interface RolRepository extends JpaRepository<RolEntity, Integer> {
 
     Optional<RolEntity> findByUniqueIdentifier(String uniqueIdentifier);
 
-    @Query(value = "select r from CategoryEntity r " +
+    @Query(value = "select r from RolEntity r " +
             "where r.status = :status " +
             "and ( r.code like concat('%', :filter, '%') or r.name like concat('%', :filter, '%') ) " +
             "order by r.name")
     Optional<List<RolEntity>> findEntities(String status, String filter, Pageable pageable);
-    @Query(value = "select count(c) from RolEntity r " +
+    @Query(value = "select count(r) from RolEntity r " +
             "where r.status = :status " +
             "and ( r.code like concat('%', :filter, '%') or r.name like concat('%', :filter, '%') ) " +
             "order by r.name")
