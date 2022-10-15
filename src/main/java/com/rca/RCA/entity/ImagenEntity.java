@@ -24,7 +24,7 @@ public class ImagenEntity extends AuditoryEntity{
     private String route;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "idusuario")
+    @JoinColumn(name = "iduser")
     private UsuarioEntity usuarioEntity;
 
     public ImagenDTO getImagenDTO(){

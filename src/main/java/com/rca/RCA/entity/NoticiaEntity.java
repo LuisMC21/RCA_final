@@ -32,7 +32,7 @@ public class NoticiaEntity extends AuditoryEntity{
     private String date;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "idusaurio")
+    @JoinColumn(name = "iduser")
     private UsuarioEntity usuarioEntity;
 
 
