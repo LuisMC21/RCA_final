@@ -21,8 +21,6 @@ public class RolEntity extends AuditoryEntity{
     @Column(name = "name")
     private String name;
 
-
-
     public RolDTO getRolDTO(){
         RolDTO RolDTO = new RolDTO();
         RolDTO.setId(this.getUniqueIdentifier());

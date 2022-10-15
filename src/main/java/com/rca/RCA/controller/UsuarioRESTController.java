@@ -42,4 +42,5 @@ public class UsuarioRESTController {
         this.usuarioService.delete(id);
     }
 }
-*/
+
+ */
