@@ -35,7 +35,7 @@ public class AlumnoEntity extends AuditoryEntity{
     private String type_insurance;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "idusuario", referencedColumnName = "idusuario")
+    @JoinColumn(name = "iduser", referencedColumnName = "iduser")
     private UsuarioEntity usuarioEntity;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)

@@ -23,7 +23,7 @@ public class ApoderadoEntity extends AuditoryEntity{
     private String email;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "idusuario", referencedColumnName = "idusuario")
+    @JoinColumn(name = "iduser", referencedColumnName = "iduser")
     private UsuarioEntity usuarioEntity;
 
     public ApoderadoDTO getApoderadoDTO(){
