@@ -19,19 +19,20 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
     Optional<List<UsuarioEntity>> findEntities(String status, String filter, Pageable pageable);
     @Query(value = "select count(u) from UsuarioEntity u " +
             "where u.status = :status " +
-            "and ( u.code like concat('%', :filter, '%')")
+            "and ( u.code like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') ) " +
+            "order by u.name")
     Long findCountEntities(String status, String filter);
-
 
     Optional<UsuarioEntity> findByUniqueIdentifier(String uniqueIdentifier);
 
-    Optional<UsuarioEntity> findByNum_doc(String num_doc);
+    Optional<UsuarioEntity> findByNumdoc(String numdoc);
 
     @Query(value = "select u from UsuarioEntity u " +
-            "where u.num_doc = :num_doc and u.uniqueIdentifier <> :uniqueIdentifier ")
-    Optional<UsuarioEntity> findByNum_doc(String num_doc, String uniqueIdentifier);
-
+            "where u.numdoc = :numdoc and u.uniqueIdentifier <> :uniqueIdentifier ")
+    Optional<UsuarioEntity> findByNumdoc(String numdoc, String uniqueIdentifier);
 
 }
 
  */
+
+
