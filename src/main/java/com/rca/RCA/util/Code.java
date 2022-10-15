@@ -27,6 +27,9 @@ public class Code {
 
     public static final String ALU_CODE = "ALU";
     public static final int ALU_LENGTH = 6;
+
+    public static final String ASIS_CODE = "ASIS";
+    public static final int ASIS_LENGTH = 6;
     public static String generateCode(String prefix, long current, int maxLength) {
         String complement =  completeZero(prefix, maxLength - (prefix.length() + String.valueOf(current).length()));
         return complement + current;
