@@ -15,7 +15,7 @@ import java.util.List;
 public class ApoderadoEntity extends AuditoryEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", unique = true, nullable = false)
+    @Column(name = "idapoderado", unique = true, nullable = false)
     private Integer id;
     @Column(name = "code", length = 15)
     private String code;
@@ -23,7 +23,7 @@ public class ApoderadoEntity extends AuditoryEntity{
     private String email;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "iduser", referencedColumnName = "id")
+    @JoinColumn(name = "idusuario", referencedColumnName = "idusuario")
     private UsuarioEntity usuarioEntity;
 
     public ApoderadoDTO getApoderadoDTO(){

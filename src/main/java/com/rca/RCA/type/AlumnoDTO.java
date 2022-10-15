@@ -5,13 +5,13 @@ import lombok.Data;
 @Data
 public class AlumnoDTO extends AuditoryDTO{
     private String code;
-    private String enf;
-    private String nomcon_pri;
+    private String diseases;
+    private String namecon_pri;
     private String telcon_pri;
-    private String nomcon_sec;
+    private String namecon_sec;
     private String telcon_sec;
-    private String vacuna;
-    private String tip_seg;
-    private int usuario_id;
-    private int apoderado_id;
+    private String vaccine;
+    private String type_insurance;
+    private ApoderadoDTO apoderadoDTO;
+    private UsuarioDTO usuarioDTO;
 }

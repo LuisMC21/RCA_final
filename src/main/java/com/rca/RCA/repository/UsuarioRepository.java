@@ -11,7 +11,6 @@ import java.util.Optional;
 
 public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer> {
 
-
     @Query(value = "select u from UsuarioEntity u " +
             "where u.status = :status " +
             "and ( u.code like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') ) " +
