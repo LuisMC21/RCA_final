@@ -72,7 +72,6 @@ public class SeccionService {
 
     public ApiResponse<SeccionDTO> update(SeccionDTO seccionDTO){
         ApiResponse<SeccionDTO> apiResponse = new ApiResponse<>();
-
         Optional<SeccionEntity> optionalSeccionEntity=this.seccionRepository.findByName(seccionDTO.getName());
         //Verifica que el nombre no exista
         if(optionalSeccionEntity.isEmpty()) {

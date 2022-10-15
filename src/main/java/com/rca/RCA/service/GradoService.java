@@ -67,42 +67,7 @@ public class GradoService {
         return apiResponse;
     }
     //Función para agregar un grado - END
-/*
-    //Función para agregar una sección a un grado- START
-   public ApiResponse<GradoDTO> addSxG(Map ids){
-        log.info("idGrado idSeccion {} {}", ids.get("idGrado"), ids.get("idSeccion"));
-        ApiResponse<GradoDTO> apiResponse = new ApiResponse<>();
-        Optional<GradoEntity> optionalGradoEntity=this.gradoRepository.findByUniqueIdentifier(ids.get("idGrado").toString());
-        Optional<SeccionEntity> optionalSeccionEntity=this.seccionRepository.findByUniqueIdentifier(ids.get("idSeccion").toString());
-        if(optionalGradoEntity.isPresent() && optionalSeccionEntity.isPresent()){
-            if(optionalGradoEntity.get().getSecciones().contains(optionalSeccionEntity)) {
-                optionalGradoEntity.get().getSecciones().add(optionalSeccionEntity.get());
-                //Update in database
-                apiResponse.setSuccessful(true);
-                apiResponse.setMessage("ok");
-                apiResponse.setData(this.gradoRepository.save(optionalGradoEntity.get()).getGradoDTO());
-                return apiResponse;
-            }else{
-                log.warn("No se completó el registro");
-                apiResponse.setSuccessful(false);
-                apiResponse.setCode("SECTION_EXISTS_IN_GRADE");
-                apiResponse.setMessage("El grado ya contiene esta sección");
-            }
-        }else{
-            log.warn("No se completó el registro");
-            apiResponse.setSuccessful(false);
-            if(!optionalGradoEntity.isPresent()) {
-                apiResponse.setCode("GRADE_DOES_NOT_EXISTS");
-            }
-            if(!optionalSeccionEntity.isPresent()) {
-                apiResponse.setCode("SECTION_DOES_NOT_EXISTS");
-            }
-            apiResponse.setMessage("No existe el grado para poder actualizar");
-        }
-            return apiResponse;
-    }
-    //Función para agregar una sección a un grado- END
-*/
+
     //Función para actualizar un grado- START
     public ApiResponse<GradoDTO> update(GradoDTO gradoDTO){
         ApiResponse<GradoDTO> apiResponse = new ApiResponse<>();

@@ -4,8 +4,11 @@ import com.rca.RCA.service.SeccionxGradoService;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.SeccionDTO;
+import com.rca.RCA.type.SeccionxGradoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/seccionxgrado")
@@ -25,5 +28,9 @@ public class SeccionxGradoRESTController {
         return this.seccionxGradoService.getListSxG(id, filter, page, size);
     }
 
+    @PostMapping
+    public ApiResponse<SeccionxGradoDTO> add(@RequestBody Map ids) {
+        return this.seccionxGradoService.addSxG(ids);
+    }
 
 }

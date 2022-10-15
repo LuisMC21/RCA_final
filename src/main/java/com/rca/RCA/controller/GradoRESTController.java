@@ -42,12 +42,6 @@ public class GradoRESTController {
         return this.gradoService.add(gradoDTO);
     }
 
-    /*
-    @PostMapping("/addSection")
-    public ApiResponse<GradoDTO> addSxG(@RequestBody Map ids){
-        return this.gradoService.addSxG(ids);
-    }
-    */
     @PutMapping
     public ApiResponse<GradoDTO> update(@RequestBody GradoDTO gradoDTO){
         return this.gradoService.update(gradoDTO);
