@@ -44,27 +44,7 @@ public class SeccionService {
         return apiResponse;
     }
     //Función para listar con paginación de seccion-END
-/*
-    //Función para listar con paginación de secciones por el grado indicado-START
-    public ApiResponse<Pagination<SeccionDTO>> getListSxG(String id, String filter, int page, int size){
-        log.info("id filter page size {} {} {}", id, filter, page, size);
-        ApiResponse<Pagination<SeccionDTO>> apiResponse = new ApiResponse<>();
-        Pagination<SeccionDTO> pagination = new Pagination<>();
-        pagination.setCountFilter(this.seccionRepository.findCountSeccionxGrado(id,ConstantsGeneric.CREATED_STATUS, filter));
-        System.out.println(pagination.getCountFilter());
-        if(pagination.getCountFilter()>0){
-            Pageable pageable= PageRequest.of(page, size);
-            List<SeccionEntity> seccionEntities=this.seccionRepository.findSeccionxGrado(id, ConstantsGeneric.CREATED_STATUS, filter, pageable).orElse(new ArrayList<>());
-            pagination.setList(seccionEntities.stream().map(SeccionEntity::getSeccionDTO).collect(Collectors.toList()));
-        }
-        pagination.setTotalPages(pagination.processAndGetTotalPages(size));
-        apiResponse.setData(pagination);
-        apiResponse.setSuccessful(true);
-        apiResponse.setMessage("ok");
-        return apiResponse;
-    }
-    //Función para listar con paginación de secciones por el grado indicado-END
-*/
+
     public ApiResponse<SeccionDTO> add(SeccionDTO seccionDTO){
         ApiResponse<SeccionDTO> apiResponse = new ApiResponse<>();
         seccionDTO.setId(UUID.randomUUID().toString());
@@ -92,30 +72,37 @@ public class SeccionService {
 
     public ApiResponse<SeccionDTO> update(SeccionDTO seccionDTO){
         ApiResponse<SeccionDTO> apiResponse = new ApiResponse<>();
-
-        Optional<SeccionEntity> optionalSeccionEntity=this.seccionRepository.findByUniqueIdentifier(seccionDTO.getId());
-        if(optionalSeccionEntity.isPresent()){
-            seccionDTO.setUpdateAt(LocalDateTime.now());
-            SeccionEntity seccionEntity =optionalSeccionEntity.get();
-            //Set update data
-            if(seccionDTO.getCode()!=null) {
-                seccionEntity.setCode(seccionDTO.getCode());
+        Optional<SeccionEntity> optionalSeccionEntity=this.seccionRepository.findByName(seccionDTO.getName());
+        //Verifica que el nombre no exista
+        if(optionalSeccionEntity.isEmpty()) {
+            optionalSeccionEntity = this.seccionRepository.findByUniqueIdentifier(seccionDTO.getId());
+            //Verifica que el id y el status sean válidos
+            if (optionalSeccionEntity.isPresent()&& optionalSeccionEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
+                seccionDTO.setUpdateAt(LocalDateTime.now());
+                SeccionEntity seccionEntity = optionalSeccionEntity.get();
+                //Set update data
+                if (seccionDTO.getCode() != null) {
+                    seccionEntity.setCode(seccionDTO.getCode());
+                }
+                if (seccionDTO.getName() != null) {
+                    seccionEntity.setName(seccionDTO.getName());
+                }
+                seccionEntity.setUpdateAt(seccionDTO.getUpdateAt());
+                //Update in database
+                apiResponse.setSuccessful(true);
+                apiResponse.setMessage("ok");
+                apiResponse.setData(this.seccionRepository.save(seccionEntity).getSeccionDTO());
+                return apiResponse;
+            } else{
+                apiResponse.setMessage("No existe la sección para poder actualizar");
+                apiResponse.setCode("SECTION_DOES_NOT_EXISTS");
             }
-            if(seccionDTO.getName()!=null) {
-                seccionEntity.setName(seccionDTO.getName());
-            }
-            seccionEntity.setUpdateAt(seccionDTO.getUpdateAt());
-            //Update in database
-            apiResponse.setSuccessful(true);
-            apiResponse.setMessage("ok");
-            apiResponse.setData(this.seccionRepository.save(seccionEntity).getSeccionDTO());
-            return apiResponse;
-        }else{
-            log.warn("No se actualizó el registro");
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("SECTION_DOES_NOT_EXISTS");
-            apiResponse.setMessage("No existe la sección para poder actualizar");
+        } else{
+            apiResponse.setMessage("No se puedo actualizar, sección existente");
+            apiResponse.setCode("SECTION_EXISTS");
         }
+        log.warn("No se actualizó el registro");
+        apiResponse.setSuccessful(false);
         return apiResponse;
     }
 
@@ -123,6 +110,7 @@ public class SeccionService {
     //id dto=uniqueIdentifier Entity
     public ApiResponse<SeccionDTO> delete(String id){
         ApiResponse<SeccionDTO> apiResponse = new ApiResponse<>();
+        //Verifica que el id y el status sean válidos
         Optional<SeccionEntity> optionalSeccionEntity=this.seccionRepository.findByUniqueIdentifier(id);
         if(optionalSeccionEntity.isPresent()){
             SeccionEntity seccionEntity =optionalSeccionEntity.get();

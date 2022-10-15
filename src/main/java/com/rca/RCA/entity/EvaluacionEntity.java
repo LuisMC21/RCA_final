@@ -2,8 +2,6 @@ package com.rca.RCA.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.rca.RCA.type.DocenteDTO;
-import com.rca.RCA.type.DocentexCursoDTO;
 import com.rca.RCA.type.EvaluacionDTO;
 import lombok.Data;
 
@@ -57,7 +55,7 @@ public class EvaluacionEntity extends AuditoryEntity{
 
     public void setEvaluacionDTO(EvaluacionDTO evaluacionDTO){
         this.setUniqueIdentifier(evaluacionDTO.getId());
-        this.code= evaluacionDTO.getCode();
+        this.code=evaluacionDTO.getCode();
         this.date=evaluacionDTO.getDate();
         this.note=evaluacionDTO.getNote();
         this.setStatus(evaluacionDTO.getStatus());
