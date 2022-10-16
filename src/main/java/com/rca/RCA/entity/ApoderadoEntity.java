@@ -26,7 +26,7 @@ public class ApoderadoEntity extends AuditoryEntity{
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UsuarioEntity usuarioEntity;
 
-    @OneToMany(mappedBy = "apoderadoEntity", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "apoderadoEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<AlumnoEntity> alumnoEntities = new HashSet<>();
 
     public ApoderadoDTO getApoderadoDTO(){

@@ -30,7 +30,7 @@ public class DocenteEntity extends AuditoryEntity{
     @Column(name = "specialty")
     private String specialty;
     //Cursos del docente
-    @OneToMany(mappedBy = "docenteEntity", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "docenteEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<DocentexCursoEntity> docentexCursoEntities = new HashSet<>();
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "id")

@@ -1,5 +1,6 @@
 package com.rca.RCA.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rca.RCA.type.ImagenDTO;
 import lombok.Data;
 
@@ -20,8 +21,9 @@ public class ImagenEntity extends AuditoryEntity{
     @Column(name = "route")
     private String route;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private UsuarioEntity usuarioEntity;
 
     public ImagenDTO getImagenDTO(){

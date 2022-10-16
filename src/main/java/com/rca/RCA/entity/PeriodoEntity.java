@@ -36,7 +36,7 @@ public class PeriodoEntity extends AuditoryEntity{
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Anio_LectivoEntity anio_lectivoEntity;
 
-    @OneToMany(mappedBy = "periodoEntity", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "periodoEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<ClaseEntity> claseEntities= new HashSet<ClaseEntity>();
 
     public PeriodoDTO getPeriodoDTO(){

@@ -23,7 +23,7 @@ public class RolEntity extends AuditoryEntity{
     @Column(name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "rolEntity", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "rolEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<UsuarioEntity> usuarioEntities = new HashSet<>();
 
     public RolDTO getRolDTO(){

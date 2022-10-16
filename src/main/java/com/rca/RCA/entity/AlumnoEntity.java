@@ -1,13 +1,11 @@
 package com.rca.RCA.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rca.RCA.type.AlumnoDTO;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Data
@@ -39,17 +37,18 @@ public class AlumnoEntity extends AuditoryEntity{
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UsuarioEntity usuarioEntity;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "apoderado_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private ApoderadoEntity apoderadoEntity;
 
-    @OneToMany(mappedBy = "alumnoEntity", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "alumnoEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<AsistenciaEntity> asistenciaEntities = new HashSet<>();
 
-    @OneToMany(mappedBy = "alumnoEntity", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "alumnoEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<EvaluacionEntity> evaluacionEntities = new HashSet<>();
 
-    @OneToMany(mappedBy = "alumnoEntity", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "alumnoEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<MatriculaEntity> matriculaEntities = new HashSet<>();
 
     public AlumnoDTO getAlumnoDTO(){

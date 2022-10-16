@@ -32,10 +32,10 @@ public class DocentexCursoEntity extends AuditoryEntity{
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private CursoEntity cursoEntity;
     //Evaluaciones del docente
-    @OneToMany(mappedBy = "docentexCursoEntity", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "docentexCursoEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<EvaluacionEntity> evaluacionEntities = new HashSet<>();
 
-    @OneToMany(mappedBy = "docentexCursoEntity", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "docentexCursoEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<ClaseEntity> claseEntities = new HashSet<>();
 
     public DocentexCursoDTO getDocentexCursoDTO(){

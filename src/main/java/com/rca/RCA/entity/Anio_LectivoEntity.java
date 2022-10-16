@@ -23,10 +23,10 @@ public class Anio_LectivoEntity extends AuditoryEntity{
     @Column(name = "name", length = 4)
     private String name;
     //Matrículas del año
-    @OneToMany(mappedBy = "anio_lectivoEntity", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "anio_lectivoEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<MatriculaEntity> matriculaEntities = new HashSet<>();
     //Periodos del año
-    @OneToMany(mappedBy = "anio_lectivoEntity", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "anio_lectivoEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<PeriodoEntity> periodoEntities = new HashSet<>();
 
     public Anio_LectivoDTO getAnio_LectivoDTO(){

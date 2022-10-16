@@ -20,7 +20,7 @@ public class SeccionEntity extends AuditoryEntity {
     @Column(name = "name")
     private Character name;
 
-    @OneToMany(mappedBy = "seccionEntity", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "seccionEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<SeccionxGradoEntity> seccionxGradoEntities = new HashSet<>();
 
     public SeccionDTO getSeccionDTO(){

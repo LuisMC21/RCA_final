@@ -1,5 +1,6 @@
 package com.rca.RCA.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rca.RCA.type.ClaseDTO;
 import lombok.Data;
 
@@ -19,16 +20,19 @@ public class ClaseEntity extends AuditoryEntity{
     @Column(name = "date")
     private String date;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "docentexcurso_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private DocentexCursoEntity docentexCursoEntity;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "periodo_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private PeriodoEntity periodoEntity;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "seccionxgrado_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private SeccionxGradoEntity seccionxGradoEntity;
 
     public ClaseDTO getClaseDTO(){

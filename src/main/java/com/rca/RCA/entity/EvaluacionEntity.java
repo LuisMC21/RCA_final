@@ -38,8 +38,9 @@ public class EvaluacionEntity extends AuditoryEntity{
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private DocentexCursoEntity docentexCursoEntity;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "alumno_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private AlumnoEntity alumnoEntity;
 
     public EvaluacionDTO getEvaluacionDTO(){

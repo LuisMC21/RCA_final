@@ -22,18 +22,18 @@ public class SeccionxGradoEntity extends AuditoryEntity {
     @Column(name = "code", length = 15)
     private String code;
     //Grado al que pertenece
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "grado_id", referencedColumnName = "id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private GradoEntity gradoEntity;
     //Sección a la que pertenece
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "seccion_id", referencedColumnName = "id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private SeccionEntity seccionEntity;
 
     //Matrículas por grado y sección
-    @OneToMany(mappedBy = "seccionxGradoEntity", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "seccionxGradoEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<MatriculaEntity> matriculaEntities = new HashSet<>();
 
     public SeccionxGradoDTO getSeccionxGradoDTO(){

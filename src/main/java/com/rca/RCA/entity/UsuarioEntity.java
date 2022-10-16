@@ -1,5 +1,6 @@
 package com.rca.RCA.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rca.RCA.type.UsuarioDTO;
 import lombok.Data;
 
@@ -34,14 +35,15 @@ public class UsuarioEntity extends AuditoryEntity{
     @Column(name = "email_inst")
     private String email_inst;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "rol_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private RolEntity rolEntity;
 
-    @OneToMany(mappedBy = "usuarioEntity", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "usuarioEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<ImagenEntity> imagenEntities = new HashSet<>();
 
-    @OneToMany(mappedBy = "usuarioEntity", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "usuarioEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<NoticiaEntity> noticiaEntities = new HashSet<>();
 
     @OneToOne(mappedBy = "usuarioEntity")

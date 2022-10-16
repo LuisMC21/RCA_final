@@ -1,14 +1,10 @@
 package com.rca.RCA.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.rca.RCA.type.NoticiaDTO;
-import com.rca.RCA.type.NoticiaDTO;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rca.RCA.type.NoticiaDTO;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @Entity
@@ -31,10 +27,10 @@ public class NoticiaEntity extends AuditoryEntity{
     @Column(name = "date")
     private String date;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private UsuarioEntity usuarioEntity;
-
 
     public NoticiaDTO getNoticiaDTO(){
         NoticiaDTO NoticiaDTO = new NoticiaDTO();
