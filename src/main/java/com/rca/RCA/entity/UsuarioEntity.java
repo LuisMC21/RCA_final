@@ -4,6 +4,8 @@ import com.rca.RCA.type.UsuarioDTO;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
@@ -35,6 +37,21 @@ public class UsuarioEntity extends AuditoryEntity{
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
     @JoinColumn(name = "idrol")
     private RolEntity rolEntity;
+
+    @OneToMany(mappedBy = "imagenEntity", cascade=CascadeType.ALL)
+    private Set<ImagenEntity> imagenEntities = new HashSet<>();
+
+    @OneToMany(mappedBy = "noticiaEntity", cascade=CascadeType.ALL)
+    private Set<NoticiaEntity> noticiaEntities = new HashSet<>();
+
+    @OneToOne(mappedBy = "usuarioEntity")
+    private ApoderadoEntity apoderadoEntity;
+
+    @OneToOne(mappedBy = "usuarioEntity")
+    private AlumnoEntity alumnoEntity;
+
+    @OneToOne(mappedBy = "usuarioEntity")
+    private DocenteEntity docenteEntity;
 
 
     public UsuarioDTO getUsuarioDTO(){

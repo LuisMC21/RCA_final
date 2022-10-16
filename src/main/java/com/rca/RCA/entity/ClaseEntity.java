@@ -19,11 +19,26 @@ public class ClaseEntity extends AuditoryEntity{
     @Column(name = "date")
     private String date;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
+    @JoinColumn(name = "id")
+    private DocentexCursoEntity docentexCursoEntity;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
+    @JoinColumn(name = "id")
+    private PeriodoEntity periodoEntity;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
+    @JoinColumn(name = "id")
+    private SeccionxGradoEntity seccionxGradoEntity;
+
     public ClaseDTO getClaseDTO(){
         ClaseDTO ClaseDTO = new ClaseDTO();
         ClaseDTO.setId(this.getUniqueIdentifier());
         ClaseDTO.setCode(this.code);
         ClaseDTO.setDate(this.date);
+        ClaseDTO.setPeriodoDTO(this.periodoEntity.getPeriodoDTO());
+        ClaseDTO.setSeccionxGradoDTO(this.seccionxGradoEntity.getSeccionxGradoDTO());
+        ClaseDTO.setDocentexCursoDTO(this.docentexCursoEntity.getDocentexCursoDTO());
         ClaseDTO.setStatus(this.getStatus());
         ClaseDTO.setCreateAt(this.getCreateAt());
         ClaseDTO.setUpdateAt(this.getUpdateAt());

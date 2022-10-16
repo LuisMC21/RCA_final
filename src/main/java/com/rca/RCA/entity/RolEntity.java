@@ -6,7 +6,9 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Entity
@@ -20,6 +22,9 @@ public class RolEntity extends AuditoryEntity{
     private String code;
     @Column(name = "name")
     private String name;
+
+    @OneToMany(mappedBy = "usuarioEntity", cascade=CascadeType.ALL)
+    private Set<UsuarioEntity> usuarioEntities = new HashSet<>();
 
 
 

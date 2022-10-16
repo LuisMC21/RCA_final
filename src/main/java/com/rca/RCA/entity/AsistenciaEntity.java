@@ -22,12 +22,17 @@ public class AsistenciaEntity extends AuditoryEntity{
     @JoinColumn(name = "idstudent")
     private AlumnoEntity alumnoEntity;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
+    @JoinColumn(name = "idclase")
+    private ClaseEntity claseEntity;
+
     public AsistenciaDTO getAsistenciaDTO(){
         AsistenciaDTO AsistenciaDTO = new AsistenciaDTO();
         AsistenciaDTO.setId(this.getUniqueIdentifier());
         AsistenciaDTO.setCode(this.code);
         AsistenciaDTO.setType(this.type);
         AsistenciaDTO.setAlumnoDTO(this.alumnoEntity.getAlumnoDTO());
+        AsistenciaDTO.setClaseDTO(this.claseEntity.getClaseDTO());
         AsistenciaDTO.setStatus(this.getStatus());
         AsistenciaDTO.setCreateAt(this.getCreateAt());
         AsistenciaDTO.setUpdateAt(this.getUpdateAt());
