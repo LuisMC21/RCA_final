@@ -22,7 +22,10 @@ public class RolEntity extends AuditoryEntity{
     private String code;
     @Column(name = "name")
     private String name;
-    
+
+    @OneToMany(mappedBy = "rolEntity", cascade=CascadeType.ALL)
+    private Set<UsuarioEntity> usuarioEntities = new HashSet<>();
+
     public RolDTO getRolDTO(){
         RolDTO RolDTO = new RolDTO();
         RolDTO.setId(this.getUniqueIdentifier());
