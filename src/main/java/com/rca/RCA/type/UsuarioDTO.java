@@ -14,7 +14,4 @@ public class UsuarioDTO extends AuditoryDTO{
     private String gra_inst;
     private String email_ins;
     private RolDTO rolDTO;
-    private ApoderadoDTO apoderadoDTO;
-    private AlumnoDTO alumnoDTO;
-    private DocenteDTO docenteDTO;
 }

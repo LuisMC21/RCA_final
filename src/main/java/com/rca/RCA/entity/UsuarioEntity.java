@@ -36,8 +36,7 @@ public class UsuarioEntity extends AuditoryEntity{
     private String email_inst;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "rol_id")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JoinColumn(name = "rol_id", referencedColumnName = "id")
     private RolEntity rolEntity;
 
     @OneToMany(mappedBy = "usuarioEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
@@ -46,14 +45,7 @@ public class UsuarioEntity extends AuditoryEntity{
     @OneToMany(mappedBy = "usuarioEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<NoticiaEntity> noticiaEntities = new HashSet<>();
 
-    @OneToOne(mappedBy = "usuarioEntity")
-    private ApoderadoEntity apoderadoEntity;
 
-    @OneToOne(mappedBy = "usuarioEntity")
-    private AlumnoEntity alumnoEntity;
-
-    @OneToOne(mappedBy = "usuarioEntity")
-    private DocenteEntity docenteEntity;
 
 
     public UsuarioDTO getUsuarioDTO(){
@@ -69,9 +61,6 @@ public class UsuarioEntity extends AuditoryEntity{
         usuarioDTO.setGra_inst(this.gra_inst);
         usuarioDTO.setEmail_ins(this.email_inst);
         usuarioDTO.setRolDTO(this.rolEntity.getRolDTO());
-        usuarioDTO.setApoderadoDTO(this.apoderadoEntity.getApoderadoDTO());
-        usuarioDTO.setAlumnoDTO(this.alumnoEntity.getAlumnoDTO());
-        usuarioDTO.setDocenteDTO(this.docenteEntity.getDocenteDTO());
         usuarioDTO.setStatus(this.getStatus());
         usuarioDTO.setCreateAt(this.getCreateAt());
         usuarioDTO.setUpdateAt(this.getUpdateAt());

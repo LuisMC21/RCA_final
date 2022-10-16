@@ -1,4 +1,4 @@
-/*package com.rca.RCA.controller;
+package com.rca.RCA.controller;
 
 import com.rca.RCA.service.UsuarioService;
 import com.rca.RCA.type.ApiResponse;
@@ -42,5 +42,3 @@ public class UsuarioRESTController {
         this.usuarioService.delete(id);
     }
 }
-
- */
