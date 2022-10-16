@@ -2,12 +2,13 @@ package com.rca.RCA.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.rca.RCA.type.AlumnoDTO;
-import com.rca.RCA.type.AlumnoDTO;
 import lombok.Data;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Entity
@@ -41,6 +42,12 @@ public class AlumnoEntity extends AuditoryEntity{
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
     @JoinColumn(name = "idapoderado")
     private ApoderadoEntity apoderadoEntity;
+
+    @OneToMany(mappedBy = "alumnoEntity", cascade=CascadeType.ALL)
+    private Set<AsistenciaEntity> asistenciaEntities = new HashSet<>();
+
+    @OneToMany(mappedBy = "alumnoEntity", cascade=CascadeType.ALL)
+    private Set<EvaluacionEntity> evaluacionEntities = new HashSet<>();
 
     public AlumnoDTO getAlumnoDTO(){
         AlumnoDTO AlumnoDTO = new AlumnoDTO();

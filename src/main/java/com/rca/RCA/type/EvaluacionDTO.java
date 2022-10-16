@@ -11,4 +11,5 @@ public class EvaluacionDTO extends AuditoryDTO{
     private String note;
     private PeriodoDTO periodoDTO;
     private DocentexCursoDTO docentexCursoDTO;
+    private AlumnoDTO alumnoDTO;
 }

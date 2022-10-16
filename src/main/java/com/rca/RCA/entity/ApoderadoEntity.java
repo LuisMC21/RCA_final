@@ -7,7 +7,9 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Entity
@@ -25,6 +27,9 @@ public class ApoderadoEntity extends AuditoryEntity{
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "iduser", referencedColumnName = "iduser")
     private UsuarioEntity usuarioEntity;
+
+    @OneToMany(mappedBy = "apoderadoEntity", cascade=CascadeType.ALL)
+    private Set<AlumnoEntity> alumnoEntities = new HashSet<>();
 
     public ApoderadoDTO getApoderadoDTO(){
         ApoderadoDTO ApoderadoDTO = new ApoderadoDTO();
