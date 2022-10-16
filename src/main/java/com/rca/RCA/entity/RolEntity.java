@@ -26,8 +26,6 @@ public class RolEntity extends AuditoryEntity{
     @OneToMany(mappedBy = "rolEntity", cascade=CascadeType.ALL)
     private Set<UsuarioEntity> usuarioEntities = new HashSet<>();
 
-
-
     public RolDTO getRolDTO(){
         RolDTO RolDTO = new RolDTO();
         RolDTO.setId(this.getUniqueIdentifier());
