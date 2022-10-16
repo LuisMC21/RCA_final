@@ -74,7 +74,7 @@ public class RolService {
             //validamos que no se repita
             Optional<RolEntity> optionalRolEntityValidation = this.rolRepository.findByName(RolDTO.getName(), RolDTO.getName());
             if (optionalRolEntityValidation.isPresent()) {
-                System.out.println("No se actulizo, la categoria existe");
+                System.out.println("No se actulizo, el rol existe");
                 return;
             }
             RolEntity RolEntity = optionalRolEntity.get();
@@ -89,7 +89,7 @@ public class RolService {
             //update in database
             this.rolRepository.save(RolEntity);
         } else {
-            System.out.println("No existe la categoria para poder actualizar");
+            System.out.println("No existe el rol para poder actualizar");
         }
     }
 

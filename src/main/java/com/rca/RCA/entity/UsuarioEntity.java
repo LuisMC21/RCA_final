@@ -25,8 +25,8 @@ public class UsuarioEntity extends AuditoryEntity{
     private String ma_surname;
     @Column(name = "type_doc")
     private String type_doc;
-    @Column(name = "num_doc")
-    private String num_doc;
+    @Column(name = "numdoc")
+    private String numdoc;
     @Column(name = "tel")
     private String tel;
     @Column(name = "gra_inst")
@@ -62,7 +62,7 @@ public class UsuarioEntity extends AuditoryEntity{
         UsuarioDTO.setPa_surname(this.pa_surname);
         UsuarioDTO.setMa_surname(this.ma_surname);
         UsuarioDTO.setType_doc(this.type_doc);
-        UsuarioDTO.setNum_doc(this.num_doc);
+        UsuarioDTO.setNumdoc(this.numdoc);
         UsuarioDTO.setTel(this.tel);
         UsuarioDTO.setGra_inst(this.gra_inst);
         UsuarioDTO.setEmail_ins(this.email_inst);
@@ -81,7 +81,7 @@ public class UsuarioEntity extends AuditoryEntity{
         this.pa_surname = UsuarioDTO.getPa_surname();
         this.ma_surname = UsuarioDTO.getMa_surname();
         this.type_doc = UsuarioDTO.getType_doc();
-        this.num_doc = UsuarioDTO.getNum_doc();
+        this.numdoc = UsuarioDTO.getNumdoc();
         this.tel = UsuarioDTO.getTel();
         this.gra_inst = UsuarioDTO.getGra_inst();
         this.email_inst = UsuarioDTO.getEmail_ins();
