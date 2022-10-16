@@ -16,7 +16,7 @@ import java.util.Set;
 public class AlumnoEntity extends AuditoryEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idstudent", unique = true, nullable = false)
+    @Column(name = "id", unique = true, nullable = false)
     private Integer id;
     @Column(name = "code", length = 15)
     private String code;
@@ -36,11 +36,11 @@ public class AlumnoEntity extends AuditoryEntity{
     private String type_insurance;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "iduser", referencedColumnName = "iduser")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UsuarioEntity usuarioEntity;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "idapoderado")
+    @JoinColumn(name = "apoderado_id")
     private ApoderadoEntity apoderadoEntity;
 
     @OneToMany(mappedBy = "alumnoEntity", cascade=CascadeType.ALL)
@@ -48,6 +48,9 @@ public class AlumnoEntity extends AuditoryEntity{
 
     @OneToMany(mappedBy = "alumnoEntity", cascade=CascadeType.ALL)
     private Set<EvaluacionEntity> evaluacionEntities = new HashSet<>();
+
+    @OneToMany(mappedBy = "alumnoEntity", cascade=CascadeType.ALL)
+    private Set<MatriculaEntity> matriculaEntities = new HashSet<>();
 
     public AlumnoDTO getAlumnoDTO(){
         AlumnoDTO AlumnoDTO = new AlumnoDTO();

@@ -1,7 +1,5 @@
 package com.rca.RCA.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.rca.RCA.type.ApoderadoDTO;
 import com.rca.RCA.type.ApoderadoDTO;
 import lombok.Data;
 
@@ -17,7 +15,7 @@ import java.util.Set;
 public class ApoderadoEntity extends AuditoryEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idapoderado", unique = true, nullable = false)
+    @Column(name = "id", unique = true, nullable = false)
     private Integer id;
     @Column(name = "code", length = 15)
     private String code;
@@ -25,7 +23,7 @@ public class ApoderadoEntity extends AuditoryEntity{
     private String email;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "iduser", referencedColumnName = "iduser")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UsuarioEntity usuarioEntity;
 
     @OneToMany(mappedBy = "apoderadoEntity", cascade=CascadeType.ALL)

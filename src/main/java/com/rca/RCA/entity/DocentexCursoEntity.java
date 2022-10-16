@@ -19,7 +19,7 @@ public class DocentexCursoEntity extends AuditoryEntity{
     @Column(name = "id", unique = true, nullable = false)
     private Integer id;
     //Código
-    @Column(name = "cod", length = 15)
+    @Column(name = "code", length = 15)
     private String code;
     //Docente al que le pertenece
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -34,6 +34,9 @@ public class DocentexCursoEntity extends AuditoryEntity{
     //Evaluaciones del docente
     @OneToMany(mappedBy = "docentexCursoEntity", cascade=CascadeType.ALL)
     private Set<EvaluacionEntity> evaluacionEntities = new HashSet<>();
+
+    @OneToMany(mappedBy = "docentexCursoEntity", cascade=CascadeType.ALL)
+    private Set<ClaseEntity> claseEntities = new HashSet<>();
 
     public DocentexCursoDTO getDocentexCursoDTO(){
         DocentexCursoDTO docentexCursoDTO = new DocentexCursoDTO();

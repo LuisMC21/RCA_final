@@ -15,9 +15,9 @@ public class GradoEntity extends AuditoryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true, nullable = false)
     private Integer id;
-    @Column(name = "cod", length = 15)
+    @Column(name = "code", length = 15)
     private String code;
-    @Column(name = "nom")
+    @Column(name = "name")
     private Character name;
 
     @OneToMany(mappedBy = "gradoEntity", cascade=CascadeType.ALL)

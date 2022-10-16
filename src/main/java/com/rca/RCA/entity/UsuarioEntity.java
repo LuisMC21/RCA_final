@@ -13,7 +13,7 @@ import java.util.Set;
 public class UsuarioEntity extends AuditoryEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "iduser", unique = true, nullable = false)
+    @Column(name = "id", unique = true, nullable = false)
     private Integer id;
     @Column(name = "code", length = 15)
     private String code;
@@ -35,13 +35,13 @@ public class UsuarioEntity extends AuditoryEntity{
     private String email_inst;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "idrol")
+    @JoinColumn(name = "rol_id")
     private RolEntity rolEntity;
 
-    @OneToMany(mappedBy = "imagenEntity", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "usuarioEntity", cascade=CascadeType.ALL)
     private Set<ImagenEntity> imagenEntities = new HashSet<>();
 
-    @OneToMany(mappedBy = "noticiaEntity", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "usuarioEntity", cascade=CascadeType.ALL)
     private Set<NoticiaEntity> noticiaEntities = new HashSet<>();
 
     @OneToOne(mappedBy = "usuarioEntity")
@@ -55,23 +55,26 @@ public class UsuarioEntity extends AuditoryEntity{
 
 
     public UsuarioDTO getUsuarioDTO(){
-        UsuarioDTO UsuarioDTO = new UsuarioDTO();
-        UsuarioDTO.setId(this.getUniqueIdentifier());
-        UsuarioDTO.setCode(this.code);
-        UsuarioDTO.setName(this.name);
-        UsuarioDTO.setPa_surname(this.pa_surname);
-        UsuarioDTO.setMa_surname(this.ma_surname);
-        UsuarioDTO.setType_doc(this.type_doc);
-        UsuarioDTO.setNumdoc(this.numdoc);
-        UsuarioDTO.setTel(this.tel);
-        UsuarioDTO.setGra_inst(this.gra_inst);
-        UsuarioDTO.setEmail_ins(this.email_inst);
-        UsuarioDTO.setRolDTO(this.rolEntity.getRolDTO());
-        UsuarioDTO.setStatus(this.getStatus());
-        UsuarioDTO.setCreateAt(this.getCreateAt());
-        UsuarioDTO.setUpdateAt(this.getUpdateAt());
-        UsuarioDTO.setDeleteAt(this.getDeleteAt());
-        return UsuarioDTO;
+        UsuarioDTO usuarioDTO = new UsuarioDTO();
+        usuarioDTO.setId(this.getUniqueIdentifier());
+        usuarioDTO.setCode(this.code);
+        usuarioDTO.setName(this.name);
+        usuarioDTO.setPa_surname(this.pa_surname);
+        usuarioDTO.setMa_surname(this.ma_surname);
+        usuarioDTO.setType_doc(this.type_doc);
+        usuarioDTO.setNumdoc(this.numdoc);
+        usuarioDTO.setTel(this.tel);
+        usuarioDTO.setGra_inst(this.gra_inst);
+        usuarioDTO.setEmail_ins(this.email_inst);
+        usuarioDTO.setRolDTO(this.rolEntity.getRolDTO());
+        usuarioDTO.setApoderadoDTO(this.apoderadoEntity.getApoderadoDTO());
+        usuarioDTO.setAlumnoDTO(this.alumnoEntity.getAlumnoDTO());
+        usuarioDTO.setDocenteDTO(this.docenteEntity.getDocenteDTO());
+        usuarioDTO.setStatus(this.getStatus());
+        usuarioDTO.setCreateAt(this.getCreateAt());
+        usuarioDTO.setUpdateAt(this.getUpdateAt());
+        usuarioDTO.setDeleteAt(this.getDeleteAt());
+        return usuarioDTO;
     }
 
     public void setUsuarioDTO(UsuarioDTO UsuarioDTO){

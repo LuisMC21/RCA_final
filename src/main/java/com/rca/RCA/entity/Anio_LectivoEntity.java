@@ -17,10 +17,10 @@ public class Anio_LectivoEntity extends AuditoryEntity{
     @Column(name = "id", unique = true, nullable = false)
     private Integer id;
     //Código
-    @Column(name = "cod", length = 15)
+    @Column(name = "code", length = 15)
     private String code;
     //Nombre del año
-    @Column(name = "nom", length = 4)
+    @Column(name = "name", length = 4)
     private String name;
     //Matrículas del año
     @OneToMany(mappedBy = "anio_lectivoEntity", cascade=CascadeType.ALL)

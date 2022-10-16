@@ -10,4 +10,5 @@ public class MatriculaDTO extends AuditoryDTO{
     private Date date;
     private SeccionxGradoDTO seccionxGradoDTO;
     private Anio_LectivoDTO anio_lectivoDTO;
+    private AlumnoDTO alumnoDTO;
 }

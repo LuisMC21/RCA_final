@@ -16,15 +16,15 @@ public class MatriculaEntity extends AuditoryEntity{
     @Column(name = "id", unique = true, nullable = false)
     private Integer id;
     //Código
-    @Column(name = "cod", length = 15)
+    @Column(name = "code", length = 15)
     private String code;
     //Fecha
     @JsonFormat(pattern = "YYYY-MM-dd")
-    @Column(name = "fec")
+    @Column(name = "date")
     private Date date;
     //Sección y grado
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "seccionxgrado", referencedColumnName = "id")
+    @JoinColumn(name = "seccionxgrado_id", referencedColumnName = "id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private SeccionxGradoEntity seccionxGradoEntity;
     //Año lectivo
@@ -33,6 +33,11 @@ public class MatriculaEntity extends AuditoryEntity{
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Anio_LectivoEntity anio_lectivoEntity;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "alumno_id", referencedColumnName = "id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private AlumnoEntity alumnoEntity;
+
     public MatriculaDTO getMatriculaDTO(){
         MatriculaDTO matriculaDTO = new MatriculaDTO();
         matriculaDTO.setId(this.getUniqueIdentifier());
@@ -40,6 +45,7 @@ public class MatriculaEntity extends AuditoryEntity{
         matriculaDTO.setDate(this.date);
         matriculaDTO.setSeccionxGradoDTO(this.seccionxGradoEntity.getSeccionxGradoDTO());
         matriculaDTO.setAnio_lectivoDTO(this.anio_lectivoEntity.getAnio_LectivoDTO());
+        matriculaDTO.setAlumnoDTO(this.alumnoEntity.getAlumnoDTO());
         matriculaDTO.setStatus(this.getStatus());
         matriculaDTO.setCreateAt(this.getCreateAt());
         matriculaDTO.setUpdateAt(this.getUpdateAt());

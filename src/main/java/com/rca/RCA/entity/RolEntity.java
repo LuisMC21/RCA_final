@@ -16,7 +16,7 @@ import java.util.Set;
 public class RolEntity extends AuditoryEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idrol", unique = true, nullable = false)
+    @Column(name = "id", unique = true, nullable = false)
     private Integer id;
     @Column(name = "code", length = 15)
     private String code;

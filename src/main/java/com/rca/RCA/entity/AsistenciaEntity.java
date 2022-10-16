@@ -16,21 +16,21 @@ public class AsistenciaEntity extends AuditoryEntity{
     @Column(name = "code", length = 15)
     private String code;
     @Column(name = "date")
-    private String type;
+    private String date;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "idstudent")
+    @JoinColumn(name = "alumno_id")
     private AlumnoEntity alumnoEntity;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "idclase")
+    @JoinColumn(name = "clase_id")
     private ClaseEntity claseEntity;
 
     public AsistenciaDTO getAsistenciaDTO(){
         AsistenciaDTO AsistenciaDTO = new AsistenciaDTO();
         AsistenciaDTO.setId(this.getUniqueIdentifier());
         AsistenciaDTO.setCode(this.code);
-        AsistenciaDTO.setType(this.type);
+        AsistenciaDTO.setType(this.date);
         AsistenciaDTO.setAlumnoDTO(this.alumnoEntity.getAlumnoDTO());
         AsistenciaDTO.setClaseDTO(this.claseEntity.getClaseDTO());
         AsistenciaDTO.setStatus(this.getStatus());
@@ -43,7 +43,7 @@ public class AsistenciaEntity extends AuditoryEntity{
     public void setAsistenciaDTO(AsistenciaDTO AsistenciaDTO){
         this.setUniqueIdentifier(AsistenciaDTO.getId());
         this.code = AsistenciaDTO.getCode();
-        this.type = AsistenciaDTO.getType();
+        this.date = AsistenciaDTO.getType();
         this.setStatus(AsistenciaDTO.getStatus());
         this.setCreateAt(AsistenciaDTO.getCreateAt());
         this.setUpdateAt(AsistenciaDTO.getUpdateAt());

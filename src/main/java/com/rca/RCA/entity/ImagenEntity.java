@@ -1,12 +1,9 @@
 package com.rca.RCA.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.rca.RCA.type.ImagenDTO;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @Entity
@@ -14,7 +11,7 @@ import java.util.List;
 public class ImagenEntity extends AuditoryEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idimagen", unique = true, nullable = false)
+    @Column(name = "id", unique = true, nullable = false)
     private Integer id;
     @Column(name = "code", length = 15)
     private String code;
@@ -24,7 +21,7 @@ public class ImagenEntity extends AuditoryEntity{
     private String route;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "iduser")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UsuarioEntity usuarioEntity;
 
     public ImagenDTO getImagenDTO(){

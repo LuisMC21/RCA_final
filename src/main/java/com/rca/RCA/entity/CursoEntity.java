@@ -17,10 +17,10 @@ public class CursoEntity extends AuditoryEntity{
     @Column(name = "id", unique = true, nullable = false)
     private Integer id;
     //Código
-    @Column(name = "cod", length = 15)
+    @Column(name = "code", length = 15)
     private String code;
     //Nombre del curso
-    @Column(name = "nom")
+    @Column(name = "name")
     private Character name;
     //Docentes del curso
     @OneToMany(mappedBy = "cursoEntity", cascade=CascadeType.ALL)

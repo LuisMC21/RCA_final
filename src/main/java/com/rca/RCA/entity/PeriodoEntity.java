@@ -7,6 +7,8 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
@@ -17,22 +19,25 @@ public class PeriodoEntity extends AuditoryEntity{
     @Column(name = "id", unique = true, nullable = false)
     private Integer id;
     //Código
-    @Column(name = "cod", length = 15)
+    @Column(name = "code", length = 15)
     private String code;
     //Fecha inicial
     @JsonFormat(pattern = "YYYY-MM-dd")
-    @Column(name = "fec_ini")
+    @Column(name = "date_start")
     private Date date_start;
 
     //Fecha final
     @JsonFormat(pattern = "YYYY-MM-dd")
-    @Column(name = "fec_end")
+    @Column(name = "date_end")
     private Date date_end;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "anio_lectivo_id", referencedColumnName = "id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Anio_LectivoEntity anio_lectivoEntity;
+
+    @OneToMany(mappedBy = "periodoEntity", cascade=CascadeType.ALL)
+    private Set<ClaseEntity> claseEntities= new HashSet<ClaseEntity>();
 
     public PeriodoDTO getPeriodoDTO(){
         PeriodoDTO periodoDTO = new PeriodoDTO();

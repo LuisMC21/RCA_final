@@ -18,20 +18,23 @@ public class DocenteEntity extends AuditoryEntity{
     @Column(name = "id", unique = true, nullable = false)
     private Integer id;
     //Código
-    @Column(name = "cod", length = 15)
+    @Column(name = "code", length = 15)
     private String code;
     //Años de experiencia
-    @Column(name = "exp", length = 40)
+    @Column(name = "experience", length = 40)
     private String experience;
     //Dosis de vacuna COVID
-    @Column(name = "vac")
+    @Column(name = "dose")
     private Character dose;
     //Especialidad
-    @Column(name = "espec")
+    @Column(name = "specialty")
     private String specialty;
     //Cursos del docente
     @OneToMany(mappedBy = "docenteEntity", cascade=CascadeType.ALL)
     private Set<DocentexCursoEntity> docentexCursoEntities = new HashSet<>();
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private UsuarioEntity usuarioEntity;
 
     public DocenteDTO getDocenteDTO(){
         DocenteDTO docenteDTO = new DocenteDTO();

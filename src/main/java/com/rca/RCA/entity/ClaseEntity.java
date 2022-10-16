@@ -12,7 +12,7 @@ public class ClaseEntity extends AuditoryEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idclase", unique = true, nullable = false)
+    @Column(name = "id", unique = true, nullable = false)
     private Integer id;
     @Column(name = "code", length = 15)
     private String code;
@@ -20,15 +20,15 @@ public class ClaseEntity extends AuditoryEntity{
     private String date;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "docentexcurso_id")
     private DocentexCursoEntity docentexCursoEntity;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "periodo_id")
     private PeriodoEntity periodoEntity;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "seccionxgrado_id")
     private SeccionxGradoEntity seccionxGradoEntity;
 
     public ClaseDTO getClaseDTO(){

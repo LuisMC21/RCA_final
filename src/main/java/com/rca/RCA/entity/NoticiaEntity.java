@@ -16,7 +16,7 @@ import java.util.List;
 public class NoticiaEntity extends AuditoryEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idnews", unique = true, nullable = false)
+    @Column(name = "id", unique = true, nullable = false)
     private Integer id;
     @Column(name = "code", length = 40)
     private String code;
@@ -32,7 +32,7 @@ public class NoticiaEntity extends AuditoryEntity{
     private String date;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "iduser")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UsuarioEntity usuarioEntity;
 
 

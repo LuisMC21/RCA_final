@@ -18,14 +18,14 @@ public class EvaluacionEntity extends AuditoryEntity{
     @Column(name = "id", unique = true, nullable = false)
     private Integer id;
     //Código
-    @Column(name = "cod", length = 15)
+    @Column(name = "code", length = 15)
     private String code;
     //Fecha
     @JsonFormat(pattern = "YYYY-MM-dd")
-    @Column(name = "fec")
+    @Column(name = "date")
     private Date date;
     //Calificación (AD,A,B,C)
-    @Column(name = "nota", length = 3)
+    @Column(name = "note", length = 3)
     private String note;
     //Periodo
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -39,7 +39,7 @@ public class EvaluacionEntity extends AuditoryEntity{
     private DocentexCursoEntity docentexCursoEntity;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "idstudent")
+    @JoinColumn(name = "alumno_id")
     private AlumnoEntity alumnoEntity;
 
     public EvaluacionDTO getEvaluacionDTO(){
