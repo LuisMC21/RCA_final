@@ -38,6 +38,10 @@ public class EvaluacionEntity extends AuditoryEntity{
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private DocentexCursoEntity docentexCursoEntity;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
+    @JoinColumn(name = "idstudent")
+    private AlumnoEntity alumnoEntity;
+
     public EvaluacionDTO getEvaluacionDTO(){
         EvaluacionDTO evaluacionDTO = new EvaluacionDTO();
         evaluacionDTO.setId(this.getUniqueIdentifier());
@@ -46,6 +50,7 @@ public class EvaluacionEntity extends AuditoryEntity{
         evaluacionDTO.setNote(this.note);
         evaluacionDTO.setPeriodoDTO(this.periodoEntity.getPeriodoDTO());
         evaluacionDTO.setDocentexCursoDTO(this.docentexCursoEntity.getDocentexCursoDTO());
+        evaluacionDTO.setAlumnoDTO(this.alumnoEntity.getAlumnoDTO());
         evaluacionDTO.setStatus(this.getStatus());
         evaluacionDTO.setCreateAt(this.getCreateAt());
         evaluacionDTO.setUpdateAt(this.getUpdateAt());
