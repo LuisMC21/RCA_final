@@ -49,7 +49,7 @@ public class UsuarioService {
         UsuarioDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         UsuarioDTO.setCreateAt(LocalDateTime.now());
         //validamos
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByNum_doc(UsuarioDTO.getNum_doc());
+        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByNumdoc(UsuarioDTO.getNumdoc());
         if (optionalUsuarioEntity.isPresent()) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("Usuario_EXISTS");
@@ -72,7 +72,7 @@ public class UsuarioService {
         if (optionalUsuarioEntity.isPresent()) {
             UsuarioDTO.setUpdateAt(LocalDateTime.now());
             //validamos que no se repita
-            Optional<UsuarioEntity> optionalUsuarioEntityValidation = this.usuarioRepository.findByNum_doc(UsuarioDTO.getNum_doc(), UsuarioDTO.getId());
+            Optional<UsuarioEntity> optionalUsuarioEntityValidation = this.usuarioRepository.findByNumdoc(UsuarioDTO.getNumdoc(), UsuarioDTO.getId());
             if (optionalUsuarioEntityValidation.isPresent()) {
                 System.out.println("No se actulizo, la categoria existe");
                 return;
@@ -110,3 +110,5 @@ public class UsuarioService {
 }
 
  */
+
+
