@@ -34,7 +34,7 @@ public class PeriodoEntity extends AuditoryEntity{
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "anio_lectivo_id", referencedColumnName = "id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Anio_LectivoEntity anio_lectivoEntity;
+    private AnioLectivoEntity anio_lectivoEntity;
 
     @OneToMany(mappedBy = "periodoEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<ClaseEntity> claseEntities= new HashSet<ClaseEntity>();
@@ -45,7 +45,7 @@ public class PeriodoEntity extends AuditoryEntity{
         periodoDTO.setCode(this.code);
         periodoDTO.setDate_start(this.date_start);
         periodoDTO.setDate_end(this.date_end);
-        periodoDTO.setAnio_lectivoDTO(this.anio_lectivoEntity.getAnio_LectivoDTO());
+        periodoDTO.setAnio_lectivoDTO(this.anio_lectivoEntity.getAnioLectivoDTO());
         periodoDTO.setStatus(this.getStatus());
         periodoDTO.setCreateAt(this.getCreateAt());
         periodoDTO.setUpdateAt(this.getUpdateAt());

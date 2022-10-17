@@ -11,5 +11,5 @@ public class PeriodoDTO extends AuditoryDTO{
     private Date date_start;
     @JsonFormat(pattern = "YYYY-MM-dd")
     private Date date_end;
-    private Anio_LectivoDTO anio_lectivoDTO;
+    private AnioLectivoDTO anio_lectivoDTO;
 }

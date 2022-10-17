@@ -24,6 +24,8 @@ public class Code {
 
     public static final String ASIS_CODE = "ASIS";
     public static final int ASIS_LENGTH = 6;
+    public static final String SCHOOL_YEAR_CODE = "ANIO";
+    public static final int SCHOOL_YEAR_LENGTH = 7;
     public static final String SECTION_CODE = "SEC";
     public static final int SECTION_LENGTH = 6;
     public static final String SXG_CODE = "SG";

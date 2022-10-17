@@ -31,7 +31,7 @@ public class MatriculaEntity extends AuditoryEntity{
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "anio_lectivo_id", referencedColumnName = "id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Anio_LectivoEntity anio_lectivoEntity;
+    private AnioLectivoEntity anio_lectivoEntity;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "alumno_id", referencedColumnName = "id")
@@ -44,7 +44,7 @@ public class MatriculaEntity extends AuditoryEntity{
         matriculaDTO.setCode(this.code);
         matriculaDTO.setDate(this.date);
         matriculaDTO.setSeccionxGradoDTO(this.seccionxGradoEntity.getSeccionxGradoDTO());
-        matriculaDTO.setAnio_lectivoDTO(this.anio_lectivoEntity.getAnio_LectivoDTO());
+        matriculaDTO.setAnio_lectivoDTO(this.anio_lectivoEntity.getAnioLectivoDTO());
         matriculaDTO.setAlumnoDTO(this.alumnoEntity.getAlumnoDTO());
         matriculaDTO.setStatus(this.getStatus());
         matriculaDTO.setCreateAt(this.getCreateAt());
