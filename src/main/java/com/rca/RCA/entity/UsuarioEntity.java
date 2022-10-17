@@ -39,6 +39,9 @@ public class UsuarioEntity extends AuditoryEntity{
     @JoinColumn(name = "rol_id", referencedColumnName = "id")
     private RolEntity rolEntity;
 
+    @OneToOne(mappedBy = "usuarioEntity")
+    private ApoderadoEntity apoderadoEntity;
+
     @OneToMany(mappedBy = "usuarioEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<ImagenEntity> imagenEntities = new HashSet<>();
 

@@ -8,6 +8,7 @@ import com.rca.RCA.type.ApoderadoDTO;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 @Service
 public class ApoderadoService {
 
+    @Autowired
     private ApoderadoRepository apoderadoRepository;
 
     public Pagination<ApoderadoDTO> getList(String filter, int page, int size) {
