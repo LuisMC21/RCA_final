@@ -1,6 +1,5 @@
 package com.rca.RCA.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rca.RCA.type.UsuarioDTO;
 import lombok.Data;
 
@@ -10,7 +9,7 @@ import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "Usuario")
+@Table(name = "usuario")
 public class UsuarioEntity extends AuditoryEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +34,7 @@ public class UsuarioEntity extends AuditoryEntity{
     @Column(name = "email_inst")
     private String email_inst;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
     @JoinColumn(name = "rol_id", referencedColumnName = "id")
     private RolEntity rolEntity;
 
@@ -62,7 +61,7 @@ public class UsuarioEntity extends AuditoryEntity{
         usuarioDTO.setNumdoc(this.numdoc);
         usuarioDTO.setTel(this.tel);
         usuarioDTO.setGra_inst(this.gra_inst);
-        usuarioDTO.setEmail_ins(this.email_inst);
+        usuarioDTO.setEmail_inst(this.email_inst);
         usuarioDTO.setRolDTO(this.rolEntity.getRolDTO());
         usuarioDTO.setStatus(this.getStatus());
         usuarioDTO.setCreateAt(this.getCreateAt());
@@ -81,7 +80,7 @@ public class UsuarioEntity extends AuditoryEntity{
         this.numdoc = UsuarioDTO.getNumdoc();
         this.tel = UsuarioDTO.getTel();
         this.gra_inst = UsuarioDTO.getGra_inst();
-        this.email_inst = UsuarioDTO.getEmail_ins();
+        this.email_inst = UsuarioDTO.getEmail_inst();
         this.setStatus(UsuarioDTO.getStatus());
         this.setCreateAt(UsuarioDTO.getCreateAt());
         this.setUpdateAt(UsuarioDTO.getUpdateAt());

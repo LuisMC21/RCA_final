@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("usuario")
+@RequestMapping("/usuario")
 public class UsuarioRESTController {
 
     @Autowired
@@ -19,7 +19,7 @@ public class UsuarioRESTController {
     }
 
     @GetMapping
-    public Pagination<UsuarioDTO> list(
+    public ApiResponse<Pagination<UsuarioDTO>> list(
             @RequestParam(defaultValue = "") String filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -33,8 +33,8 @@ public class UsuarioRESTController {
     }
 
     @PutMapping
-    public void update(@RequestBody UsuarioDTO UsuarioDTO) {
-        this.usuarioService.update(UsuarioDTO);
+    public ApiResponse<UsuarioDTO> update(@RequestBody UsuarioDTO UsuarioDTO) {
+        return this.usuarioService.update(UsuarioDTO);
     }
 
     @DeleteMapping("{id}")

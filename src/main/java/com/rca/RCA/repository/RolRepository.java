@@ -1,6 +1,5 @@
 package com.rca.RCA.repository;
 
-import com.rca.RCA.entity.GradoEntity;
 import com.rca.RCA.entity.RolEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

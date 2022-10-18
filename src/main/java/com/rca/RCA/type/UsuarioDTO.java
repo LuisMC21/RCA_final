@@ -12,6 +12,6 @@ public class UsuarioDTO extends AuditoryDTO{
     private String numdoc;
     private String tel;
     private String gra_inst;
-    private String email_ins;
+    private String email_inst;
     private RolDTO rolDTO;
 }

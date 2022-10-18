@@ -1,6 +1,8 @@
 package com.rca.RCA.service;
 
+import com.rca.RCA.entity.RolEntity;
 import com.rca.RCA.entity.UsuarioEntity;
+import com.rca.RCA.repository.RolRepository;
 import com.rca.RCA.repository.UsuarioRepository;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
@@ -26,18 +28,28 @@ public class UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    private RolRepository rolRepository;
 
-    public Pagination<UsuarioDTO> getList(String filter, int page, int size) {
+    public UsuarioService(UsuarioRepository usuarioRepository, RolRepository rolRepository){
+        this.usuarioRepository = usuarioRepository;
+        this.rolRepository = rolRepository;
+    }
 
-        Pagination<UsuarioDTO> pagination = new Pagination();
+    public ApiResponse<Pagination<UsuarioDTO>> getList(String filter, int page, int size) {
+        log.info("filter page size {} {} {}", filter, page, size);
+        ApiResponse<Pagination<UsuarioDTO>> apiResponse = new ApiResponse<>();
+        Pagination<UsuarioDTO> pagination = new Pagination<>();
         pagination.setCountFilter(this.usuarioRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, filter));
         if (pagination.getCountFilter() > 0) {
             Pageable pageable = PageRequest.of(page, size);
-            List<UsuarioEntity> UsuarioEntities = this.usuarioRepository.findEntities(ConstantsGeneric.CREATED_STATUS, filter, pageable).orElse(new ArrayList<>());
-            pagination.setList(UsuarioEntities.stream().map(UsuarioEntity::getUsuarioDTO).collect(Collectors.toList()));
+            List<UsuarioEntity> categoryEntities = this.usuarioRepository.findEntities(ConstantsGeneric.CREATED_STATUS, filter, pageable).orElse(new ArrayList<>());
+            pagination.setList(categoryEntities.stream().map(UsuarioEntity::getUsuarioDTO).collect(Collectors.toList()));
         }
         pagination.setTotalPages(pagination.processAndGetTotalPages(size));
-        return pagination;
+        apiResponse.setData(pagination);
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
     }
 
     //Agregar usuario
@@ -48,18 +60,29 @@ public class UsuarioService {
         UsuarioDTO.setCode(Code.generateCode(Code.USUARIO_CODE, this.usuarioRepository.count() + 1, Code.USUARIO_LENGTH));
         UsuarioDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         UsuarioDTO.setCreateAt(LocalDateTime.now());
+        System.out.println(UsuarioDTO.toString());
         //validamos
         Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByNumdoc(UsuarioDTO.getNumdoc());
         if (optionalUsuarioEntity.isPresent()) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("Usuario_EXISTS");
-            apiResponse.setMessage("No se registro, el usuario existe");
+            apiResponse.setMessage("No se registró, el usuario existe");
             return apiResponse;
         }
         //change dto to entity
         UsuarioEntity UsuarioEntity = new UsuarioEntity();
         UsuarioEntity.setUsuarioDTO(UsuarioDTO);
 
+        //set rol
+        Optional<RolEntity> optionalRolEntity = this.rolRepository.findByUniqueIdentifier(UsuarioDTO.getRolDTO().getId());
+        if (optionalRolEntity.isEmpty()) {
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("ROL_NOT_EXISTS");
+            apiResponse.setMessage("No se registró, el rol asociado al usuario no existe");
+            return apiResponse;
+        }
+
+        UsuarioEntity.setRolEntity(optionalRolEntity.get());
         apiResponse.setData(this.usuarioRepository.save(UsuarioEntity).getUsuarioDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
@@ -67,30 +90,50 @@ public class UsuarioService {
     }
 
     //Modificar usuario
-    public void update(UsuarioDTO UsuarioDTO) {
+    public ApiResponse<UsuarioDTO> update(UsuarioDTO UsuarioDTO) {
+        ApiResponse<UsuarioDTO> apiResponse = new ApiResponse<>();
+        System.out.println(UsuarioDTO.toString());
+
         Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(UsuarioDTO.getId());
-        if (optionalUsuarioEntity.isPresent()) {
-            UsuarioDTO.setUpdateAt(LocalDateTime.now());
-            //validamos que no se repita
-            Optional<UsuarioEntity> optionalUsuarioEntityValidation = this.usuarioRepository.findByNumdoc(UsuarioDTO.getNumdoc(), UsuarioDTO.getId());
-            if (optionalUsuarioEntityValidation.isPresent()) {
-                System.out.println("No se actulizo, la categoria existe");
-                return;
-            }
-            UsuarioEntity UsuarioEntity = optionalUsuarioEntity.get();
-            //set update data
-            if (UsuarioDTO.getCode() != null) {
-                UsuarioEntity.setCode(UsuarioDTO.getCode());
-            }
-            if (UsuarioDTO.getName() != null) {
-                UsuarioEntity.setName(UsuarioDTO.getName());
-            }
-            UsuarioEntity.setUpdateAt(UsuarioDTO.getUpdateAt());
-            //update in database
-            this.usuarioRepository.save(UsuarioEntity);
-        } else {
-            System.out.println("No existe la categoria para poder actualizar");
+        if (optionalUsuarioEntity.isEmpty()) {
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("Usuario_NOT_EXISTS");
+            apiResponse.setMessage("No se encontro el Usuario");
+            return apiResponse;
         }
+
+        //validamos
+        Optional<UsuarioEntity> optionalUsuarioEntityValidation = this.usuarioRepository.findByNumdoc(UsuarioDTO.getNumdoc(), UsuarioDTO.getId());
+        if (optionalUsuarioEntityValidation.isPresent()) {
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("Usuario_EXISTS");
+            apiResponse.setMessage("No se actualizó, el Usuario existe");
+            return apiResponse;
+        }
+
+        //change dto to entity
+        UsuarioEntity UsuarioEntity = optionalUsuarioEntity.get();
+        UsuarioEntity.setName(UsuarioDTO.getName());
+        UsuarioEntity.setPa_surname(UsuarioDTO.getPa_surname());
+        UsuarioEntity.setMa_surname(UsuarioDTO.getMa_surname());
+        UsuarioEntity.setType_doc(UsuarioDTO.getType_doc());
+        UsuarioEntity.setNumdoc(UsuarioDTO.getNumdoc());
+        UsuarioEntity.setGra_inst(UsuarioDTO.getGra_inst());
+        UsuarioEntity.setEmail_inst(UsuarioDTO.getEmail_inst());
+        UsuarioEntity.setTel(UsuarioDTO.getTel());
+        //set category
+        Optional<RolEntity> optionalRolEntity = this.rolRepository.findByUniqueIdentifier(UsuarioDTO.getRolDTO().getId());
+        if (optionalRolEntity.isEmpty()) {
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("CATEGORY_NOT_EXISTS");
+            apiResponse.setMessage("No se registro, la categoria asociada al Usuarioo no existe");
+            return apiResponse;
+        }
+        UsuarioEntity.setRolEntity(optionalRolEntity.get());
+        apiResponse.setData(this.usuarioRepository.save(UsuarioEntity).getUsuarioDTO());
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
     }
 
     //Borrar usuario

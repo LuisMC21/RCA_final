@@ -12,7 +12,7 @@ import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "Rol")
+@Table(name = "rol")
 public class RolEntity extends AuditoryEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,7 @@ public class RolEntity extends AuditoryEntity{
     @Column(name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "rolEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "rolEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<UsuarioEntity> usuarioEntities = new HashSet<>();
 
     public RolDTO getRolDTO(){
