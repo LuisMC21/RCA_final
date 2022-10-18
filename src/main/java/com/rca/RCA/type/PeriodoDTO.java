@@ -7,9 +7,10 @@ import java.util.Date;
 @Data
 public class PeriodoDTO extends AuditoryDTO{
     private String code;
-    @JsonFormat(pattern = "YYYY-MM-dd")
+    private String name;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date date_start;
-    @JsonFormat(pattern = "YYYY-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date date_end;
     private AnioLectivoDTO anio_lectivoDTO;
 }

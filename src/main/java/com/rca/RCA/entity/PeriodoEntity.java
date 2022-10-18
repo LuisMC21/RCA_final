@@ -21,13 +21,16 @@ public class PeriodoEntity extends AuditoryEntity{
     //Código
     @Column(name = "code", length = 15)
     private String code;
+
+    @Column(name = "name")
+    private String name;
     //Fecha inicial
-    @JsonFormat(pattern = "YYYY-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "date_start")
     private Date date_start;
 
     //Fecha final
-    @JsonFormat(pattern = "YYYY-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "date_end")
     private Date date_end;
 
@@ -43,6 +46,7 @@ public class PeriodoEntity extends AuditoryEntity{
         PeriodoDTO periodoDTO = new PeriodoDTO();
         periodoDTO.setId(this.getUniqueIdentifier());
         periodoDTO.setCode(this.code);
+        periodoDTO.setName(this.name);
         periodoDTO.setDate_start(this.date_start);
         periodoDTO.setDate_end(this.date_end);
         periodoDTO.setAnio_lectivoDTO(this.anio_lectivoEntity.getAnioLectivoDTO());
@@ -55,6 +59,7 @@ public class PeriodoEntity extends AuditoryEntity{
     public void setPeriodoDTO(PeriodoDTO periodoDTO){
         this.setUniqueIdentifier(periodoDTO.getId());
         this.code=periodoDTO.getCode();
+        this.name=periodoDTO.getName();
         this.date_start=periodoDTO.getDate_start();
         this.date_end=periodoDTO.getDate_end();
         this.setStatus(periodoDTO.getStatus());

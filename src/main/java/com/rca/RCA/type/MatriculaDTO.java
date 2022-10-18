@@ -8,7 +8,7 @@ import java.util.Date;
 public class MatriculaDTO extends AuditoryDTO{
     private String code;
     private Date date;
-    private SeccionxGradoDTO seccionxGradoDTO;
+    private AulaDTO aulaDTO;
     private AnioLectivoDTO anio_lectivoDTO;
     private AlumnoDTO alumnoDTO;
 }

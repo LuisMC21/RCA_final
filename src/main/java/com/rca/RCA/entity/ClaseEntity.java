@@ -33,7 +33,7 @@ public class ClaseEntity extends AuditoryEntity{
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "seccionxgrado_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private SeccionxGradoEntity seccionxGradoEntity;
+    private AulaEntity aulaEntity;
 
     public ClaseDTO getClaseDTO(){
         ClaseDTO ClaseDTO = new ClaseDTO();
@@ -41,7 +41,7 @@ public class ClaseEntity extends AuditoryEntity{
         ClaseDTO.setCode(this.code);
         ClaseDTO.setDate(this.date);
         ClaseDTO.setPeriodoDTO(this.periodoEntity.getPeriodoDTO());
-        ClaseDTO.setSeccionxGradoDTO(this.seccionxGradoEntity.getSeccionxGradoDTO());
+        ClaseDTO.setAulaDTO(this.aulaEntity.getSeccionxGradoDTO());
         ClaseDTO.setDocentexCursoDTO(this.docentexCursoEntity.getDocentexCursoDTO());
         ClaseDTO.setStatus(this.getStatus());
         ClaseDTO.setCreateAt(this.getCreateAt());
