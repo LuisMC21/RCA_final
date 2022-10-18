@@ -1,6 +1,5 @@
 package com.rca.RCA.repository;
 
-import com.rca.RCA.entity.GradoEntity;
 import com.rca.RCA.entity.RolEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,8 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RolRepository extends JpaRepository<RolEntity, Integer> {
-
-    Optional<RolEntity> findByUniqueIdentifier(String uniqueIdentifier);
 
     @Query(value = "select r from RolEntity r " +
             "where r.status = :status " +
@@ -23,6 +20,8 @@ public interface RolRepository extends JpaRepository<RolEntity, Integer> {
             "and ( r.code like concat('%', :filter, '%') or r.name like concat('%', :filter, '%') ) " +
             "order by r.name")
     Long findCountEntities(String status, String filter);
+
+    Optional<RolEntity> findByUniqueIdentifier(String uniqueIdentifier);
 
     Optional<RolEntity> findByName(String name);
 

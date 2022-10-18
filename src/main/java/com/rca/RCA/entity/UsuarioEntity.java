@@ -1,6 +1,5 @@
 package com.rca.RCA.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rca.RCA.type.UsuarioDTO;
 import lombok.Data;
 
@@ -10,7 +9,7 @@ import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "Usuario")
+@Table(name = "usuario")
 public class UsuarioEntity extends AuditoryEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,10 +34,12 @@ public class UsuarioEntity extends AuditoryEntity{
     @Column(name = "email_inst")
     private String email_inst;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "rol_id")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
+    @JoinColumn(name = "rol_id", referencedColumnName = "id")
     private RolEntity rolEntity;
+
+    @OneToOne(mappedBy = "usuarioEntity")
+    private ApoderadoEntity apoderadoEntity;
 
     @OneToMany(mappedBy = "usuarioEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<ImagenEntity> imagenEntities = new HashSet<>();
@@ -46,14 +47,7 @@ public class UsuarioEntity extends AuditoryEntity{
     @OneToMany(mappedBy = "usuarioEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<NoticiaEntity> noticiaEntities = new HashSet<>();
 
-    @OneToOne(mappedBy = "usuarioEntity")
-    private ApoderadoEntity apoderadoEntity;
 
-    @OneToOne(mappedBy = "usuarioEntity")
-    private AlumnoEntity alumnoEntity;
-
-    @OneToOne(mappedBy = "usuarioEntity")
-    private DocenteEntity docenteEntity;
 
 
     public UsuarioDTO getUsuarioDTO(){
@@ -67,11 +61,8 @@ public class UsuarioEntity extends AuditoryEntity{
         usuarioDTO.setNumdoc(this.numdoc);
         usuarioDTO.setTel(this.tel);
         usuarioDTO.setGra_inst(this.gra_inst);
-        usuarioDTO.setEmail_ins(this.email_inst);
+        usuarioDTO.setEmail_inst(this.email_inst);
         usuarioDTO.setRolDTO(this.rolEntity.getRolDTO());
-        usuarioDTO.setApoderadoDTO(this.apoderadoEntity.getApoderadoDTO());
-        usuarioDTO.setAlumnoDTO(this.alumnoEntity.getAlumnoDTO());
-        usuarioDTO.setDocenteDTO(this.docenteEntity.getDocenteDTO());
         usuarioDTO.setStatus(this.getStatus());
         usuarioDTO.setCreateAt(this.getCreateAt());
         usuarioDTO.setUpdateAt(this.getUpdateAt());
@@ -89,7 +80,7 @@ public class UsuarioEntity extends AuditoryEntity{
         this.numdoc = UsuarioDTO.getNumdoc();
         this.tel = UsuarioDTO.getTel();
         this.gra_inst = UsuarioDTO.getGra_inst();
-        this.email_inst = UsuarioDTO.getEmail_ins();
+        this.email_inst = UsuarioDTO.getEmail_inst();
         this.setStatus(UsuarioDTO.getStatus());
         this.setCreateAt(UsuarioDTO.getCreateAt());
         this.setUpdateAt(UsuarioDTO.getUpdateAt());

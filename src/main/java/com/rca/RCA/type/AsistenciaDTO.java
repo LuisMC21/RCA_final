@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class AsistenciaDTO extends AuditoryDTO{
     private String code;
-    private String type;
+    private String state;
     private AlumnoDTO alumnoDTO;
     private ClaseDTO claseDTO;
 }

@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "Alumno")
+@Table(name = "alumno")
 public class AlumnoEntity extends AuditoryEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,8 +37,8 @@ public class AlumnoEntity extends AuditoryEntity{
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UsuarioEntity usuarioEntity;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "apoderado_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
+    @JoinColumn(name = "apoderado_id", referencedColumnName = "id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private ApoderadoEntity apoderadoEntity;
 

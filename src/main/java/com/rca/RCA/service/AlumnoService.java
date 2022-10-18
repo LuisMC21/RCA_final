@@ -1,4 +1,4 @@
-/*package com.rca.RCA.service;
+package com.rca.RCA.service;
 
 import com.rca.RCA.entity.AlumnoEntity;
 import com.rca.RCA.repository.AlumnoRepository;
@@ -48,14 +48,14 @@ public class AlumnoService {
         AlumnoDTO.setCode(Code.generateCode(Code.ALU_CODE, this.alumnoRepository.count() + 1, Code.ALU_LENGTH));
         AlumnoDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         AlumnoDTO.setCreateAt(LocalDateTime.now());
-        //validamos
+        /*validamos
         Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByCode(AlumnoDTO.getCode());
         if (optionalAlumnoEntity.isPresent()) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("Alumno_EXISTS");
             apiResponse.setMessage("No se registro, el Alumno existe");
             return apiResponse;
-        }
+        }*/
         //change dto to entity
         AlumnoEntity AlumnoEntity = new AlumnoEntity();
         AlumnoEntity.setAlumnoDTO(AlumnoDTO);
@@ -71,20 +71,18 @@ public class AlumnoService {
         Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(AlumnoDTO.getId());
         if (optionalAlumnoEntity.isPresent()) {
             AlumnoDTO.setUpdateAt(LocalDateTime.now());
-            //validamos que no se repita
+            /*validamos que no se repita
             Optional<AlumnoEntity> optionalAlumnoEntityValidation = this.alumnoRepository.findByCode(AlumnoDTO.getCode(), AlumnoDTO.getId());
             if (optionalAlumnoEntityValidation.isPresent()) {
                 System.out.println("No se actulizo, el alumno existe");
                 return;
-            }
+            }*/
             AlumnoEntity AlumnoEntity = optionalAlumnoEntity.get();
             //set update data
             if (AlumnoDTO.getCode() != null) {
                 AlumnoEntity.setCode(AlumnoDTO.getCode());
             }
-            if (AlumnoDTO.getCode() != null) {
-                AlumnoEntity.setCode(AlumnoDTO.getCode());
-            }
+
             AlumnoEntity.setUpdateAt(AlumnoDTO.getUpdateAt());
             //update in database
             this.alumnoRepository.save(AlumnoEntity);
@@ -108,5 +106,3 @@ public class AlumnoService {
 
 
 }
-
- */

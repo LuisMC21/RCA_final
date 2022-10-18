@@ -16,8 +16,8 @@ public class AsistenciaEntity extends AuditoryEntity{
     private Integer id;
     @Column(name = "code", length = 15)
     private String code;
-    @Column(name = "date")
-    private String date;
+    @Column(name = "state")
+    private String  state;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "alumno_id")
@@ -33,7 +33,7 @@ public class AsistenciaEntity extends AuditoryEntity{
         AsistenciaDTO AsistenciaDTO = new AsistenciaDTO();
         AsistenciaDTO.setId(this.getUniqueIdentifier());
         AsistenciaDTO.setCode(this.code);
-        AsistenciaDTO.setType(this.date);
+        AsistenciaDTO.setState(this.state);
         AsistenciaDTO.setAlumnoDTO(this.alumnoEntity.getAlumnoDTO());
         AsistenciaDTO.setClaseDTO(this.claseEntity.getClaseDTO());
         AsistenciaDTO.setStatus(this.getStatus());
@@ -46,7 +46,7 @@ public class AsistenciaEntity extends AuditoryEntity{
     public void setAsistenciaDTO(AsistenciaDTO AsistenciaDTO){
         this.setUniqueIdentifier(AsistenciaDTO.getId());
         this.code = AsistenciaDTO.getCode();
-        this.date = AsistenciaDTO.getType();
+        this.state = AsistenciaDTO.getState();
         this.setStatus(AsistenciaDTO.getStatus());
         this.setCreateAt(AsistenciaDTO.getCreateAt());
         this.setUpdateAt(AsistenciaDTO.getUpdateAt());

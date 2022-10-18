@@ -1,4 +1,4 @@
-/*package com.rca.RCA.repository;
+package com.rca.RCA.repository;
 
 
 import com.rca.RCA.entity.UsuarioEntity;
@@ -33,6 +33,5 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
 
 }
 
- */
 
 

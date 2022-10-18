@@ -29,6 +29,9 @@ public class Code {
     public static final String SXG_CODE = "SG";
     public static final int SXG_LENGTH = 5;
 
+    public static final String CLASS_CODE = "CLASS";
+    public static final int CLASS_LENGTH = 6;
+
     public static String generateCode(String prefix, long current, int maxLength) {
         String complement =  completeZero(prefix, maxLength - (prefix.length() + String.valueOf(current).length()));
         return complement + current;

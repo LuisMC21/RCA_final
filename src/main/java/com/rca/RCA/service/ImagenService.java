@@ -7,6 +7,7 @@ import com.rca.RCA.type.ImagenDTO;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 @Service
 public class ImagenService {
 
+    @Autowired
     private ImagenRepository imagenRepository;
 
     public Pagination<ImagenDTO> getList(String filter, int page, int size) {
