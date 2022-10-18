@@ -21,7 +21,7 @@ public class CursoEntity extends AuditoryEntity{
     private String code;
     //Nombre del curso
     @Column(name = "name")
-    private Character name;
+    private String name;
     //Docentes del curso
     @OneToMany(mappedBy = "cursoEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<DocentexCursoEntity> docentexCursoEntities = new HashSet<>();

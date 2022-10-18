@@ -2,10 +2,10 @@ package com.rca.RCA.service;
 
 import com.rca.RCA.entity.GradoEntity;
 import com.rca.RCA.entity.SeccionEntity;
-import com.rca.RCA.entity.SeccionxGradoEntity;
+import com.rca.RCA.entity.AulaEntity;
 import com.rca.RCA.repository.GradoRepository;
 import com.rca.RCA.repository.SeccionRepository;
-import com.rca.RCA.repository.SeccionxGradoRepository;
+import com.rca.RCA.repository.AulaRepository;
 import com.rca.RCA.type.*;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
@@ -21,24 +21,24 @@ import java.util.stream.Collectors;
 
 @Log4j2
 @Service
-public class SeccionxGradoService {
+public class AulaService {
     @Autowired
-    private SeccionxGradoRepository seccionxGradoRepository;
+    private AulaRepository aulaRepository;
     @Autowired
     private SeccionRepository seccionRepository;
     @Autowired
     private GradoRepository gradoRepository;
 
     //Función para listar con paginación de secciones por el grado indicado-START
-    public ApiResponse<Pagination<SeccionDTO>> getListSxG(String id, String filter, int page, int size){
+    public ApiResponse<Pagination<SeccionDTO>> getList(String id, String filter, int page, int size){
         log.info("id filter page size {} {} {}", id, filter, page, size);
         ApiResponse<Pagination<SeccionDTO>> apiResponse = new ApiResponse<>();
         Pagination<SeccionDTO> pagination = new Pagination<>();
-        pagination.setCountFilter(this.seccionxGradoRepository.findCountSeccionxGrado(id, ConstantsGeneric.CREATED_STATUS, filter));
+        pagination.setCountFilter(this.aulaRepository.findCountAula(id, ConstantsGeneric.CREATED_STATUS, filter));
         System.out.println(pagination.getCountFilter());
         if(pagination.getCountFilter()>0){
             Pageable pageable= PageRequest.of(page, size);
-            List<SeccionEntity> seccionEntities=this.seccionxGradoRepository.findSeccionxGrado(id, ConstantsGeneric.CREATED_STATUS, filter, pageable).orElse(new ArrayList<>());
+            List<SeccionEntity> seccionEntities=this.aulaRepository.findAula(id, ConstantsGeneric.CREATED_STATUS, filter, pageable).orElse(new ArrayList<>());
             log.info(seccionEntities.size());
             pagination.setList(seccionEntities.stream().map(SeccionEntity::getSeccionDTO).collect(Collectors.toList()));
         }
@@ -50,29 +50,28 @@ public class SeccionxGradoService {
     }
     //Función para listar con paginación de secciones por el grado indicado-END
     //Función para agregar una sección a un grado- START
-    public ApiResponse<SeccionxGradoDTO> addSxG(Map ids){
+    public ApiResponse<AulaDTO> add(Map ids){
         log.info("idGrado idSeccion {} {}", ids.get("idGrado"), ids.get("idSeccion"));
-        ApiResponse<SeccionxGradoDTO> apiResponse = new ApiResponse<>();
-        SeccionxGradoDTO seccionxGradoDTO= new SeccionxGradoDTO();
-        SeccionxGradoEntity seccionxGradoEntity= new SeccionxGradoEntity();
-
+        ApiResponse<AulaDTO> apiResponse = new ApiResponse<>();
+        AulaDTO aulaDTO = new AulaDTO();
+        AulaEntity aulaEntity = new AulaEntity();
 
         Optional<GradoEntity> optionalGradoEntity=this.gradoRepository.findByUniqueIdentifier(ids.get("idGrado").toString());
         Optional<SeccionEntity> optionalSeccionEntity=this.seccionRepository.findByUniqueIdentifier(ids.get("idSeccion").toString());
 
         if(optionalGradoEntity.isPresent() && optionalSeccionEntity.isPresent()){
                 //Update in database
-            seccionxGradoEntity.setCode(Code.generateCode(Code.SXG_CODE, this.seccionxGradoRepository.count() + 1,Code.SXG_LENGTH));
-            seccionxGradoEntity.setGradoEntity(optionalGradoEntity.get());
-            seccionxGradoEntity.setSeccionEntity(optionalSeccionEntity.get());
-            seccionxGradoEntity.setUniqueIdentifier(UUID.randomUUID().toString());
-            seccionxGradoDTO.setSeccionDTO(seccionxGradoEntity.getSeccionEntity().getSeccionDTO());
-            seccionxGradoDTO.setGradoDTO(seccionxGradoEntity.getGradoEntity().getGradoDTO());
-            seccionxGradoDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
-            seccionxGradoDTO.setCreateAt(LocalDateTime.now());
+            aulaEntity.setCode(Code.generateCode(Code.CLASSROOM_CODE, this.aulaRepository.count() + 1,Code.CLASSROOM_LENGTH));
+            aulaEntity.setGradoEntity(optionalGradoEntity.get());
+            aulaEntity.setSeccionEntity(optionalSeccionEntity.get());
+            aulaEntity.setUniqueIdentifier(UUID.randomUUID().toString());
+            aulaDTO.setSeccionDTO(aulaEntity.getSeccionEntity().getSeccionDTO());
+            aulaDTO.setGradoDTO(aulaEntity.getGradoEntity().getGradoDTO());
+            aulaDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
+            aulaDTO.setCreateAt(LocalDateTime.now());
             apiResponse.setSuccessful(true);
             apiResponse.setMessage("ok");
-            apiResponse.setData(this.seccionxGradoRepository.save(seccionxGradoEntity).getSeccionxGradoDTO());
+            apiResponse.setData(this.aulaRepository.save(aulaEntity).getSeccionxGradoDTO());
             return apiResponse;
         }else{
             log.warn("No se completó el registro");

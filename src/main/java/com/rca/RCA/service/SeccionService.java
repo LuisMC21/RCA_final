@@ -26,7 +26,7 @@ public class SeccionService {
     @Autowired
     private SeccionRepository seccionRepository;
 
-    //Función para listar con paginación de seccion-START
+    //Función para listar secciones con paginación-START
     public ApiResponse<Pagination<SeccionDTO>> getList(String filter, int page, int size){
         log.info("filter page size {} {} {}", filter, page, size);
         ApiResponse<Pagination<SeccionDTO>> apiResponse = new ApiResponse<>();
@@ -43,8 +43,9 @@ public class SeccionService {
         apiResponse.setMessage("ok");
         return apiResponse;
     }
-    //Función para listar con paginación de seccion-END
+    //Función para listar secciones con paginación-END
 
+    //Función para agregar seccion-START
     public ApiResponse<SeccionDTO> add(SeccionDTO seccionDTO){
         ApiResponse<SeccionDTO> apiResponse = new ApiResponse<>();
         seccionDTO.setId(UUID.randomUUID().toString());
@@ -69,7 +70,9 @@ public class SeccionService {
         apiResponse.setMessage("ok");
         return apiResponse;
     }
+    //Función para agregar seccion-END
 
+    //Función para actualizar seccion-START
     public ApiResponse<SeccionDTO> update(SeccionDTO seccionDTO){
         ApiResponse<SeccionDTO> apiResponse = new ApiResponse<>();
         Optional<SeccionEntity> optionalSeccionEntity=this.seccionRepository.findByName(seccionDTO.getName());
@@ -105,6 +108,8 @@ public class SeccionService {
         apiResponse.setSuccessful(false);
         return apiResponse;
     }
+    //Función para actualizar seccion-END
+
 
     //Función para cambiar estado a eliminado- START
     //id dto=uniqueIdentifier Entity

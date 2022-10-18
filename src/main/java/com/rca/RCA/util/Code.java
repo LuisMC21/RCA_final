@@ -24,14 +24,24 @@ public class Code {
 
     public static final String ASIS_CODE = "ASIS";
     public static final int ASIS_LENGTH = 6;
+
+    public static final String SCHOOL_YEAR_CODE = "ANIO";
+    public static final int SCHOOL_YEAR_LENGTH = 7;
+
     public static final String SECTION_CODE = "SEC";
     public static final int SECTION_LENGTH = 6;
-    public static final String SXG_CODE = "SG";
-    public static final int SXG_LENGTH = 5;
 
     public static final String CLASS_CODE = "CLASS";
     public static final int CLASS_LENGTH = 6;
 
+    public static final String CLASSROOM_CODE = "AUL";
+    public static final int CLASSROOM_LENGTH = 6;
+
+    public static final String PERIOD_CODE = "PER";
+    public static final int PERIOD_LENGTH = 6;
+    
+    public static final String COURSE_CODE = "CURS";
+    public static final int COURSE_LENGTH = 7;
     public static String generateCode(String prefix, long current, int maxLength) {
         String complement =  completeZero(prefix, maxLength - (prefix.length() + String.valueOf(current).length()));
         return complement + current;

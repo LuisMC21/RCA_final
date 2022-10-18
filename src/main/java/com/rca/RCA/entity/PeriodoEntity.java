@@ -21,20 +21,23 @@ public class PeriodoEntity extends AuditoryEntity{
     //Código
     @Column(name = "code", length = 15)
     private String code;
+
+    @Column(name = "name")
+    private String name;
     //Fecha inicial
-    @JsonFormat(pattern = "YYYY-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "date_start")
     private Date date_start;
 
     //Fecha final
-    @JsonFormat(pattern = "YYYY-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "date_end")
     private Date date_end;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "anio_lectivo_id", referencedColumnName = "id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Anio_LectivoEntity anio_lectivoEntity;
+    private AnioLectivoEntity anio_lectivoEntity;
 
     @OneToMany(mappedBy = "periodoEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<ClaseEntity> claseEntities= new HashSet<ClaseEntity>();
@@ -43,9 +46,10 @@ public class PeriodoEntity extends AuditoryEntity{
         PeriodoDTO periodoDTO = new PeriodoDTO();
         periodoDTO.setId(this.getUniqueIdentifier());
         periodoDTO.setCode(this.code);
+        periodoDTO.setName(this.name);
         periodoDTO.setDate_start(this.date_start);
         periodoDTO.setDate_end(this.date_end);
-        periodoDTO.setAnio_lectivoDTO(this.anio_lectivoEntity.getAnio_LectivoDTO());
+        periodoDTO.setAnio_lectivoDTO(this.anio_lectivoEntity.getAnioLectivoDTO());
         periodoDTO.setStatus(this.getStatus());
         periodoDTO.setCreateAt(this.getCreateAt());
         periodoDTO.setUpdateAt(this.getUpdateAt());
@@ -55,6 +59,7 @@ public class PeriodoEntity extends AuditoryEntity{
     public void setPeriodoDTO(PeriodoDTO periodoDTO){
         this.setUniqueIdentifier(periodoDTO.getId());
         this.code=periodoDTO.getCode();
+        this.name=periodoDTO.getName();
         this.date_start=periodoDTO.getDate_start();
         this.date_end=periodoDTO.getDate_end();
         this.setStatus(periodoDTO.getStatus());
