@@ -2,6 +2,7 @@ package com.rca.RCA.controller;
 
 import com.rca.RCA.service.NoticiaService;
 import com.rca.RCA.type.ApiResponse;
+import com.rca.RCA.type.ImagenDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.NoticiaDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class NoticiaRESTController {
     }
 
     @GetMapping
-    public Pagination<NoticiaDTO> list(
+    public ApiResponse<Pagination<NoticiaDTO>> list(
             @RequestParam(defaultValue = "") String filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -33,8 +34,8 @@ public class NoticiaRESTController {
     }
 
     @PutMapping
-    public void update(@RequestBody NoticiaDTO NoticiaDTO) {
-        this.noticiaService.update(NoticiaDTO);
+    public ApiResponse<NoticiaDTO> update(@RequestBody NoticiaDTO NoticiaDTO) {
+        return this.noticiaService.update(NoticiaDTO);
     }
 
     @DeleteMapping("{id}")

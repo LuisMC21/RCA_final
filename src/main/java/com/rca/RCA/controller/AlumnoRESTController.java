@@ -1,9 +1,7 @@
 package com.rca.RCA.controller;
 
 import com.rca.RCA.service.AlumnoService;
-import com.rca.RCA.type.ApiResponse;
-import com.rca.RCA.type.Pagination;
-import com.rca.RCA.type.AlumnoDTO;
+import com.rca.RCA.type.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +17,7 @@ public class AlumnoRESTController {
     }
 
     @GetMapping
-    public Pagination<AlumnoDTO> list(
+    public ApiResponse<Pagination<AlumnoDTO>> list(
             @RequestParam(defaultValue = "") String filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -33,8 +31,8 @@ public class AlumnoRESTController {
     }
 
     @PutMapping
-    public void update(@RequestBody AlumnoDTO AlumnoDTO) {
-        this.alumnoService.update(AlumnoDTO);
+    public ApiResponse<AlumnoDTO> update(@RequestBody AlumnoDTO alumnoDTO) {
+        return this.alumnoService.update(alumnoDTO);
     }
 
     @DeleteMapping("{id}")

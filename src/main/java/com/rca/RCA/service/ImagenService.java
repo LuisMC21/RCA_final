@@ -1,7 +1,9 @@
 package com.rca.RCA.service;
 
+import com.rca.RCA.entity.*;
 import com.rca.RCA.entity.ImagenEntity;
 import com.rca.RCA.repository.ImagenRepository;
+import com.rca.RCA.repository.UsuarioRepository;
 import com.rca.RCA.type.*;
 import com.rca.RCA.type.ImagenDTO;
 import com.rca.RCA.util.Code;
@@ -25,18 +27,29 @@ public class ImagenService {
 
     @Autowired
     private ImagenRepository imagenRepository;
+    private UsuarioRepository usuarioRepository;
 
-    public Pagination<ImagenDTO> getList(String filter, int page, int size) {
+    public ImagenService(ImagenRepository imagenRepository, UsuarioRepository usuarioRepository){
+        this.imagenRepository = imagenRepository;
+        this.usuarioRepository = usuarioRepository;
+    }
 
-        Pagination<ImagenDTO> pagination = new Pagination();
+    //Obtener imágenes
+    public ApiResponse<Pagination<ImagenDTO>> getList(String filter, int page, int size) {
+        log.info("filter page size {} {} {}", filter, page, size);
+        ApiResponse<Pagination<ImagenDTO>> apiResponse = new ApiResponse<>();
+        Pagination<ImagenDTO> pagination = new Pagination<>();
         pagination.setCountFilter(this.imagenRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, filter));
         if (pagination.getCountFilter() > 0) {
             Pageable pageable = PageRequest.of(page, size);
-            List<ImagenEntity> ImagenEntities = this.imagenRepository.findEntities(ConstantsGeneric.CREATED_STATUS, filter, pageable).orElse(new ArrayList<>());
-            pagination.setList(ImagenEntities.stream().map(ImagenEntity::getImagenDTO).collect(Collectors.toList()));
+            List<ImagenEntity> imagenEntities = this.imagenRepository.findEntities(ConstantsGeneric.CREATED_STATUS, filter, pageable).orElse(new ArrayList<>());
+            pagination.setList(imagenEntities.stream().map(ImagenEntity::getImagenDTO).collect(Collectors.toList()));
         }
         pagination.setTotalPages(pagination.processAndGetTotalPages(size));
-        return pagination;
+        apiResponse.setData(pagination);
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
     }
 
     //Agregar imagen
@@ -44,21 +57,32 @@ public class ImagenService {
         ApiResponse<ImagenDTO> apiResponse = new ApiResponse<>();
         System.out.println(ImagenDTO.toString());
         ImagenDTO.setId(UUID.randomUUID().toString());
-        ImagenDTO.setCode(Code.generateCode(Code.IMAGEN_CODE, this.imagenRepository.count() + 1, Code.IMAGEN_LENGTH));
+        ImagenDTO.setCode(Code.generateCode(Code.IMAGEN_CODE, this.usuarioRepository.count() + 1, Code.IMAGEN_LENGTH));
         ImagenDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         ImagenDTO.setCreateAt(LocalDateTime.now());
+        System.out.println(ImagenDTO.toString());
         //validamos
         Optional<ImagenEntity> optionalImagenEntity = this.imagenRepository.findByName(ImagenDTO.getName());
         if (optionalImagenEntity.isPresent()) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("Imagen_EXISTS");
-            apiResponse.setMessage("No se registro, la imagen existe");
+            apiResponse.setMessage("No se registró, la imagen existe");
             return apiResponse;
         }
         //change dto to entity
         ImagenEntity ImagenEntity = new ImagenEntity();
         ImagenEntity.setImagenDTO(ImagenDTO);
 
+        //set usaurio
+        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ImagenDTO.getUsuarioDTO().getId());
+        if (optionalUsuarioEntity.isEmpty()) {
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("ROL_NOT_EXISTS");
+            apiResponse.setMessage("No se registró, el usaurio asociado a la imagen no existe");
+            return apiResponse;
+        }
+
+        ImagenEntity.setUsuarioEntity(optionalUsuarioEntity.get());
         apiResponse.setData(this.imagenRepository.save(ImagenEntity).getImagenDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
@@ -66,30 +90,45 @@ public class ImagenService {
     }
 
     //Modificar imagen
-    public void update(ImagenDTO ImagenDTO) {
+    public ApiResponse<ImagenDTO> update(ImagenDTO ImagenDTO) {
+        ApiResponse<ImagenDTO> apiResponse = new ApiResponse<>();
+        System.out.println(ImagenDTO.toString());
+
         Optional<ImagenEntity> optionalImagenEntity = this.imagenRepository.findByUniqueIdentifier(ImagenDTO.getId());
-        if (optionalImagenEntity.isPresent()) {
-            ImagenDTO.setUpdateAt(LocalDateTime.now());
-            //validamos que no se repita
-            Optional<ImagenEntity> optionalImagenEntityValidation = this.imagenRepository.findByName(ImagenDTO.getName(), ImagenDTO.getId());
-            if (optionalImagenEntityValidation.isPresent()) {
-                System.out.println("No se actulizo, la imagen existe");
-                return;
-            }
-            ImagenEntity ImagenEntity = optionalImagenEntity.get();
-            //set update data
-            if (ImagenDTO.getCode() != null) {
-                ImagenEntity.setCode(ImagenDTO.getCode());
-            }
-            if (ImagenDTO.getName() != null) {
-                ImagenEntity.setName(ImagenDTO.getName());
-            }
-            ImagenEntity.setUpdateAt(ImagenDTO.getUpdateAt());
-            //update in database
-            this.imagenRepository.save(ImagenEntity);
-        } else {
-            System.out.println("No existe la imagen para poder actualizar");
+        if (optionalImagenEntity.isEmpty()) {
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("imagen_NOT_EXISTS");
+            apiResponse.setMessage("No se encontro la imagen");
+            return apiResponse;
         }
+
+        //validamos
+        Optional<ImagenEntity> optionalImagenEntityValidation = this.imagenRepository.findByName(ImagenDTO.getName(), ImagenDTO.getId());
+        if (optionalImagenEntityValidation.isPresent()) {
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("IMAGEN_EXISTS");
+            apiResponse.setMessage("No se actualizó, la imagen existe");
+            return apiResponse;
+        }
+
+        //change dto to entity
+        ImagenEntity ImagenEntity = optionalImagenEntity.get();
+        ImagenEntity.setName(ImagenDTO.getName());
+        ImagenEntity.setRoute(ImagenDTO.getRoute());
+
+        //set rol
+        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ImagenDTO.getUsuarioDTO().getId());
+        if (optionalUsuarioEntity.isEmpty()) {
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("USUARIO_NOT_EXISTS");
+            apiResponse.setMessage("No se registro, el usuario asociada a la imagen no existe");
+            return apiResponse;
+        }
+        ImagenEntity.setUsuarioEntity(optionalUsuarioEntity.get());
+        apiResponse.setData(this.imagenRepository.save(ImagenEntity).getImagenDTO());
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
     }
 
     //Borrar Imagen

@@ -41,6 +41,9 @@ public class UsuarioEntity extends AuditoryEntity{
     @OneToOne(mappedBy = "usuarioEntity")
     private ApoderadoEntity apoderadoEntity;
 
+    @OneToOne(mappedBy = "usuarioEntity")
+    private AlumnoEntity alumnoEntity;
+
     @OneToMany(mappedBy = "usuarioEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<ImagenEntity> imagenEntities = new HashSet<>();
 

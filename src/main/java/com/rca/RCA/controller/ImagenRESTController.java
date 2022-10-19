@@ -4,6 +4,7 @@ import com.rca.RCA.service.ImagenService;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.ImagenDTO;
+import com.rca.RCA.type.UsuarioDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,7 @@ public class ImagenRESTController {
     }
 
     @GetMapping
-    public Pagination<ImagenDTO> list(
+    public ApiResponse<Pagination<ImagenDTO>> list(
             @RequestParam(defaultValue = "") String filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -33,8 +34,8 @@ public class ImagenRESTController {
     }
 
     @PutMapping
-    public void update(@RequestBody ImagenDTO ImagenDTO) {
-        this.imagenService.update(ImagenDTO);
+    public ApiResponse<ImagenDTO> update(@RequestBody ImagenDTO ImagenDTO) {
+        return this.imagenService.update(ImagenDTO);
     }
 
     @DeleteMapping("{id}")

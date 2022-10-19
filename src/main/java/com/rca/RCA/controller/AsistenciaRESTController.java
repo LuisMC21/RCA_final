@@ -5,6 +5,7 @@ import com.rca.RCA.service.AsistenciaService;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.AsistenciaDTO;
+import com.rca.RCA.type.UsuarioDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,7 @@ public class AsistenciaRESTController {
     }
 
     @GetMapping
-    public Pagination<AsistenciaDTO> list(
+    public ApiResponse<Pagination<AsistenciaDTO>> list(
             @RequestParam(defaultValue = "") String filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -34,8 +35,8 @@ public class AsistenciaRESTController {
     }
 
     @PutMapping
-    public void update(@RequestBody AsistenciaDTO AsistenciaDTO) {
-        this.asistenciaService.update(AsistenciaDTO);
+    public ApiResponse<AsistenciaDTO> update(@RequestBody AsistenciaDTO asistenciaDTO) {
+        return this.asistenciaService.update(asistenciaDTO);
     }
 
     @DeleteMapping("{id}")

@@ -1,7 +1,10 @@
 package com.rca.RCA.service;
 
+import com.rca.RCA.entity.*;
 import com.rca.RCA.entity.AsistenciaEntity;
+import com.rca.RCA.repository.AlumnoRepository;
 import com.rca.RCA.repository.AsistenciaRepository;
+import com.rca.RCA.repository.ClaseRepository;
 import com.rca.RCA.type.*;
 import com.rca.RCA.type.AsistenciaDTO;
 import com.rca.RCA.util.Code;
@@ -25,10 +28,20 @@ public class AsistenciaService {
 
     @Autowired
     private AsistenciaRepository asistenciaRepository;
+    private AlumnoRepository alumnoRepository;
+    private ClaseRepository claseRepository;
 
-    public Pagination<AsistenciaDTO> getList(String filter, int page, int size) {
+    public AsistenciaService(AsistenciaRepository asistenciaRepository, AlumnoRepository alumnoRepository, ClaseRepository claseRepository){
+        this.asistenciaRepository = asistenciaRepository;
+        this.alumnoRepository = alumnoRepository;
+        this.claseRepository = claseRepository;
+    }
 
-        Pagination<AsistenciaDTO> pagination = new Pagination();
+    //Listar asistencia
+    public ApiResponse<Pagination<AsistenciaDTO>> getList(String filter, int page, int size) {
+        log.info("filter page size {} {} {}", filter, page, size);
+        ApiResponse<Pagination<AsistenciaDTO>> apiResponse = new ApiResponse<>();
+        Pagination<AsistenciaDTO> pagination = new Pagination<>();
         pagination.setCountFilter(this.asistenciaRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, filter));
         if (pagination.getCountFilter() > 0) {
             Pageable pageable = PageRequest.of(page, size);
@@ -36,10 +49,13 @@ public class AsistenciaService {
             pagination.setList(AsistenciaEntities.stream().map(AsistenciaEntity::getAsistenciaDTO).collect(Collectors.toList()));
         }
         pagination.setTotalPages(pagination.processAndGetTotalPages(size));
-        return pagination;
+        apiResponse.setData(pagination);
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
     }
 
-    //Agregar asistencia
+    //Agregar Asistencia
     public ApiResponse<AsistenciaDTO> add(AsistenciaDTO AsistenciaDTO) {
         ApiResponse<AsistenciaDTO> apiResponse = new ApiResponse<>();
         System.out.println(AsistenciaDTO.toString());
@@ -47,36 +63,79 @@ public class AsistenciaService {
         AsistenciaDTO.setCode(Code.generateCode(Code.ASIS_CODE, this.asistenciaRepository.count() + 1, Code.ASIS_LENGTH));
         AsistenciaDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         AsistenciaDTO.setCreateAt(LocalDateTime.now());
-        //validamos
+        System.out.println(AsistenciaDTO.toString());
 
+        //change dto to entity
         AsistenciaEntity AsistenciaEntity = new AsistenciaEntity();
         AsistenciaEntity.setAsistenciaDTO(AsistenciaDTO);
 
+        //set usaurio
+        Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(AsistenciaDTO.getAlumnoDTO().getId());
+        if (optionalAlumnoEntity.isEmpty()) {
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("alumno_NOT_EXISTS");
+            apiResponse.setMessage("No se registró, el alumno asociado a la Asistencia no existe");
+            return apiResponse;
+        }
+
+        //set Apoderado
+        Optional<ClaseEntity> optionalClaseEntity = this.claseRepository.findByUniqueIdentifier(AsistenciaDTO.getClaseDTO().getId());
+        if (optionalClaseEntity.isEmpty()) {
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("CLASE_NOT_EXISTS");
+            apiResponse.setMessage("No se registró, la clase asociada a la Asistencia no existe");
+            return apiResponse;
+        }
+
+        AsistenciaEntity.setAlumnoEntity(optionalAlumnoEntity.get());
+        AsistenciaEntity.setClaseEntity(optionalClaseEntity.get());
         apiResponse.setData(this.asistenciaRepository.save(AsistenciaEntity).getAsistenciaDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
         return apiResponse;
     }
 
-    //Modificar asistencia
-    public void update(AsistenciaDTO AsistenciaDTO) {
+    //Modificar Asistencia
+    public ApiResponse<AsistenciaDTO> update(AsistenciaDTO AsistenciaDTO) {
+        ApiResponse<AsistenciaDTO> apiResponse = new ApiResponse<>();
+        System.out.println(AsistenciaDTO.toString());
+
         Optional<AsistenciaEntity> optionalAsistenciaEntity = this.asistenciaRepository.findByUniqueIdentifier(AsistenciaDTO.getId());
-        if (optionalAsistenciaEntity.isPresent()) {
-            AsistenciaDTO.setUpdateAt(LocalDateTime.now());
-            //validamos que no se repita
-
-            AsistenciaEntity AsistenciaEntity = optionalAsistenciaEntity.get();
-            //set update data
-            if (AsistenciaDTO.getCode() != null) {
-                AsistenciaEntity.setCode(AsistenciaDTO.getCode());
-            }
-
-            AsistenciaEntity.setUpdateAt(AsistenciaDTO.getUpdateAt());
-            //update in database
-            this.asistenciaRepository.save(AsistenciaEntity);
-        } else {
-            System.out.println("No existe la asistencia para poder actualizar");
+        if (optionalAsistenciaEntity.isEmpty()) {
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("Asistencia_NOT_EXISTS");
+            apiResponse.setMessage("No se encontro la Asistencia");
+            return apiResponse;
         }
+
+        //change dto to entity
+        AsistenciaEntity AsistenciaEntity = optionalAsistenciaEntity.get();
+        AsistenciaEntity.setState(AsistenciaDTO.getState());
+
+        //set alumno
+        Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(AsistenciaDTO.getAlumnoDTO().getId());
+        if (optionalAlumnoEntity.isEmpty()) {
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("Alumno_NOT_EXISTS");
+            apiResponse.setMessage("No se registro, el alumno asociada a la Asistencia no existe");
+            return apiResponse;
+        }
+
+        //set Clase
+        Optional<ClaseEntity> optionalClaseEntity = this.claseRepository.findByUniqueIdentifier(AsistenciaDTO.getClaseDTO().getId());
+        if (optionalClaseEntity.isEmpty()) {
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("CLASE_NOT_EXISTS");
+            apiResponse.setMessage("No se registró, el apoderado asociado al Asistencia no existe");
+            return apiResponse;
+        }
+
+        AsistenciaEntity.setAlumnoEntity(optionalAlumnoEntity.get());
+        AsistenciaEntity.setClaseEntity(optionalClaseEntity.get());
+        apiResponse.setData(this.asistenciaRepository.save(AsistenciaEntity).getAsistenciaDTO());
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
     }
 
     //Borrar asistencia
