@@ -28,9 +28,9 @@ public class DocenteRESTController {
     }
 
     @PostMapping
-    public ApiResponse<DocenteDTO> add(@RequestBody UsuarioDTO usuarioDTO,
-                                       @RequestBody DocenteDTO docenteDTO){
-        return this.docenteService.add(usuarioDTO, docenteDTO);
+    public ApiResponse<DocenteDTO> add(@RequestBody DocenteDTO docenteDTO){
+        System.out.println(docenteDTO.getDose());
+        return this.docenteService.add(docenteDTO);
     }
 /*
     @PutMapping

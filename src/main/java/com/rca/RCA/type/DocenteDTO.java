@@ -8,4 +8,5 @@ public class DocenteDTO extends AuditoryDTO{
     private String experience;
     private Character dose;
     private String specialty;
+    private UsuarioDTO usuarioDTO;
 }

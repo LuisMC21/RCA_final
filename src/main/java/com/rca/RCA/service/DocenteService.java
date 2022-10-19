@@ -2,6 +2,7 @@ package com.rca.RCA.service;
 
 import com.rca.RCA.entity.DocenteEntity;
 import com.rca.RCA.repository.DocenteRepository;
+import com.rca.RCA.repository.UsuarioRepository;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.DocenteDTO;
 import com.rca.RCA.type.Pagination;
@@ -27,6 +28,10 @@ public class DocenteService {
 
     @Autowired
     private DocenteRepository docenteRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+    @Autowired
+    private UsuarioService usuarioService;
 
     //Función para listar secciones con paginación-START
     public ApiResponse<Pagination<DocenteDTO>> getList(String filter, int page, int size){
@@ -37,6 +42,8 @@ public class DocenteService {
         if(pagination.getCountFilter()>0){
             Pageable pageable= PageRequest.of(page, size);
             List<DocenteEntity> docenteEntities=this.docenteRepository.findDocente(ConstantsGeneric.CREATED_STATUS, filter, pageable).orElse(new ArrayList<>());
+
+
             pagination.setList(docenteEntities.stream().map(DocenteEntity::getDocenteDTO).collect(Collectors.toList()));
         }
         pagination.setTotalPages(pagination.processAndGetTotalPages(size));
@@ -48,27 +55,27 @@ public class DocenteService {
     //Función para listar secciones con paginación-END
 
     //Función para agregar seccion-START
-    public ApiResponse<DocenteDTO> add(UsuarioDTO usuarioDTO, DocenteDTO docenteDTO){
-        System.out.println(usuarioDTO.getName());
+    public ApiResponse<DocenteDTO> add(DocenteDTO docenteDTO){
         ApiResponse<DocenteDTO> apiResponse = new ApiResponse<>();
+
         docenteDTO.setId(UUID.randomUUID().toString());
-        docenteDTO.setCode(Code.generateCode(Code.SECTION_CODE, this.docenteRepository.count() + 1, Code.SECTION_LENGTH));
+        docenteDTO.setCode(Code.generateCode(Code.TEACHER_CODE, this.docenteRepository.count() + 1, Code.TEACHER_LENGTH));
         docenteDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         docenteDTO.setCreateAt(LocalDateTime.now());
-
-    /*    Optional<SeccionEntity> optionalSeccionEntity = this.docenteRepository.findByName(docenteDTO.getName());
-        if (optionalSeccionEntity.isPresent()) {
+        ApiResponse<UsuarioDTO> apiResponseU= usuarioService.add(docenteDTO.getUsuarioDTO());
+        if (apiResponseU.isSuccessful()==false) {
             log.warn("No se agregó el registro");
             apiResponse.setSuccessful(false);
-            apiResponse.setCode("SECTION_EXISTS");
-            apiResponse.setMessage("No se resgistró, la sección existe");
+            apiResponse.setCode("DOCENTE_EXISTS");
+            apiResponse.setMessage("No se resgistró, el docente existe");
             return apiResponse;
         }
-     */
 
         //change DTO to entity
+        docenteDTO.setUsuarioDTO(apiResponseU.getData());
         DocenteEntity docenteEntity =new DocenteEntity();
         docenteEntity.setDocenteDTO(docenteDTO);
+        docenteEntity.setUsuarioEntity(this.usuarioRepository.findByUniqueIdentifier(docenteDTO.getUsuarioDTO().getId()).get());
         apiResponse.setData(this.docenteRepository.save(docenteEntity).getDocenteDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
