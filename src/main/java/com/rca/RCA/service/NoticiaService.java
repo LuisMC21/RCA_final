@@ -1,9 +1,11 @@
 package com.rca.RCA.service;
 
+import com.rca.RCA.entity.ImagenEntity;
 import com.rca.RCA.entity.NoticiaEntity;
+import com.rca.RCA.entity.UsuarioEntity;
 import com.rca.RCA.repository.NoticiaRepository;
-import com.rca.RCA.type.ApiResponse;
-import com.rca.RCA.type.Pagination;
+import com.rca.RCA.repository.UsuarioRepository;
+import com.rca.RCA.type.*;
 import com.rca.RCA.type.NoticiaDTO;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
@@ -26,21 +28,32 @@ public class NoticiaService {
 
     @Autowired
     private NoticiaRepository noticiaRepository;
+    private UsuarioRepository usuarioRepository;
 
-    public Pagination<NoticiaDTO> getList(String filter, int page, int size) {
+    public NoticiaService(NoticiaRepository noticiaRepository, UsuarioRepository usuarioRepository){
+        this.noticiaRepository = noticiaRepository;
+        this.usuarioRepository = usuarioRepository;
+    }
 
-        Pagination<NoticiaDTO> pagination = new Pagination();
+    //Obtener noticias
+    public ApiResponse<Pagination<NoticiaDTO>> getList(String filter, int page, int size) {
+        log.info("filter page size {} {} {}", filter, page, size);
+        ApiResponse<Pagination<NoticiaDTO>> apiResponse = new ApiResponse<>();
+        Pagination<NoticiaDTO> pagination = new Pagination<>();
         pagination.setCountFilter(this.noticiaRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, filter));
         if (pagination.getCountFilter() > 0) {
             Pageable pageable = PageRequest.of(page, size);
-            List<NoticiaEntity> NoticiaEntities = this.noticiaRepository.findEntities(ConstantsGeneric.CREATED_STATUS, filter, pageable).orElse(new ArrayList<>());
-            pagination.setList(NoticiaEntities.stream().map(NoticiaEntity::getNoticiaDTO).collect(Collectors.toList()));
+            List<NoticiaEntity> noticiaEntities = this.noticiaRepository.findEntities(ConstantsGeneric.CREATED_STATUS, filter, pageable).orElse(new ArrayList<>());
+            pagination.setList(noticiaEntities.stream().map(NoticiaEntity::getNoticiaDTO).collect(Collectors.toList()));
         }
         pagination.setTotalPages(pagination.processAndGetTotalPages(size));
-        return pagination;
+        apiResponse.setData(pagination);
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
     }
 
-    //Agregar Noticia
+    //Agreagar noticia
     public ApiResponse<NoticiaDTO> add(NoticiaDTO NoticiaDTO) {
         ApiResponse<NoticiaDTO> apiResponse = new ApiResponse<>();
         System.out.println(NoticiaDTO.toString());
@@ -48,18 +61,29 @@ public class NoticiaService {
         NoticiaDTO.setCode(Code.generateCode(Code.NEWS_CODE, this.noticiaRepository.count() + 1, Code.NEWS_LENGTH));
         NoticiaDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         NoticiaDTO.setCreateAt(LocalDateTime.now());
+        System.out.println(NoticiaDTO.toString());
         //validamos
         Optional<NoticiaEntity> optionalNoticiaEntity = this.noticiaRepository.findByTitle(NoticiaDTO.getTitle());
         if (optionalNoticiaEntity.isPresent()) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("Noticia_EXISTS");
-            apiResponse.setMessage("No se registro, el Noticia existe");
+            apiResponse.setMessage("No se registro, la noticia existe");
             return apiResponse;
         }
         //change dto to entity
         NoticiaEntity NoticiaEntity = new NoticiaEntity();
         NoticiaEntity.setNoticiaDTO(NoticiaDTO);
 
+        //set usaurio
+        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(NoticiaDTO.getUsuarioDTO().getId());
+        if (optionalUsuarioEntity.isEmpty()) {
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("ROL_NOT_EXISTS");
+            apiResponse.setMessage("No se registró, el usaurio asociado a la imagen no existe");
+            return apiResponse;
+        }
+
+        NoticiaEntity.setUsuarioEntity(optionalUsuarioEntity.get());
         apiResponse.setData(this.noticiaRepository.save(NoticiaEntity).getNoticiaDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
@@ -67,30 +91,50 @@ public class NoticiaService {
     }
 
     //Modificar Noticia
-    public void update(NoticiaDTO NoticiaDTO) {
-        Optional<NoticiaEntity> optionalNoticiaEntity = this.noticiaRepository.findByUniqueIdentifier(NoticiaDTO.getId());
-        if (optionalNoticiaEntity.isPresent()) {
-            NoticiaDTO.setUpdateAt(LocalDateTime.now());
-            //validamos que no se repita
-            Optional<NoticiaEntity> optionalNoticiaEntityValidation = this.noticiaRepository.findByTitle(NoticiaDTO.getTitle(), NoticiaDTO.getId());
-            if (optionalNoticiaEntityValidation.isPresent()) {
-                System.out.println("No se actulizo, la categoria existe");
-                return;
-            }
-            NoticiaEntity NoticiaEntity = optionalNoticiaEntity.get();
-            //set update data
-            if (NoticiaDTO.getCode() != null) {
-                NoticiaEntity.setCode(NoticiaDTO.getCode());
-            }
-            if (NoticiaDTO.getTitle() != null) {
-                NoticiaEntity.setTitle(NoticiaDTO.getTitle());
-            }
-            NoticiaEntity.setUpdateAt(NoticiaDTO.getUpdateAt());
-            //update in database
-            this.noticiaRepository.save(NoticiaEntity);
-        } else {
-            System.out.println("No existe la noticia para poder actualizar");
+    public ApiResponse<NoticiaDTO> update(NoticiaDTO noticiaDTO) {
+        ApiResponse<NoticiaDTO> apiResponse = new ApiResponse<>();
+        System.out.println(noticiaDTO.toString());
+
+        Optional<NoticiaEntity> optionalNoticiaEntity = this.noticiaRepository.findByUniqueIdentifier(noticiaDTO.getId());
+        if (optionalNoticiaEntity.isEmpty()) {
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("Usuario_NOT_EXISTS");
+            apiResponse.setMessage("No se encontro el Usuario");
+            return apiResponse;
         }
+
+        //validamos
+        Optional<NoticiaEntity> optionalImagenEntityValidation = this.noticiaRepository.findByTitle(noticiaDTO.getTitle(), noticiaDTO.getId());
+        if (optionalImagenEntityValidation.isPresent()) {
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("NOTICIA_EXISTS");
+            apiResponse.setMessage("No se actualizó, la noticia existe");
+            return apiResponse;
+        }
+
+        //change dto to entity
+        NoticiaEntity NoticiaEntity = optionalNoticiaEntity.get();
+        NoticiaEntity.setTitle(noticiaDTO.getTitle());
+        NoticiaEntity.setSommelier(noticiaDTO.getSommelier());
+        NoticiaEntity.setDescrip(noticiaDTO.getDescrip());
+        NoticiaEntity.setDate(noticiaDTO.getDate());
+        NoticiaEntity.setImage(noticiaDTO.getImage());
+
+        //set category
+        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(noticiaDTO.getUsuarioDTO().getId());
+        if (optionalUsuarioEntity.isEmpty()) {
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("USUARIO_NOT_EXISTS");
+            apiResponse.setMessage("No se registro, el usuario asociada a la imagen no existe");
+            return apiResponse;
+        }
+
+        NoticiaEntity.setUsuarioEntity(optionalUsuarioEntity.get());
+        apiResponse.setData(this.noticiaRepository.save(NoticiaEntity).getNoticiaDTO());
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+
+        return apiResponse;
     }
 
     //Borrar Noticia

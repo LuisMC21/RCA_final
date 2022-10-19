@@ -4,6 +4,7 @@ import com.rca.RCA.service.ApoderadoService;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.ApoderadoDTO;
+import com.rca.RCA.type.UsuarioDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,7 @@ public class ApoderadoRESTController {
     }
 
     @GetMapping
-    public Pagination<ApoderadoDTO> list(
+    public ApiResponse<Pagination<ApoderadoDTO>> list(
             @RequestParam(defaultValue = "") String filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -33,8 +34,8 @@ public class ApoderadoRESTController {
     }
 
     @PutMapping
-    public void update(@RequestBody ApoderadoDTO ApoderadoDTO) {
-        this.apoderadoService.update(ApoderadoDTO);
+    public ApiResponse<ApoderadoDTO> update(@RequestBody ApoderadoDTO apoderadoDTO) {
+        return this.apoderadoService.update(apoderadoDTO);
     }
 
     @DeleteMapping("{id}")

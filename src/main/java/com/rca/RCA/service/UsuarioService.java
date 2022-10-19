@@ -42,8 +42,8 @@ public class UsuarioService {
         pagination.setCountFilter(this.usuarioRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, filter));
         if (pagination.getCountFilter() > 0) {
             Pageable pageable = PageRequest.of(page, size);
-            List<UsuarioEntity> categoryEntities = this.usuarioRepository.findEntities(ConstantsGeneric.CREATED_STATUS, filter, pageable).orElse(new ArrayList<>());
-            pagination.setList(categoryEntities.stream().map(UsuarioEntity::getUsuarioDTO).collect(Collectors.toList()));
+            List<UsuarioEntity> usuarioEntities = this.usuarioRepository.findEntities(ConstantsGeneric.CREATED_STATUS, filter, pageable).orElse(new ArrayList<>());
+            pagination.setList(usuarioEntities.stream().map(UsuarioEntity::getUsuarioDTO).collect(Collectors.toList()));
         }
         pagination.setTotalPages(pagination.processAndGetTotalPages(size));
         apiResponse.setData(pagination);
