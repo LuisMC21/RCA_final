@@ -39,19 +39,13 @@ public class UsuarioEntity extends AuditoryEntity{
     private RolEntity rolEntity;
 
     @OneToOne(mappedBy = "usuarioEntity")
-    private ApoderadoEntity apoderadoEntity;
-
-    @OneToOne(mappedBy = "usuarioEntity")
-    private AlumnoEntity alumnoEntity;
+    private DocenteEntity docenteEntity;
 
     @OneToMany(mappedBy = "usuarioEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<ImagenEntity> imagenEntities = new HashSet<>();
 
     @OneToMany(mappedBy = "usuarioEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<NoticiaEntity> noticiaEntities = new HashSet<>();
-
-
-
 
     public UsuarioDTO getUsuarioDTO(){
         UsuarioDTO usuarioDTO = new UsuarioDTO();
@@ -66,6 +60,7 @@ public class UsuarioEntity extends AuditoryEntity{
         usuarioDTO.setGra_inst(this.gra_inst);
         usuarioDTO.setEmail_inst(this.email_inst);
         usuarioDTO.setRolDTO(this.rolEntity.getRolDTO());
+        usuarioDTO.setDocenteDTO(this.docenteEntity.getDocenteDTO());
         usuarioDTO.setStatus(this.getStatus());
         usuarioDTO.setCreateAt(this.getCreateAt());
         usuarioDTO.setUpdateAt(this.getUpdateAt());
