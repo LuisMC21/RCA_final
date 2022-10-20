@@ -34,6 +34,8 @@ public class UsuarioEntity extends AuditoryEntity{
     @Column(name = "email_inst")
     private String email_inst;
 
+    @OneToOne(mappedBy = "usuarioEntity")
+    private DocenteEntity docenteEntity;
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
     @JoinColumn(name = "rol_id", referencedColumnName = "id")
     private RolEntity rolEntity;

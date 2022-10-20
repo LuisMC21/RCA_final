@@ -43,6 +43,7 @@ public class DocenteEntity extends AuditoryEntity{
         docenteDTO.setExperience(this.experience);
         docenteDTO.setDose(this.dose);
         docenteDTO.setSpecialty(this.specialty);
+        docenteDTO.setUsuarioDTO(this.usuarioEntity.getUsuarioDTO());
         docenteDTO.setStatus(this.getStatus());
         docenteDTO.setCreateAt(this.getCreateAt());
         docenteDTO.setUpdateAt(this.getUpdateAt());
