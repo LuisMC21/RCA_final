@@ -117,7 +117,7 @@ public class SeccionService {
         ApiResponse<SeccionDTO> apiResponse = new ApiResponse<>();
         //Verifica que el id y el status sean válidos
         Optional<SeccionEntity> optionalSeccionEntity=this.seccionRepository.findByUniqueIdentifier(id);
-        if(optionalSeccionEntity.isPresent()){
+        if(optionalSeccionEntity.isPresent() && optionalSeccionEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)){
             SeccionEntity seccionEntity =optionalSeccionEntity.get();
             seccionEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             seccionEntity.setDeleteAt(LocalDateTime.now());

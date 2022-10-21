@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "seccionxgrado")
+@Table(name = "aula")
 public class AulaEntity extends AuditoryEntity {
     //Propiedades
     //Id
@@ -36,7 +36,7 @@ public class AulaEntity extends AuditoryEntity {
     @OneToMany(mappedBy = "aulaEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<MatriculaEntity> matriculaEntities = new HashSet<>();
 
-    public AulaDTO getSeccionxGradoDTO(){
+    public AulaDTO getAulaDTO(){
         AulaDTO aulaDTO = new AulaDTO();
         aulaDTO.setId(this.getUniqueIdentifier());
         aulaDTO.setCode(this.code);
@@ -48,7 +48,7 @@ public class AulaEntity extends AuditoryEntity {
         aulaDTO.setDeleteAt(this.getDeleteAt());
         return aulaDTO;
     }
-    public void setSeccionxGradoDTO(AulaDTO aulaDTO){
+    public void setAulaDTO(AulaDTO aulaDTO){
         this.setUniqueIdentifier(aulaDTO.getId());
         this.code= aulaDTO.getCode();
         this.setStatus(aulaDTO.getStatus());

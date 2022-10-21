@@ -5,6 +5,7 @@ import com.rca.RCA.type.DocenteDTO;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,6 +23,7 @@ public class DocenteEntity extends AuditoryEntity{
     private String code;
     //Años de experiencia
     @Column(name = "experience", length = 40)
+    @NotBlank(message = "Necesita agregar la experiencia")
     private String experience;
     //Dosis de vacuna COVID
     @Column(name = "dose")
@@ -43,6 +45,7 @@ public class DocenteEntity extends AuditoryEntity{
         docenteDTO.setExperience(this.experience);
         docenteDTO.setDose(this.dose);
         docenteDTO.setSpecialty(this.specialty);
+        docenteDTO.setUsuarioDTO(this.usuarioEntity.getUsuarioDTO());
         docenteDTO.setStatus(this.getStatus());
         docenteDTO.setCreateAt(this.getCreateAt());
         docenteDTO.setUpdateAt(this.getUpdateAt());

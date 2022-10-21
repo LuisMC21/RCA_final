@@ -43,7 +43,7 @@ public class MatriculaEntity extends AuditoryEntity{
         matriculaDTO.setId(this.getUniqueIdentifier());
         matriculaDTO.setCode(this.code);
         matriculaDTO.setDate(this.date);
-        matriculaDTO.setAulaDTO(this.aulaEntity.getSeccionxGradoDTO());
+        matriculaDTO.setAulaDTO(this.aulaEntity.getAulaDTO());
         matriculaDTO.setAnio_lectivoDTO(this.anio_lectivoEntity.getAnioLectivoDTO());
         matriculaDTO.setAlumnoDTO(this.alumnoEntity.getAlumnoDTO());
         matriculaDTO.setStatus(this.getStatus());

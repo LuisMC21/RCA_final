@@ -34,12 +34,11 @@ public class UsuarioEntity extends AuditoryEntity{
     @Column(name = "email_inst")
     private String email_inst;
 
+    @OneToOne(mappedBy = "usuarioEntity")
+    private DocenteEntity docenteEntity;
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
     @JoinColumn(name = "rol_id", referencedColumnName = "id")
     private RolEntity rolEntity;
-
-    @OneToOne(mappedBy = "usuarioEntity")
-    private DocenteEntity docenteEntity;
 
     @OneToMany(mappedBy = "usuarioEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<ImagenEntity> imagenEntities = new HashSet<>();

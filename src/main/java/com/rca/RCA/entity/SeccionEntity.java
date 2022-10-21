@@ -21,7 +21,7 @@ public class SeccionEntity extends AuditoryEntity {
     private Character name;
 
     @OneToMany(mappedBy = "seccionEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    private Set<AulaEntity> seccionxGradoEntities = new HashSet<>();
+    private Set<AulaEntity> aulaEntities = new HashSet<>();
 
     public SeccionDTO getSeccionDTO(){
         SeccionDTO seccionDTO = new SeccionDTO();
