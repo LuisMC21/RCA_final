@@ -25,13 +25,13 @@ public class UsuarioEntity extends AuditoryEntity{
     private String ma_surname;
     @Column(name = "type_doc")
     private String type_doc;
-    @Column(name = "numdoc")
+    @Column(name = "numdoc", unique = true)
     private String numdoc;
-    @Column(name = "tel")
+    @Column(name = "tel", unique = true)
     private String tel;
     @Column(name = "gra_inst")
     private String gra_inst;
-    @Column(name = "email_inst")
+    @Column(name = "email_inst", unique = true)
     private String email_inst;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
