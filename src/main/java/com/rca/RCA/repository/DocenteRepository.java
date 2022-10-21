@@ -18,26 +18,23 @@ public interface DocenteRepository extends JpaRepository<DocenteEntity, Integer>
             "and d.code like concat('%', :filter, '%')")
     Optional<List<DocenteEntity>> findDocente(String status, String filter, Pageable pageable);
 */
-  @Query(value = "SELECT d, u from DocenteEntity d " +
-            "JOIN d.usuarioEntity u " +
+  @Query(value = "SELECT d FROM UsuarioEntity u " +
+            "JOIN u.docenteEntity d " +
             "WHERE u = d.usuarioEntity " +
             "AND d.status = :status " +
-            "AND (d.code like concat('%', :filter, '%'))")
+            "AND u.status = :status " +
+            "AND (d.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or u.numdoc like concat('%', :filter, '%'))")
     Optional<List<DocenteEntity>> findDocente(String status, String filter, Pageable pageable);
 
-
-
-    //Función para contar los docentes activass con filro de código o nombre
-    @Query(value = "select count(d) from DocenteEntity d " +
-            "where d.status = :status " +
-            "and d.code like concat('%', :filter, '%')")
-    Long findCountSeccion(String status, String filter);
+  //Función para contar los docentes activass con filro de código, nombre o documento de identidad
+    @Query(value = "SELECT count(d) FROM UsuarioEntity u " +
+            "JOIN u.docenteEntity d " +
+            "WHERE u = d.usuarioEntity " +
+            "AND d.status = :status " +
+            "AND u.status = :status " +
+            "AND (d.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or u.numdoc like concat('%', :filter, '%'))")
+    Long findCountDocente(String status, String filter);
 
     //Función para obtener un docente con su Identificado Único
     Optional<DocenteEntity> findByUniqueIdentifier(String uniqueIdentifier);
-/*
-    //Función para obtener un docente con su nombre
-    Optional<DocenteEntity> findByName(Character name);
-
- */
 }

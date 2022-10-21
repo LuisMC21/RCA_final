@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/seccionxgrado")
+@RequestMapping("/aula")
 public class AulaRESTController {
     @Autowired
     AulaService aulaService;
@@ -19,18 +19,21 @@ public class AulaRESTController {
     public AulaRESTController(){
     }
 
-    @GetMapping("/{id}")
-    public ApiResponse<Pagination<SeccionDTO>> listSectxGrad(
-            @PathVariable String id,
+    @GetMapping
+    public ApiResponse<Pagination<AulaDTO>> listSectxGrad(
             @RequestParam(defaultValue = "") String filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size){
-        return this.aulaService.getList(id, filter, page, size);
+        return this.aulaService.getList(filter, page, size);
     }
 
     @PostMapping
-    public ApiResponse<AulaDTO> add(@RequestBody Map ids) {
-        return this.aulaService.add(ids);
+    public ApiResponse<AulaDTO> add(@RequestBody AulaDTO aulaDTO) {
+        return this.aulaService.add(aulaDTO);
     }
 
+    @PutMapping
+    public ApiResponse<AulaDTO> update(@RequestBody AulaDTO aulaDTO) {
+        return this.aulaService.update(aulaDTO);
+    }
 }

@@ -32,16 +32,15 @@ public class DocenteRESTController {
         System.out.println(docenteDTO.getDose());
         return this.docenteService.add(docenteDTO);
     }
-/*
+
     @PutMapping
-    public ApiResponse<SeccionDTO> update(@RequestBody SeccionDTO seccionDTO){
-        return this.docenteService.update(seccionDTO);
+    public ApiResponse<DocenteDTO> update(@RequestBody DocenteDTO docenteDTO){
+        return this.docenteService.update(docenteDTO);
     }
 
     @DeleteMapping("{id}")
-    public ApiResponse<SeccionDTO> delete(@PathVariable String id){
+    public ApiResponse<DocenteDTO> delete(@PathVariable String id){
         return this.docenteService.delete(id);
     }
 
- */
 }

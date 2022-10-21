@@ -41,7 +41,7 @@ public class ClaseEntity extends AuditoryEntity{
         ClaseDTO.setCode(this.code);
         ClaseDTO.setDate(this.date);
         ClaseDTO.setPeriodoDTO(this.periodoEntity.getPeriodoDTO());
-        ClaseDTO.setAulaDTO(this.aulaEntity.getSeccionxGradoDTO());
+        ClaseDTO.setAulaDTO(this.aulaEntity.getAulaDTO());
         ClaseDTO.setDocentexCursoDTO(this.docentexCursoEntity.getDocentexCursoDTO());
         ClaseDTO.setStatus(this.getStatus());
         ClaseDTO.setCreateAt(this.getCreateAt());

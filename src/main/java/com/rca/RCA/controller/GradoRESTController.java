@@ -27,16 +27,7 @@ public class GradoRESTController {
             @RequestParam(defaultValue = "10") int size){
         return this.gradoService.getList(filter, page, size);
     }
-/*
-    @GetMapping("/{id}/secciones")
-    public ApiResponse<Pagination<SeccionDTO>> listSectxGrad(
-            @PathVariable String id,
-            @RequestParam(defaultValue = "") String filter,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size){
-        return this.seccionService.getListSxG(id, filter, page, size);
-    }
-*/
+
     @PostMapping
     public ApiResponse<GradoDTO> add(@RequestBody GradoDTO gradoDTO){
         return this.gradoService.add(gradoDTO);

@@ -1,12 +1,12 @@
 package com.rca.RCA.service;
 
 import com.rca.RCA.entity.DocenteEntity;
+import com.rca.RCA.entity.RolEntity;
+import com.rca.RCA.entity.UsuarioEntity;
 import com.rca.RCA.repository.DocenteRepository;
+import com.rca.RCA.repository.RolRepository;
 import com.rca.RCA.repository.UsuarioRepository;
-import com.rca.RCA.type.ApiResponse;
-import com.rca.RCA.type.DocenteDTO;
-import com.rca.RCA.type.Pagination;
-import com.rca.RCA.type.UsuarioDTO;
+import com.rca.RCA.type.*;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
 import lombok.extern.log4j.Log4j2;
@@ -31,19 +31,19 @@ public class DocenteService {
     @Autowired
     private UsuarioRepository usuarioRepository;
     @Autowired
+    private RolRepository rolRepository;
+    @Autowired
     private UsuarioService usuarioService;
 
-    //Función para listar secciones con paginación-START
+    //Función para listar docentes con paginación-START
     public ApiResponse<Pagination<DocenteDTO>> getList(String filter, int page, int size){
         log.info("filter page size {} {} {}", filter, page, size);
         ApiResponse<Pagination<DocenteDTO>> apiResponse = new ApiResponse<>();
         Pagination<DocenteDTO> pagination = new Pagination<>();
-        pagination.setCountFilter(this.docenteRepository.findCountSeccion(ConstantsGeneric.CREATED_STATUS, filter));
+        pagination.setCountFilter(this.docenteRepository.findCountDocente(ConstantsGeneric.CREATED_STATUS, filter));
         if(pagination.getCountFilter()>0){
             Pageable pageable= PageRequest.of(page, size);
             List<DocenteEntity> docenteEntities=this.docenteRepository.findDocente(ConstantsGeneric.CREATED_STATUS, filter, pageable).orElse(new ArrayList<>());
-
-
             pagination.setList(docenteEntities.stream().map(DocenteEntity::getDocenteDTO).collect(Collectors.toList()));
         }
         pagination.setTotalPages(pagination.processAndGetTotalPages(size));
@@ -52,98 +52,133 @@ public class DocenteService {
         apiResponse.setMessage("ok");
         return apiResponse;
     }
-    //Función para listar secciones con paginación-END
+    //Función para listar docentes con paginación-END
 
-    //Función para agregar seccion-START
+    //Función para agregar docente-START
     public ApiResponse<DocenteDTO> add(DocenteDTO docenteDTO){
         ApiResponse<DocenteDTO> apiResponse = new ApiResponse<>();
-
-        docenteDTO.setId(UUID.randomUUID().toString());
-        docenteDTO.setCode(Code.generateCode(Code.TEACHER_CODE, this.docenteRepository.count() + 1, Code.TEACHER_LENGTH));
-        docenteDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
-        docenteDTO.setCreateAt(LocalDateTime.now());
-        ApiResponse<UsuarioDTO> apiResponseU= usuarioService.add(docenteDTO.getUsuarioDTO());
-        if (apiResponseU.isSuccessful()==false) {
+        //Verifica que el rol sea docente
+        Optional<RolEntity> optionalRolEntity=this.rolRepository.findByName("Docente");
+        if (optionalRolEntity.isEmpty() || !optionalRolEntity.get().getName().equalsIgnoreCase("DOCENTE")) {
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("ROLE_NOT_SUPPORTED");
+            apiResponse.setMessage("No se resgistró, el rol docente no existe");
+            return apiResponse;
+        }
+        //add usuario
+        docenteDTO.getUsuarioDTO().setRolDTO(optionalRolEntity.get().getRolDTO());
+        ApiResponse<UsuarioDTO> apiResponseU= this.usuarioService.add(docenteDTO.getUsuarioDTO());
+        if (!apiResponseU.isSuccessful()) {
             log.warn("No se agregó el registro");
             apiResponse.setSuccessful(false);
             apiResponse.setCode("DOCENTE_EXISTS");
             apiResponse.setMessage("No se resgistró, el docente existe");
             return apiResponse;
         }
-
+        //add data docente DTO
+        docenteDTO.setId(UUID.randomUUID().toString());
+        docenteDTO.setCode(Code.generateCode(Code.TEACHER_CODE, this.docenteRepository.count() + 1, Code.TEACHER_LENGTH));
+        docenteDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
+        docenteDTO.setCreateAt(LocalDateTime.now());
         //change DTO to entity
-        docenteDTO.setUsuarioDTO(apiResponseU.getData());
         DocenteEntity docenteEntity =new DocenteEntity();
         docenteEntity.setDocenteDTO(docenteDTO);
+        //add usuario to docente
         docenteEntity.setUsuarioEntity(this.usuarioRepository.findByUniqueIdentifier(docenteDTO.getUsuarioDTO().getId()).get());
+        //save docente
         apiResponse.setData(this.docenteRepository.save(docenteEntity).getDocenteDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
         return apiResponse;
     }
-    //Función para agregar seccion-END
-/*
-    //Función para actualizar seccion-START
-    public ApiResponse<SeccionDTO> update(SeccionDTO seccionDTO){
-        ApiResponse<SeccionDTO> apiResponse = new ApiResponse<>();
-        Optional<SeccionEntity> optionalSeccionEntity=this.docenteRepository.findByName(seccionDTO.getName());
-        //Verifica que el nombre no exista
-        if(optionalSeccionEntity.isEmpty()) {
-            optionalSeccionEntity = this.docenteRepository.findByUniqueIdentifier(seccionDTO.getId());
-            //Verifica que el id y el status sean válidos
-            if (optionalSeccionEntity.isPresent()&& optionalSeccionEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
-                seccionDTO.setUpdateAt(LocalDateTime.now());
-                SeccionEntity seccionEntity = optionalSeccionEntity.get();
+    //Función para agregar docente-END
+
+    //Función para actualizar docente-START
+    public ApiResponse<DocenteDTO> update(DocenteDTO docenteDTO){
+        ApiResponse<DocenteDTO> apiResponse = new ApiResponse<>();
+        //Verifica que el id recibido no sea nulo
+        if(!docenteDTO.getId().isEmpty()) {
+            Optional<DocenteEntity> optionalDocenteEntity = this.docenteRepository.findByUniqueIdentifier(docenteDTO.getId());
+            //Verifica que el docente exista y sea válido
+            if (optionalDocenteEntity.isPresent() && docenteDTO.getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS) && docenteDTO.getUsuarioDTO().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) {
+                //Set update time
+                optionalDocenteEntity.get().setUpdateAt(LocalDateTime.now());
+                optionalDocenteEntity.get().getUsuarioEntity().setUpdateAt(LocalDateTime.now());
                 //Set update data
-                if (seccionDTO.getCode() != null) {
-                    seccionEntity.setCode(seccionDTO.getCode());
+                if (docenteDTO.getExperience() != null) {
+                    optionalDocenteEntity.get().setExperience(docenteDTO.getExperience());
                 }
-                if (seccionDTO.getName() != null) {
-                    seccionEntity.setName(seccionDTO.getName());
+                if (docenteDTO.getDose() != null) {
+                    optionalDocenteEntity.get().setDose(docenteDTO.getDose());
                 }
-                seccionEntity.setUpdateAt(seccionDTO.getUpdateAt());
-                //Update in database
-                apiResponse.setSuccessful(true);
-                apiResponse.setMessage("ok");
-                apiResponse.setData(this.docenteRepository.save(seccionEntity).getSeccionDTO());
+                if (docenteDTO.getSpecialty() != null) {
+                    optionalDocenteEntity.get().setSpecialty(docenteDTO.getSpecialty());
+                }
+                if (docenteDTO.getUsuarioDTO().getPa_surname() != null) {
+                    optionalDocenteEntity.get().getUsuarioEntity().setPa_surname(docenteDTO.getUsuarioDTO().getPa_surname());
+                }
+                if (docenteDTO.getUsuarioDTO().getMa_surname() != null) {
+                    optionalDocenteEntity.get().getUsuarioEntity().setMa_surname(docenteDTO.getUsuarioDTO().getMa_surname());
+                }
+                if (docenteDTO.getUsuarioDTO().getName() != null) {
+                    optionalDocenteEntity.get().getUsuarioEntity().setName(docenteDTO.getUsuarioDTO().getName());
+                }
+                if (docenteDTO.getUsuarioDTO().getGra_inst() != null) {
+                    optionalDocenteEntity.get().getUsuarioEntity().setGra_inst(docenteDTO.getUsuarioDTO().getGra_inst());
+                }
+                if (docenteDTO.getUsuarioDTO().getEmail_inst() != null) {
+                    optionalDocenteEntity.get().getUsuarioEntity().setEmail_inst(docenteDTO.getUsuarioDTO().getEmail_inst());
+                }
+                //Update in database to usuario
+                ApiResponse<UsuarioDTO> apiResponseU = this.usuarioService.update(optionalDocenteEntity.get().getUsuarioEntity().getUsuarioDTO());
+                if (apiResponseU.isSuccessful()) {
+                    //Update in database to docente
+                    apiResponse.setSuccessful(true);
+                    apiResponse.setMessage("ok");
+                    apiResponse.setData(this.docenteRepository.save(optionalDocenteEntity.get()).getDocenteDTO());
+                    return apiResponse;
+                }
+            } else {
+                log.warn("No se actualizó el registro");
+                apiResponse.setMessage("No se puedo actualizar, docente no existente");
+                apiResponse.setCode("TEACHER_DOES_NOT_EXISTS");
                 return apiResponse;
-            } else{
-                apiResponse.setMessage("No existe la sección para poder actualizar");
-                apiResponse.setCode("SECTION_DOES_NOT_EXISTS");
             }
-        } else{
-            apiResponse.setMessage("No se puedo actualizar, sección existente");
-            apiResponse.setCode("SECTION_EXISTS");
         }
         log.warn("No se actualizó el registro");
+        apiResponse.setMessage("No se puedo actualizar, docente no existente");
+        apiResponse.setCode("TEACHER_DOES_NOT_EXISTS");
         apiResponse.setSuccessful(false);
         return apiResponse;
     }
-    //Función para actualizar seccion-END
+    //Función para actualizar docente-END
 
 
     //Función para cambiar estado a eliminado- START
     //id dto=uniqueIdentifier Entity
-    public ApiResponse<SeccionDTO> delete(String id){
-        ApiResponse<SeccionDTO> apiResponse = new ApiResponse<>();
+    public ApiResponse<DocenteDTO> delete(String id){
+        ApiResponse<DocenteDTO> apiResponse = new ApiResponse<>();
         //Verifica que el id y el status sean válidos
-        Optional<SeccionEntity> optionalSeccionEntity=this.docenteRepository.findByUniqueIdentifier(id);
-        if(optionalSeccionEntity.isPresent()){
-            SeccionEntity seccionEntity =optionalSeccionEntity.get();
-            seccionEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
-            seccionEntity.setDeleteAt(LocalDateTime.now());
+        Optional<DocenteEntity> optionalDocenteEntity=this.docenteRepository.findByUniqueIdentifier(id);
+        UsuarioEntity usuarioEntity = new UsuarioEntity();
+        usuarioEntity=optionalDocenteEntity.get().getUsuarioEntity();
 
+        if(optionalDocenteEntity.isPresent()  && optionalDocenteEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS) && optionalDocenteEntity.get().getUsuarioEntity().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)){
+            optionalDocenteEntity.get().getUsuarioEntity().setStatus(ConstantsGeneric.DELETED_STATUS);
+            optionalDocenteEntity.get().getUsuarioEntity().setDeleteAt(LocalDateTime.now());
+            DocenteEntity docenteEntity =optionalDocenteEntity.get();
+            docenteEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
+            docenteEntity.setDeleteAt(LocalDateTime.now());
             apiResponse.setSuccessful(true);
             apiResponse.setMessage("ok");
-            apiResponse.setData(this.docenteRepository.save(seccionEntity).getSeccionDTO());
+            apiResponse.setData(this.docenteRepository.save(docenteEntity).getDocenteDTO());
         } else{
             log.warn("No se eliminó el registro");
             apiResponse.setSuccessful(false);
             apiResponse.setCode("SECTION_DOES_NOT_EXISTS");
-            apiResponse.setMessage("No existe la sección para poder eliminar");
+            apiResponse.setMessage("No existe el docente para poder eliminar");
         }
         return apiResponse;
     }
     //Función para cambiar estado a eliminado- END
- */
 }
