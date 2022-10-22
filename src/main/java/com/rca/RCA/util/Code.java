@@ -45,6 +45,10 @@ public class Code {
 
     public static final String TEACHER_CODE = "DCN";
     public static final int TEACHER_LENGTH = 6;
+
+    public static final String CXD_CODE = "CXD";
+    public static final int CXD_LENGTH = 6;
+
     public static String generateCode(String prefix, long current, int maxLength) {
         String complement =  completeZero(prefix, maxLength - (prefix.length() + String.valueOf(current).length()));
         return complement + current;

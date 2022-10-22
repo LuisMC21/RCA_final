@@ -43,6 +43,7 @@ public class DocentexCursoEntity extends AuditoryEntity{
         docentexCursoDTO.setId(this.getUniqueIdentifier());
         docentexCursoDTO.setCode(this.code);
         docentexCursoDTO.setDocenteDTO(this.docenteEntity.getDocenteDTO());
+        docentexCursoDTO.setCursoDTO(this.cursoEntity.getCursoDTO());
         docentexCursoDTO.setStatus(this.getStatus());
         docentexCursoDTO.setCreateAt(this.getCreateAt());
         docentexCursoDTO.setUpdateAt(this.getUpdateAt());
