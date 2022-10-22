@@ -92,7 +92,6 @@ public class AulaService {
             Optional<AulaEntity> optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(aulaDTO.getId());
             //Verifica que el id y el status sean válidos
             if (optionalAulaEntity.isPresent() && optionalAulaEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
-                optionalAulaEntity.get().setUpdateAt(aulaDTO.getUpdateAt());
                 Optional<GradoEntity> optionalGradoEntity=Optional.empty();
                 Optional<SeccionEntity> optionalSeccionEntity = Optional.empty();
                 if (aulaDTO.getGradoDTO().getId() != null) {
@@ -108,6 +107,7 @@ public class AulaService {
                 if (optionalSeccionEntity.isPresent()) {
                     optionalAulaEntity.get().setSeccionEntity(optionalSeccionEntity.get());
                 }
+                optionalAulaEntity.get().setUpdateAt(aulaDTO.getUpdateAt());
                 //Update in database
                 apiResponse.setSuccessful(true);
                 apiResponse.setMessage("ok");

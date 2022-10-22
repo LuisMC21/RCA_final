@@ -20,7 +20,7 @@ public class AulaRESTController {
     }
 
     @GetMapping
-    public ApiResponse<Pagination<AulaDTO>> listSectxGrad(
+    public ApiResponse<Pagination<AulaDTO>> list(
             @RequestParam(defaultValue = "") String filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size){
@@ -35,5 +35,9 @@ public class AulaRESTController {
     @PutMapping
     public ApiResponse<AulaDTO> update(@RequestBody AulaDTO aulaDTO) {
         return this.aulaService.update(aulaDTO);
+    }
+    @DeleteMapping("{id}")
+    public ApiResponse<AulaDTO> delete(@PathVariable String id){
+        return this.aulaService.delete(id);
     }
 }
