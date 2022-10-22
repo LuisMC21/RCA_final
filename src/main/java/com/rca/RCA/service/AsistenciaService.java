@@ -78,7 +78,7 @@ public class AsistenciaService {
             return apiResponse;
         }
 
-        //set Apoderado
+        //set clase
         Optional<ClaseEntity> optionalClaseEntity = this.claseRepository.findByUniqueIdentifier(AsistenciaDTO.getClaseDTO().getId());
         if (optionalClaseEntity.isEmpty()) {
             apiResponse.setSuccessful(false);
