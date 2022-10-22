@@ -10,13 +10,21 @@ import java.util.Optional;
 
 public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
 
-    @Query(value = "select a from AlumnoEntity a " +
-            "where a.status = :status " +
-            "and (a.code like concat('%', :filter, '%'))")
+    @Query(value = "SELECT a FROM UsuarioEntity u " +
+            "JOIN u.alumnoEntity a " +
+            "WHERE u = a.usuarioEntity " +
+            "AND a.status = :status " +
+            "AND u.status = :status " +
+            "AND (a.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or " +
+            "u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or u.numdoc like concat('%', :filter, '%'))")
     Optional<List<AlumnoEntity>> findEntities(String status, String filter, Pageable pageable);
-    @Query(value = "select count(a) from AlumnoEntity a " +
-            "where a.status = :status " +
-            "and (a.code like concat('%', :filter, '%'))")
+    @Query(value = "SELECT count(a) FROM UsuarioEntity u " +
+            "JOIN u.alumnoEntity a " +
+            "WHERE u = a.usuarioEntity " +
+            "AND a.status = :status " +
+            "AND u.status = :status " +
+            "AND (a.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or " +
+            "u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or u.numdoc like concat('%', :filter, '%'))")
     Long findCountEntities(String status, String filter);
 
     Optional<AlumnoEntity> findByUniqueIdentifier(String uniqueIdentifier);

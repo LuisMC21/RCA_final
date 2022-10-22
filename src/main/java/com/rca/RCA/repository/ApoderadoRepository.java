@@ -9,15 +9,21 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ApoderadoRepository extends JpaRepository<ApoderadoEntity, Integer> {
-    @Query(value = "select a from ApoderadoEntity a " +
-            "where a.status = :status " +
-            "and ( a.code like concat('%', :filter, '%') or a.email like concat('%', :filter, '%') ) " +
-            "order by a.email")
+    @Query(value = "SELECT a FROM UsuarioEntity u " +
+            "JOIN u.apoderadoEntity a " +
+            "WHERE u = a.usuarioEntity " +
+            "AND a.status = :status " +
+            "AND u.status = :status " +
+            "AND (a.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or " +
+    "       u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or u.numdoc like concat('%', :filter, '%'))")
     Optional<List<ApoderadoEntity>> findEntities(String status, String filter, Pageable pageable);
-    @Query(value = "select count(a) from ApoderadoEntity a " +
-            "where a.status = :status " +
-            "and ( a.code like concat('%', :filter, '%') or a.email like concat('%', :filter, '%') ) " +
-            "order by a.email")
+    @Query(value = "SELECT count(a) FROM UsuarioEntity u " +
+            "JOIN u.apoderadoEntity a " +
+            "WHERE u = a.usuarioEntity " +
+            "AND a.status = :status " +
+            "AND u.status = :status " +
+            "AND (a.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') "+
+            "or u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or u.numdoc like concat('%', :filter, '%'))")
     Long findCountEntities(String status, String filter);
 
 

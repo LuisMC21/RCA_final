@@ -36,6 +36,12 @@ public class UsuarioEntity extends AuditoryEntity{
 
     @OneToOne(mappedBy = "usuarioEntity")
     private DocenteEntity docenteEntity;
+
+    @OneToOne(mappedBy = "usuarioEntity")
+    private AlumnoEntity alumnoEntity;
+
+    @OneToOne(mappedBy = "usuarioEntity")
+    private ApoderadoEntity apoderadoEntity;
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.MERGE)
     @JoinColumn(name = "rol_id", referencedColumnName = "id")
     private RolEntity rolEntity;
@@ -59,7 +65,6 @@ public class UsuarioEntity extends AuditoryEntity{
         usuarioDTO.setGra_inst(this.gra_inst);
         usuarioDTO.setEmail_inst(this.email_inst);
         usuarioDTO.setRolDTO(this.rolEntity.getRolDTO());
-        usuarioDTO.setDocenteDTO(this.docenteEntity.getDocenteDTO());
         usuarioDTO.setStatus(this.getStatus());
         usuarioDTO.setCreateAt(this.getCreateAt());
         usuarioDTO.setUpdateAt(this.getUpdateAt());
