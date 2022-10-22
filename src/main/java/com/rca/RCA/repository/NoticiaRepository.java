@@ -22,6 +22,8 @@ public interface NoticiaRepository extends JpaRepository<NoticiaEntity, Integer>
             "and (u.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or " +
             "u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or " +
             "u.numdoc like concat('%', :filter, '%'))")
+
+   
     Long findCountEntities(String status, String filter);
 
 

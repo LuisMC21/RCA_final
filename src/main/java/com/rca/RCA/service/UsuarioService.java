@@ -63,7 +63,8 @@ public class UsuarioService {
         System.out.println(UsuarioDTO.toString());
         //validamos
         Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByNumdoc(UsuarioDTO.getNumdoc());
-        if (optionalUsuarioEntity.isPresent()) {
+        Optional<UsuarioEntity> optionalUsuarioEntity2 = this.usuarioRepository.findByTel(UsuarioDTO.getTel());
+        if (optionalUsuarioEntity.isPresent() || optionalUsuarioEntity2.isPresent()) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("Usuario_EXISTS");
             apiResponse.setMessage("No se registró, el usuario existe");

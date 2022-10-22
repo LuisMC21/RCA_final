@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 import java.util.Optional;
 
-public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer> {
+public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>{
 
 
     @Query(value = "select u from UsuarioEntity u " +
@@ -28,6 +28,9 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
     Optional<UsuarioEntity> findByUniqueIdentifier(String uniqueIdentifier);
 
     Optional<UsuarioEntity> findByNumdoc(String numdoc);
+
+    Optional<UsuarioEntity> findByTel(String tel);
+
 
     @Query(value = "select u from UsuarioEntity u " +
             "where u.numdoc = :numdoc and u.uniqueIdentifier <> :uniqueIdentifier ")
