@@ -62,7 +62,7 @@ public class DocentexCursoService {
         Optional<CursoEntity> optionalCursoEntity=this.cursoRepository.findByUniqueIdentifier(docentexCursoDTO.getCursoDTO().getId());
         if(optionalDocenteEntity.isPresent() && optionalCursoEntity.isPresent()){
                 //Update in database
-            docentexCursoEntity.setCode(Code.generateCode(Code.CLASSROOM_CODE, this.docentexCursoRepository.count() + 1,Code.CLASSROOM_LENGTH));
+            docentexCursoEntity.setCode(Code.generateCode(Code.CXD_CODE, this.docentexCursoRepository.count() + 1,Code.CXD_LENGTH));
             docentexCursoEntity.setDocenteEntity(optionalDocenteEntity.get());
             docentexCursoEntity.setCursoEntity(optionalCursoEntity.get());
             docentexCursoEntity.setUniqueIdentifier(UUID.randomUUID().toString());
