@@ -69,7 +69,7 @@ public class AsistenciaService {
         AsistenciaEntity AsistenciaEntity = new AsistenciaEntity();
         AsistenciaEntity.setAsistenciaDTO(AsistenciaDTO);
 
-        //set usaurio
+        //set usuario
         Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(AsistenciaDTO.getAlumnoDTO().getId());
         if (optionalAlumnoEntity.isEmpty()) {
             apiResponse.setSuccessful(false);

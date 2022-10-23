@@ -35,8 +35,8 @@ public class RolRESTController {
     }
 
     @PutMapping
-    public void update(@RequestBody RolDTO rolDTO) {
-        this.rolService.update(rolDTO);
+    public ApiResponse<RolDTO> update(@RequestBody RolDTO rolDTO) {
+        return this.rolService.update(rolDTO);
     }
 
     @DeleteMapping("{id}")
