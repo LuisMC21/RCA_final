@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public interface NoticiaRepository extends JpaRepository<NoticiaEntity, Integer> {
 
+    //Función para obtener una noticia con filtros por datos de un usuario (codigo, apellidos, nombre)
     @Query(value = "select n from NoticiaEntity n join n.usuarioEntity u " +
             "where u = n.usuarioEntity and u.status=:status " +
             "and (u.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or " +
@@ -17,18 +18,18 @@ public interface NoticiaRepository extends JpaRepository<NoticiaEntity, Integer>
             "u.numdoc like concat('%', :filter, '%'))")
     Optional<List<NoticiaEntity>> findEntities(String status, String filter, Pageable pageable);
 
+    //Función para contar las noticias
     @Query(value = "select count(n) from NoticiaEntity n join n.usuarioEntity u " +
             "where u = n.usuarioEntity and u.status=:status " +
             "and (u.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or " +
             "u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or " +
             "u.numdoc like concat('%', :filter, '%'))")
-
-   
     Long findCountEntities(String status, String filter);
 
-
+    //Función para obtener una noticia según su identificador
     Optional<NoticiaEntity> findByUniqueIdentifier(String uniqueIdentifier);
 
+    //Función para obtener una noticia por su título
     Optional<NoticiaEntity> findByTitle(String title);
 
     @Query(value = "select n from NoticiaEntity n " +

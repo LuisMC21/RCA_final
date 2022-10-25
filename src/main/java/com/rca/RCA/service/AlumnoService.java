@@ -30,7 +30,9 @@ public class AlumnoService {
 
     @Autowired
     private AlumnoRepository alumnoRepository;
+    @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
     private ApoderadoRepository apoderadoRepository;
 
     public AlumnoService(AlumnoRepository alumnoRepository, UsuarioRepository usuarioRepository, ApoderadoRepository apoderadoRepository){

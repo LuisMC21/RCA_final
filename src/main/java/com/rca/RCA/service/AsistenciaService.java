@@ -28,7 +28,9 @@ public class AsistenciaService {
 
     @Autowired
     private AsistenciaRepository asistenciaRepository;
+    @Autowired
     private AlumnoRepository alumnoRepository;
+    @Autowired
     private ClaseRepository claseRepository;
 
     public AsistenciaService(AsistenciaRepository asistenciaRepository, AlumnoRepository alumnoRepository, ClaseRepository claseRepository){

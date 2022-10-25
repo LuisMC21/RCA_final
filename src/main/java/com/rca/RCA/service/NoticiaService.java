@@ -28,6 +28,7 @@ public class NoticiaService {
 
     @Autowired
     private NoticiaRepository noticiaRepository;
+    @Autowired
     private UsuarioRepository usuarioRepository;
 
     public NoticiaService(NoticiaRepository noticiaRepository, UsuarioRepository usuarioRepository){

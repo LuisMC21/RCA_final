@@ -30,10 +30,11 @@ public class ClaseService {
     @Autowired
     private ClaseRepository claseRepository;
 
+    @Autowired
     private AulaRepository aulaRepository;
-
+    @Autowired
     private DocentexCursoRepository docentexCursoRepository;
-
+    @Autowired
     private PeriodoRepository periodoRepository;
 
     //Listar clases
