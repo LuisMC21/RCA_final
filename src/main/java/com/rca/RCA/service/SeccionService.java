@@ -1,6 +1,8 @@
 package com.rca.RCA.service;
 
+import com.rca.RCA.entity.AulaEntity;
 import com.rca.RCA.entity.SeccionEntity;
+import com.rca.RCA.repository.AulaRepository;
 import com.rca.RCA.repository.SeccionRepository;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
@@ -25,6 +27,8 @@ public class SeccionService {
 
     @Autowired
     private SeccionRepository seccionRepository;
+    @Autowired
+    private AulaRepository aulaRepository;
 
     //Función para listar secciones con paginación-START
     public ApiResponse<Pagination<SeccionDTO>> getList(String filter, int page, int size){
@@ -121,7 +125,11 @@ public class SeccionService {
             SeccionEntity seccionEntity =optionalSeccionEntity.get();
             seccionEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             seccionEntity.setDeleteAt(LocalDateTime.now());
-
+            Optional<List<AulaEntity>> optionalAulaEntities= this.aulaRepository.findById_Seccion(seccionEntity.getId());
+            for(int i=0; i<optionalAulaEntities.get().size(); i++){
+                optionalAulaEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+                this.aulaRepository.save(optionalAulaEntities.get().get(i));
+            }
             apiResponse.setSuccessful(true);
             apiResponse.setMessage("ok");
             apiResponse.setData(this.seccionRepository.save(seccionEntity).getSeccionDTO());

@@ -1,9 +1,11 @@
 package com.rca.RCA.service;
 
 import com.rca.RCA.entity.DocenteEntity;
+import com.rca.RCA.entity.DocentexCursoEntity;
 import com.rca.RCA.entity.RolEntity;
 import com.rca.RCA.entity.UsuarioEntity;
 import com.rca.RCA.repository.DocenteRepository;
+import com.rca.RCA.repository.DocentexCursoRepository;
 import com.rca.RCA.repository.RolRepository;
 import com.rca.RCA.repository.UsuarioRepository;
 import com.rca.RCA.type.*;
@@ -34,6 +36,8 @@ public class DocenteService {
     private RolRepository rolRepository;
     @Autowired
     private UsuarioService usuarioService;
+    @Autowired
+    private DocentexCursoRepository docentexCursoRepository;
 
     //Función para listar docentes con paginación-START
     public ApiResponse<Pagination<DocenteDTO>> getList(String filter, int page, int size){
@@ -160,8 +164,6 @@ public class DocenteService {
         ApiResponse<DocenteDTO> apiResponse = new ApiResponse<>();
         //Verifica que el id y el status sean válidos
         Optional<DocenteEntity> optionalDocenteEntity=this.docenteRepository.findByUniqueIdentifier(id);
-        UsuarioEntity usuarioEntity = new UsuarioEntity();
-        usuarioEntity=optionalDocenteEntity.get().getUsuarioEntity();
 
         if(optionalDocenteEntity.isPresent()  && optionalDocenteEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS) && optionalDocenteEntity.get().getUsuarioEntity().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)){
             optionalDocenteEntity.get().getUsuarioEntity().setStatus(ConstantsGeneric.DELETED_STATUS);
@@ -169,6 +171,11 @@ public class DocenteService {
             DocenteEntity docenteEntity =optionalDocenteEntity.get();
             docenteEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             docenteEntity.setDeleteAt(LocalDateTime.now());
+            Optional<List<DocentexCursoEntity>> optionalDocentexCursoEntities= this.docentexCursoRepository.findByDocente(docenteEntity.getId());
+            for(int i=0; i<optionalDocentexCursoEntities.get().size(); i++){
+                optionalDocentexCursoEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+                this.docentexCursoRepository.save(optionalDocentexCursoEntities.get().get(i));
+            }
             apiResponse.setSuccessful(true);
             apiResponse.setMessage("ok");
             apiResponse.setData(this.docenteRepository.save(docenteEntity).getDocenteDTO());

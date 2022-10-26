@@ -1,6 +1,5 @@
 package com.rca.RCA.service;
 
-import com.rca.RCA.entity.DocenteEntity;
 import com.rca.RCA.entity.GradoEntity;
 import com.rca.RCA.entity.SeccionEntity;
 import com.rca.RCA.entity.AulaEntity;
@@ -56,42 +55,54 @@ public class AulaService {
         AulaEntity aulaEntity = new AulaEntity();
         Optional<GradoEntity> optionalGradoEntity=this.gradoRepository.findByUniqueIdentifier(aulaDTO.getGradoDTO().getId());
         Optional<SeccionEntity> optionalSeccionEntity=this.seccionRepository.findByUniqueIdentifier(aulaDTO.getSeccionDTO().getId());
-        if(optionalGradoEntity.isPresent() && optionalSeccionEntity.isPresent()){
+        if(optionalGradoEntity.isPresent() &&
+                optionalSeccionEntity.isPresent()
+                && this.aulaRepository.findByGradoYSeccion(optionalGradoEntity.get().getId(),optionalSeccionEntity.get().getId()).isEmpty()
+                && optionalGradoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)
+                && optionalSeccionEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)){
                 //Update in database
-            aulaEntity.setCode(Code.generateCode(Code.CLASSROOM_CODE, this.aulaRepository.count() + 1,Code.CLASSROOM_LENGTH));
-            aulaEntity.setGradoEntity(optionalGradoEntity.get());
-            aulaEntity.setSeccionEntity(optionalSeccionEntity.get());
-            aulaEntity.setUniqueIdentifier(UUID.randomUUID().toString());
-            aulaEntity.setSeccionEntity(aulaEntity.getSeccionEntity());
-            aulaEntity.setGradoEntity(aulaEntity.getGradoEntity());
-            aulaEntity.setStatus(ConstantsGeneric.CREATED_STATUS);
-            aulaEntity.setCreateAt(LocalDateTime.now());
-            apiResponse.setSuccessful(true);
-            apiResponse.setMessage("ok");
-            apiResponse.setData(this.aulaRepository.save(aulaEntity).getAulaDTO());
-            return apiResponse;
+                aulaEntity.setCode(Code.generateCode(Code.CLASSROOM_CODE, this.aulaRepository.count() + 1, Code.CLASSROOM_LENGTH));
+                aulaEntity.setGradoEntity(optionalGradoEntity.get());
+                aulaEntity.setSeccionEntity(optionalSeccionEntity.get());
+                aulaEntity.setUniqueIdentifier(UUID.randomUUID().toString());
+                aulaEntity.setSeccionEntity(aulaEntity.getSeccionEntity());
+                aulaEntity.setGradoEntity(aulaEntity.getGradoEntity());
+                aulaEntity.setStatus(ConstantsGeneric.CREATED_STATUS);
+                aulaEntity.setCreateAt(LocalDateTime.now());
+                apiResponse.setSuccessful(true);
+                apiResponse.setMessage("ok");
+                apiResponse.setData(this.aulaRepository.save(aulaEntity).getAulaDTO());
+                return apiResponse;
+
         }else{
             log.warn("No se completó el registro");
-            apiResponse.setSuccessful(false);
-            if(!optionalGradoEntity.isPresent()) {
+
+            if(optionalGradoEntity.isEmpty() || optionalGradoEntity.get().getStatus().equals(ConstantsGeneric.DELETED_STATUS)) {
                 apiResponse.setCode("GRADE_DOES_NOT_EXISTS");
             }
-            if(!optionalSeccionEntity.isPresent()) {
+            if(optionalSeccionEntity.isEmpty() || optionalSeccionEntity.get().getStatus().equals(ConstantsGeneric.DELETED_STATUS)) {
                 apiResponse.setCode("SECTION_DOES_NOT_EXISTS");
             }
-            apiResponse.setMessage("No se puedo registrar la sección en el grado");
+            if(optionalGradoEntity.isPresent() && optionalSeccionEntity.isPresent()){
+                if(this.aulaRepository.findByGradoYSeccion(optionalGradoEntity.get().getId(),optionalSeccionEntity.get().getId()).isPresent()){
+                    apiResponse.setCode("CLASSROOM_EXISTS");
+                }
+            }
+
+            apiResponse.setMessage("No se pudo registrar la sección en el grado");
         }
         return apiResponse;
     }
     //Función para agregar un aula- END
 
-      //Función para actualizar un aula-START
+    //Función para actualizar un aula-START
     public ApiResponse<AulaDTO> update(AulaDTO aulaDTO){
         ApiResponse<AulaDTO> apiResponse = new ApiResponse<>();
         if(!aulaDTO.getId().isEmpty()) {
             Optional<AulaEntity> optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(aulaDTO.getId());
             //Verifica que el id y el status sean válidos
-            if (optionalAulaEntity.isPresent() && optionalAulaEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
+            if (optionalAulaEntity.isPresent()
+                    && optionalAulaEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
                 Optional<GradoEntity> optionalGradoEntity=Optional.empty();
                 Optional<SeccionEntity> optionalSeccionEntity = Optional.empty();
                 if (aulaDTO.getGradoDTO().getId() != null) {
@@ -101,25 +112,44 @@ public class AulaService {
                     optionalSeccionEntity = this.seccionRepository.findByUniqueIdentifier(aulaDTO.getSeccionDTO().getId());
                 }
                 //Set update data
-                if (optionalGradoEntity.isPresent()) {
+                if (optionalGradoEntity.isPresent() && optionalGradoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
                     optionalAulaEntity.get().setGradoEntity(optionalGradoEntity.get());
+                } else{
+                    log.warn("No se actualizó el registro");
+                    apiResponse.setSuccessful(false);
+                    apiResponse.setMessage("Grado no existente, no se puede actualizar");
+                    apiResponse.setCode("GRADE_DOES_NOT_EXISTS");
+                    return apiResponse;
                 }
-                if (optionalSeccionEntity.isPresent()) {
+                if (optionalSeccionEntity.isPresent() && optionalSeccionEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
                     optionalAulaEntity.get().setSeccionEntity(optionalSeccionEntity.get());
+                } else{
+                    log.warn("No se actualizó el registro");
+                    apiResponse.setSuccessful(false);
+                    apiResponse.setMessage("Sección no existente, no se puede actualizar");
+                    apiResponse.setCode("SECTION_DOES_NOT_EXISTS");
+                    return apiResponse;
                 }
-                optionalAulaEntity.get().setUpdateAt(aulaDTO.getUpdateAt());
+                if(this.aulaRepository.findByGradoYSeccion(optionalAulaEntity.get().getGradoEntity().getId(), optionalAulaEntity.get().getSeccionEntity().getId()).isPresent()
+                        && this.aulaRepository.findByGradoYSeccion(optionalAulaEntity.get().getGradoEntity().getId(), optionalAulaEntity.get().getSeccionEntity().getId()).get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)){
+                    log.warn("No se actualizó el registro");
+                    apiResponse.setSuccessful(false);
+                    apiResponse.setMessage("Aula ya existente, no se puede actualizar");
+                    apiResponse.setCode("CLASSROOM_EXISTS");
+                    return apiResponse;
+                }
+                optionalAulaEntity.get().setUpdateAt(LocalDateTime.now());
                 //Update in database
                 apiResponse.setSuccessful(true);
                 apiResponse.setMessage("ok");
                 apiResponse.setData(this.aulaRepository.save(optionalAulaEntity.get()).getAulaDTO());
-                return apiResponse;
             } else {
                 log.warn("No se actualizó el registro");
                 apiResponse.setSuccessful(false);
                 apiResponse.setMessage("No existe el aula para poder actualizar");
                 apiResponse.setCode("CLASSROOM_DOES_NOT_EXISTS");
-                return apiResponse;
             }
+            return apiResponse;
         }
         log.warn("No se actualizó el registro");
         apiResponse.setSuccessful(false);

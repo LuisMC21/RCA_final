@@ -1,6 +1,8 @@
 package com.rca.RCA.service;
 
+import com.rca.RCA.entity.AulaEntity;
 import com.rca.RCA.entity.GradoEntity;
+import com.rca.RCA.repository.AulaRepository;
 import com.rca.RCA.repository.GradoRepository;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.GradoDTO;
@@ -23,6 +25,9 @@ public class GradoService {
 
     @Autowired
     private GradoRepository gradoRepository;
+    @Autowired
+    private AulaRepository aulaRepository;
+
     //Función para listar grados con filtro(código o nombre)-START
     public ApiResponse<Pagination<GradoDTO>> getList(String filter, int page, int size){
         log.info("filter page size {} {} {}", filter, page, size);
@@ -116,7 +121,13 @@ public class GradoService {
             GradoEntity gradoEntity =optionalGradoEntity.get();
             gradoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             gradoEntity.setDeleteAt(LocalDateTime.now());
-
+            Optional<List<AulaEntity>> optionalAulaEntities= this.aulaRepository.findById_Grado(gradoEntity.getId());
+            if(optionalAulaEntities.isPresent()) {
+                for (int i = 0; i < optionalAulaEntities.get().size(); i++) {
+                    optionalAulaEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+                    this.aulaRepository.save(optionalAulaEntities.get().get(i));
+                }
+            }
             apiResponse.setSuccessful(true);
             apiResponse.setMessage("ok");
             apiResponse.setData(this.gradoRepository.save(gradoEntity).getGradoDTO());

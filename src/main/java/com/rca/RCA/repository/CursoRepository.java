@@ -20,7 +20,7 @@ public interface CursoRepository extends JpaRepository<CursoEntity, Integer> {
     Optional<List<CursoEntity>> findCurso(String status, String filter, Pageable pageable);
 
     //Función para contar las secciones activass con filro de código o nombre
-    @Query(value = "select count(c) from SeccionEntity c " +
+    @Query(value = "select count(c) from CursoEntity c " +
             "where c.status = :status " +
             "and (c.code like concat('%', :filter, '%') or c.name like concat('%', :filter, '%'))"+
             "order by c.name")

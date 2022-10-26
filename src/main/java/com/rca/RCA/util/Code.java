@@ -49,6 +49,9 @@ public class Code {
     public static final String CXD_CODE = "CXD";
     public static final int CXD_LENGTH = 6;
 
+    public static final String MAT_CODE = "MAT";
+    public static final int MAT_LENGTH = 9;
+
     public static String generateCode(String prefix, long current, int maxLength) {
         String complement =  completeZero(prefix, maxLength - (prefix.length() + String.valueOf(current).length()));
         return complement + current;
