@@ -21,9 +21,7 @@ public interface MatriculaRepository extends JpaRepository<MatriculaEntity, Inte
             "WHERE al=l.alumnoEntity " +
             "AND au=l.aulaEntity " +
             "AND an=l.anio_lectivoEntity " +
-            "AND al.status = :status " +
             "AND l.status = :status " +
-            "AND an.status = :status " +
             "AND (al.code like concat('%', :filter, '%') " +
             "or l.code like concat('%', :filter, '%') " +
             "or au.code like concat('%', :filter, '%') " +
@@ -42,9 +40,7 @@ public interface MatriculaRepository extends JpaRepository<MatriculaEntity, Inte
             "WHERE al=l.alumnoEntity " +
             "AND au=l.aulaEntity " +
             "AND an=l.anio_lectivoEntity " +
-            "AND al.status = :status " +
             "AND l.status = :status " +
-            "AND an.status = :status " +
             "AND (al.code like concat('%', :filter, '%') " +
             "or l.code like concat('%', :filter, '%') " +
             "or au.code like concat('%', :filter, '%') " +
@@ -56,4 +52,17 @@ public interface MatriculaRepository extends JpaRepository<MatriculaEntity, Inte
 
     //Función para obtener una matricula con su Identificado Único
     Optional<MatriculaEntity> findByUniqueIdentifier(String uniqueIdentifier);
+    @Query(value = "SELECT l from AlumnoEntity al " +
+            "JOIN al.matriculaEntities l " +
+            "JOIN l.aulaEntity au " +
+            "JOIN l.anio_lectivoEntity an " +
+            "JOIN al.usuarioEntity u " +
+            "WHERE al=l.alumnoEntity " +
+            "AND au=l.aulaEntity " +
+            "AND an=l.anio_lectivoEntity " +
+            "AND l.status = :status " +
+            "AND au.uniqueIdentifier= :id_aula " +
+            "AND al.uniqueIdentifier= :id_alumno " +
+            "AND an.uniqueIdentifier= :id_anioLectivo ")
+    Optional<MatriculaEntity> findByAuAlAn(String id_aula, String id_alumno, String id_anioLectivo, String status);
 }

@@ -30,6 +30,9 @@ public class CursoService {
     private CursoRepository cursoRepository;
     @Autowired
     private DocentexCursoRepository docentexCursoRepository;
+
+    @Autowired
+    private DocentexCursoService docentexCursoService;
     //Función para listar cursos con paginación-START
     public ApiResponse<Pagination<CursoDTO>> getList(String filter, int page, int size){
         log.info("filter page size {} {} {}", filter, page, size);
@@ -124,10 +127,11 @@ public class CursoService {
             CursoEntity cursoEntity =optionalCursoEntity.get();
             cursoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             cursoEntity.setDeleteAt(LocalDateTime.now());
-            Optional<List<DocentexCursoEntity>> optionalDocentexCursoEntities= this.docentexCursoRepository.findByCurso(cursoEntity.getId());
+            Optional<List<DocentexCursoEntity>> optionalDocentexCursoEntities= this.docentexCursoRepository.findByCurso(cursoEntity.getId(), ConstantsGeneric.CREATED_STATUS);
             for(int i=0; i<optionalDocentexCursoEntities.get().size(); i++){
                 optionalDocentexCursoEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-                this.docentexCursoRepository.save(optionalDocentexCursoEntities.get().get(i));
+                optionalDocentexCursoEntities.get().get(i).setDeleteAt(cursoEntity.getDeleteAt());
+                this.docentexCursoService.delete(optionalDocentexCursoEntities.get().get(i).getCode());
             }
             apiResponse.setSuccessful(true);
             apiResponse.setMessage("ok");

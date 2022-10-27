@@ -9,6 +9,6 @@ public class MatriculaDTO extends AuditoryDTO{
     private String code;
     private Date date;
     private AulaDTO aulaDTO;
-    private AnioLectivoDTO anio_lectivoDTO;
+    private AnioLectivoDTO anioLectivoDTO;
     private AlumnoDTO alumnoDTO;
 }

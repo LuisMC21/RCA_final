@@ -41,17 +41,17 @@ public interface DocentexCursoRepository extends JpaRepository<DocentexCursoEnti
             "JOIN x.cursoEntity c " +
             "WHERE d=x.docenteEntity " +
             "AND d.id = :id_docente " +
-            "AND x.status = 'CREATED'" +
-            "AND d.status= 'CREATED'")
-    Optional<List<DocentexCursoEntity>> findByDocente(Integer id_docente);
+            "AND x.status = :status " +
+            "AND d.status= :status ")
+    Optional<List<DocentexCursoEntity>> findByDocente(Integer id_docente, String status);
     @Query(value = "SELECT x from DocenteEntity d " +
             "JOIN d.docentexCursoEntities x " +
             "JOIN x.cursoEntity c " +
             "WHERE d=x.docenteEntity " +
             "AND c.id = :id_curso " +
-            "AND x.status = 'CREATED'" +
-            "AND c.status= 'CREATED'")
-    Optional<List<DocentexCursoEntity>> findByCurso(Integer id_curso);
+            "AND x.status = :status " +
+            "AND c.status= :status ")
+    Optional<List<DocentexCursoEntity>> findByCurso(Integer id_curso, String status);
 
     @Query(value = "SELECT x from DocenteEntity d " +
             "JOIN d.docentexCursoEntities x " +
@@ -60,8 +60,8 @@ public interface DocentexCursoRepository extends JpaRepository<DocentexCursoEnti
             "AND c=x.cursoEntity " +
             "AND d.id = :id_docente " +
             "AND c.id = :id_curso " +
-            "AND x.status = 'CREATED'" +
-            "AND d.status = 'CREATED'" +
-            "AND c.status= 'CREATED'")
-    Optional<List<DocentexCursoEntity>> findByDocenteYCurso(Integer id_docente, Integer id_curso);
+            "AND x.status = :status " +
+            "AND d.status = :status " +
+            "AND c.status= :status ")
+    Optional<List<DocentexCursoEntity>> findByDocenteYCurso(Integer id_docente, Integer id_curso, String status);
 }

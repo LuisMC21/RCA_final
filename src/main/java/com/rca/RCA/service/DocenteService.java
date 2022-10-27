@@ -38,6 +38,8 @@ public class DocenteService {
     private UsuarioService usuarioService;
     @Autowired
     private DocentexCursoRepository docentexCursoRepository;
+    @Autowired
+    private DocentexCursoService docentexCursoService;
 
     //Función para listar docentes con paginación-START
     public ApiResponse<Pagination<DocenteDTO>> getList(String filter, int page, int size){
@@ -171,10 +173,11 @@ public class DocenteService {
             DocenteEntity docenteEntity =optionalDocenteEntity.get();
             docenteEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             docenteEntity.setDeleteAt(LocalDateTime.now());
-            Optional<List<DocentexCursoEntity>> optionalDocentexCursoEntities= this.docentexCursoRepository.findByDocente(docenteEntity.getId());
+            Optional<List<DocentexCursoEntity>> optionalDocentexCursoEntities= this.docentexCursoRepository.findByDocente(docenteEntity.getId(), ConstantsGeneric.CREATED_STATUS);
             for(int i=0; i<optionalDocentexCursoEntities.get().size(); i++){
                 optionalDocentexCursoEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-                this.docentexCursoRepository.save(optionalDocentexCursoEntities.get().get(i));
+                optionalDocentexCursoEntities.get().get(i).setDeleteAt(docenteEntity.getDeleteAt());
+                this.docentexCursoService.delete(optionalDocentexCursoEntities.get().get(i).getCode());
             }
             apiResponse.setSuccessful(true);
             apiResponse.setMessage("ok");

@@ -1,7 +1,10 @@
 package com.rca.RCA.service;
 
 import com.rca.RCA.entity.AnioLectivoEntity;
+import com.rca.RCA.entity.DocentexCursoEntity;
+import com.rca.RCA.entity.PeriodoEntity;
 import com.rca.RCA.repository.AnioLectivoRepository;
+import com.rca.RCA.repository.PeriodoRepository;
 import com.rca.RCA.type.AnioLectivoDTO;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
@@ -26,6 +29,10 @@ public class AnioLectivoService {
 
     @Autowired
     private AnioLectivoRepository anioLectivoRepository;
+    @Autowired
+    private PeriodoRepository periodoRepository;
+    @Autowired
+    private PeriodoService periodoService;
 
     //Función para listar con paginación de seccion-START
     public ApiResponse<Pagination<AnioLectivoDTO>> getList(String filter, int page, int size){
@@ -117,7 +124,12 @@ public class AnioLectivoService {
             AnioLectivoEntity anioLectivoEntity =optionalSeccionEntity.get();
             anioLectivoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             anioLectivoEntity.setDeleteAt(LocalDateTime.now());
-
+            Optional<List<PeriodoEntity>> optionalAnioLectivoEntities= this.periodoRepository.findById_AnioLectivo(anioLectivoEntity.getId(), ConstantsGeneric.CREATED_STATUS);
+            for(int i=0; i<optionalAnioLectivoEntities.get().size(); i++){
+                optionalAnioLectivoEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+                optionalAnioLectivoEntities.get().get(i).setDeleteAt(anioLectivoEntity.getDeleteAt());
+                this.periodoService.delete(optionalAnioLectivoEntities.get().get(i).getCode());
+            }
             apiResponse.setSuccessful(true);
             apiResponse.setMessage("ok");
             apiResponse.setData(this.anioLectivoRepository.save(anioLectivoEntity).getAnioLectivoDTO());

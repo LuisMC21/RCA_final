@@ -1,14 +1,14 @@
 package com.rca.RCA.service;
 
+import com.rca.RCA.entity.AlumnoEntity;
+import com.rca.RCA.entity.AnioLectivoEntity;
 import com.rca.RCA.entity.AulaEntity;
-import com.rca.RCA.entity.GradoEntity;
 import com.rca.RCA.entity.MatriculaEntity;
-import com.rca.RCA.entity.SeccionEntity;
-import com.rca.RCA.repository.GradoRepository;
+import com.rca.RCA.repository.AlumnoRepository;
+import com.rca.RCA.repository.AnioLectivoRepository;
+import com.rca.RCA.repository.AulaRepository;
 import com.rca.RCA.repository.MatriculaRepository;
-import com.rca.RCA.repository.SeccionRepository;
 import com.rca.RCA.type.ApiResponse;
-import com.rca.RCA.type.AulaDTO;
 import com.rca.RCA.type.MatriculaDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.util.Code;
@@ -32,9 +32,11 @@ public class MatriculaService {
     @Autowired
     private MatriculaRepository matriculaRepository;
     @Autowired
-    private SeccionRepository seccionRepository;
+    private AlumnoRepository alumnoRepository;
     @Autowired
-    private GradoRepository gradoRepository;
+    private AulaRepository aulaRepository;
+    @Autowired
+    private AnioLectivoRepository anioLectivoRepository;
 
     //Función para listar aulas con paginación-START
     public ApiResponse<Pagination<MatriculaDTO>> getList(String filter, int page, int size){
@@ -55,43 +57,52 @@ public class MatriculaService {
         return apiResponse;
     }
     //Función para listar aulas-END
-/*
+
     //Función para agregar un aula- START
-    public ApiResponse<AulaDTO> add(AulaDTO aulaDTO){
-        log.info("Grado Seccion {} {}", aulaDTO.getGradoDTO().getId(), aulaDTO.getSeccionDTO().getId());
-        ApiResponse<AulaDTO> apiResponse = new ApiResponse<>();
-        AulaEntity aulaEntity = new AulaEntity();
-        Optional<GradoEntity> optionalGradoEntity=this.gradoRepository.findByUniqueIdentifier(aulaDTO.getGradoDTO().getId());
-        Optional<SeccionEntity> optionalSeccionEntity=this.seccionRepository.findByUniqueIdentifier(aulaDTO.getSeccionDTO().getId());
-        if(optionalGradoEntity.isPresent() && optionalSeccionEntity.isPresent()){
+    public ApiResponse<MatriculaDTO> add(MatriculaDTO matriculaDTO){
+        log.info("Aula Alumno AnioLectivo {} {} {}", matriculaDTO.getAulaDTO().getId(), matriculaDTO.getAlumnoDTO().getId(), matriculaDTO.getAnioLectivoDTO().getId());
+        ApiResponse<MatriculaDTO> apiResponse = new ApiResponse<>();
+        MatriculaEntity matriculaEntity = new MatriculaEntity();
+        Optional<AulaEntity> optionalAulaEntity=this.aulaRepository.findByUniqueIdentifier(matriculaDTO.getAulaDTO().getId());
+        Optional<AlumnoEntity> optionalAlumnoEntity=this.alumnoRepository.findByUniqueIdentifier(matriculaDTO.getAlumnoDTO().getId());
+        Optional<AnioLectivoEntity> optionalAnioLectivoEntity=this.anioLectivoRepository.findByUniqueIdentifier(matriculaDTO.getAnioLectivoDTO().getId());
+        if(optionalAulaEntity.isPresent() && optionalAlumnoEntity.isPresent() && optionalAnioLectivoEntity.isPresent()){
+            if(this.matriculaRepository.findByAuAlAn(matriculaDTO.getAulaDTO().getId(), matriculaDTO.getAlumnoDTO().getId(), matriculaDTO.getAnioLectivoDTO().getId(), ConstantsGeneric.CREATED_STATUS).isEmpty()) {
                 //Update in database
-            aulaEntity.setCode(Code.generateCode(Code.CLASSROOM_CODE, this.matriculaRepository.count() + 1,Code.CLASSROOM_LENGTH));
-            aulaEntity.setGradoEntity(optionalGradoEntity.get());
-            aulaEntity.setSeccionEntity(optionalSeccionEntity.get());
-            aulaEntity.setUniqueIdentifier(UUID.randomUUID().toString());
-            aulaEntity.setSeccionEntity(aulaEntity.getSeccionEntity());
-            aulaEntity.setGradoEntity(aulaEntity.getGradoEntity());
-            aulaEntity.setStatus(ConstantsGeneric.CREATED_STATUS);
-            aulaEntity.setCreateAt(LocalDateTime.now());
-            apiResponse.setSuccessful(true);
-            apiResponse.setMessage("ok");
-            apiResponse.setData(this.matriculaRepository.save(aulaEntity).getAulaDTO());
-            return apiResponse;
+                matriculaEntity.setCode(Code.generateCode(Code.CLASSROOM_CODE, this.matriculaRepository.count() + 1, Code.CLASSROOM_LENGTH));
+                matriculaEntity.setAulaEntity(optionalAulaEntity.get());
+                matriculaEntity.setAlumnoEntity(optionalAlumnoEntity.get());
+                matriculaEntity.setAnio_lectivoEntity(optionalAnioLectivoEntity.get());
+                matriculaEntity.setUniqueIdentifier(UUID.randomUUID().toString());
+                matriculaEntity.setStatus(ConstantsGeneric.CREATED_STATUS);
+                matriculaEntity.setCreateAt(LocalDateTime.now());
+                apiResponse.setSuccessful(true);
+                apiResponse.setMessage("ok");
+                apiResponse.setData(this.matriculaRepository.save(matriculaEntity).getMatriculaDTO());
+                return apiResponse;
+            }else{
+                log.warn("No se completó el registro");
+                apiResponse.setSuccessful(false);
+                apiResponse.setCode("ENROLLMENT_EXISTS");
+            }
         }else{
             log.warn("No se completó el registro");
             apiResponse.setSuccessful(false);
-            if(!optionalGradoEntity.isPresent()) {
-                apiResponse.setCode("GRADE_DOES_NOT_EXISTS");
+            if(optionalAulaEntity.isEmpty()) {
+                apiResponse.setCode("CLASSROOM_DOES_NOT_EXISTS");
             }
-            if(!optionalSeccionEntity.isPresent()) {
-                apiResponse.setCode("SECTION_DOES_NOT_EXISTS");
+            if(optionalAlumnoEntity.isEmpty()) {
+                apiResponse.setCode("STUDENT_DOES_NOT_EXISTS");
             }
-            apiResponse.setMessage("No se puedo registrar la sección en el grado");
+            if(optionalAnioLectivoEntity.isEmpty()) {
+                apiResponse.setCode("SCHOOL_YEAR_DOES_NOT_EXISTS");
+            }
         }
+        apiResponse.setMessage("No se pudo registrar la matrícula");
         return apiResponse;
     }
     //Función para agregar un aula- END
-
+/*
       //Función para actualizar un aula-START
     public ApiResponse<AulaDTO> update(AulaDTO aulaDTO){
         ApiResponse<AulaDTO> apiResponse = new ApiResponse<>();

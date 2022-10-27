@@ -52,12 +52,11 @@ public class PeriodoService {
     //Función para listar periodos con paginación-END
 
     //Función para agregar periodo-START
-    public ApiResponse<PeriodoDTO> add(String aniolectivo_id, PeriodoDTO periodoDTO){
+    public ApiResponse<PeriodoDTO> add(PeriodoDTO periodoDTO){
         ApiResponse<PeriodoDTO> apiResponse = new ApiResponse<>();
-        Optional<AnioLectivoEntity> optionalAnioLectivoEntity= this.anioLectivoRepository.findByUniqueIdentifier(aniolectivo_id);
-        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByName(periodoDTO.getName());
+        Optional<AnioLectivoEntity> optionalAnioLectivoEntity= this.anioLectivoRepository.findByUniqueIdentifier(periodoDTO.getAnio_lectivoDTO().getId());
+        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByName(periodoDTO.getAnio_lectivoDTO().getId(),periodoDTO.getName(), ConstantsGeneric.CREATED_STATUS);
         if (optionalPeriodoEntity.isPresent() || optionalAnioLectivoEntity.isEmpty()) {
-            log.info(optionalAnioLectivoEntity.get().getName());
             log.warn("No se agregó el registro");
             apiResponse.setSuccessful(false);
             apiResponse.setCode("PERIOD_EXISTS");
@@ -84,7 +83,7 @@ public class PeriodoService {
     //Función para actualizar periodo-START
     public ApiResponse<PeriodoDTO> update(PeriodoDTO periodoDTO){
         ApiResponse<PeriodoDTO> apiResponse = new ApiResponse<>();
-        Optional<PeriodoEntity> optionalPeriodoEntity=this.periodoRepository.findByName(periodoDTO.getName());
+        Optional<PeriodoEntity> optionalPeriodoEntity=this.periodoRepository.findByName(periodoDTO.getAnio_lectivoDTO().getId(),periodoDTO.getName(), ConstantsGeneric.CREATED_STATUS);
         //Verifica que el nombre no exista
         if(optionalPeriodoEntity.isEmpty()) {
             optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(periodoDTO.getId());

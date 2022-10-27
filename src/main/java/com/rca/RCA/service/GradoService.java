@@ -27,6 +27,8 @@ public class GradoService {
     private GradoRepository gradoRepository;
     @Autowired
     private AulaRepository aulaRepository;
+    @Autowired
+    private AulaService aulaService;
 
     //Función para listar grados con filtro(código o nombre)-START
     public ApiResponse<Pagination<GradoDTO>> getList(String filter, int page, int size){
@@ -121,11 +123,12 @@ public class GradoService {
             GradoEntity gradoEntity =optionalGradoEntity.get();
             gradoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             gradoEntity.setDeleteAt(LocalDateTime.now());
-            Optional<List<AulaEntity>> optionalAulaEntities= this.aulaRepository.findById_Grado(gradoEntity.getId());
+            Optional<List<AulaEntity>> optionalAulaEntities= this.aulaRepository.findById_Grado(gradoEntity.getId(), ConstantsGeneric.CREATED_STATUS);
             if(optionalAulaEntities.isPresent()) {
                 for (int i = 0; i < optionalAulaEntities.get().size(); i++) {
                     optionalAulaEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-                    this.aulaRepository.save(optionalAulaEntities.get().get(i));
+                    optionalAulaEntities.get().get(i).setDeleteAt(gradoEntity.getDeleteAt());
+                    this.aulaService.delete(optionalAulaEntities.get().get(i).getCode());
                 }
             }
             apiResponse.setSuccessful(true);

@@ -43,16 +43,16 @@ public interface AulaRepository extends JpaRepository<AulaEntity, Integer> {
             "JOIN x.seccionEntity s " +
             "WHERE g=x.gradoEntity " +
             "AND g.id= :id_grado " +
-            "AND g.status= 'CREATED'")
-    Optional<List<AulaEntity>> findById_Grado(Integer id_grado);
+            "AND g.status= :status ")
+    Optional<List<AulaEntity>> findById_Grado(Integer id_grado, String status);
 
     @Query(value = "SELECT x from GradoEntity g " +
             "JOIN g.aulaEntities x " +
             "JOIN x.seccionEntity s " +
             "WHERE g=x.gradoEntity " +
             "AND s.id= :id_seccion " +
-            "AND s.status= 'CREATED'")
-    Optional<List<AulaEntity>> findById_Seccion(Integer id_seccion);
+            "AND s.status= :status ")
+    Optional<List<AulaEntity>> findById_Seccion(Integer id_seccion, String status);
 
     @Query(value = "SELECT x from GradoEntity g " +
             "JOIN g.aulaEntities x " +
@@ -60,6 +60,6 @@ public interface AulaRepository extends JpaRepository<AulaEntity, Integer> {
             "WHERE g=x.gradoEntity " +
             "AND g.id= :id_grado " +
             "AND s.id= :id_seccion " +
-            "AND x.status= 'CREATED'")
-    Optional<AulaEntity> findByGradoYSeccion(Integer id_grado, Integer id_seccion);
+            "AND x.status= :status ")
+    Optional<AulaEntity> findByGradoYSeccion(Integer id_grado, Integer id_seccion, String status);
 }

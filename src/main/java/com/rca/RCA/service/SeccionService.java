@@ -29,6 +29,8 @@ public class SeccionService {
     private SeccionRepository seccionRepository;
     @Autowired
     private AulaRepository aulaRepository;
+    @Autowired
+    private AulaService aulaService;
 
     //Función para listar secciones con paginación-START
     public ApiResponse<Pagination<SeccionDTO>> getList(String filter, int page, int size){
@@ -125,10 +127,11 @@ public class SeccionService {
             SeccionEntity seccionEntity =optionalSeccionEntity.get();
             seccionEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             seccionEntity.setDeleteAt(LocalDateTime.now());
-            Optional<List<AulaEntity>> optionalAulaEntities= this.aulaRepository.findById_Seccion(seccionEntity.getId());
+            Optional<List<AulaEntity>> optionalAulaEntities= this.aulaRepository.findById_Seccion(seccionEntity.getId(), ConstantsGeneric.CREATED_STATUS);
             for(int i=0; i<optionalAulaEntities.get().size(); i++){
                 optionalAulaEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-                this.aulaRepository.save(optionalAulaEntities.get().get(i));
+                optionalAulaEntities.get().get(i).setDeleteAt(seccionEntity.getDeleteAt());
+                this.aulaService.delete(optionalAulaEntities.get().get(i).getCode());
             }
             apiResponse.setSuccessful(true);
             apiResponse.setMessage("ok");

@@ -26,10 +26,9 @@ public class PeriodoRESTController {
         return this.periodoService.getList(filter, page, size);
     }
 
-    @PostMapping("{aniolectivo_id}")
-    public ApiResponse<PeriodoDTO> add(@PathVariable String aniolectivo_id,
-                                       @RequestBody PeriodoDTO periodoDTO){
-        return this.periodoService.add(aniolectivo_id, periodoDTO);
+    @PostMapping
+    public ApiResponse<PeriodoDTO> add(@RequestBody PeriodoDTO periodoDTO){
+        return this.periodoService.add(periodoDTO);
     }
 
     @PutMapping

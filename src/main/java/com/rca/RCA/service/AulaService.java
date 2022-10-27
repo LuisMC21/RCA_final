@@ -57,7 +57,7 @@ public class AulaService {
         Optional<SeccionEntity> optionalSeccionEntity=this.seccionRepository.findByUniqueIdentifier(aulaDTO.getSeccionDTO().getId());
         if(optionalGradoEntity.isPresent() &&
                 optionalSeccionEntity.isPresent()
-                && this.aulaRepository.findByGradoYSeccion(optionalGradoEntity.get().getId(),optionalSeccionEntity.get().getId()).isEmpty()
+                && this.aulaRepository.findByGradoYSeccion(optionalGradoEntity.get().getId(),optionalSeccionEntity.get().getId(), ConstantsGeneric.CREATED_STATUS).isEmpty()
                 && optionalGradoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)
                 && optionalSeccionEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)){
                 //Update in database
@@ -65,8 +65,6 @@ public class AulaService {
                 aulaEntity.setGradoEntity(optionalGradoEntity.get());
                 aulaEntity.setSeccionEntity(optionalSeccionEntity.get());
                 aulaEntity.setUniqueIdentifier(UUID.randomUUID().toString());
-                aulaEntity.setSeccionEntity(aulaEntity.getSeccionEntity());
-                aulaEntity.setGradoEntity(aulaEntity.getGradoEntity());
                 aulaEntity.setStatus(ConstantsGeneric.CREATED_STATUS);
                 aulaEntity.setCreateAt(LocalDateTime.now());
                 apiResponse.setSuccessful(true);
@@ -84,7 +82,7 @@ public class AulaService {
                 apiResponse.setCode("SECTION_DOES_NOT_EXISTS");
             }
             if(optionalGradoEntity.isPresent() && optionalSeccionEntity.isPresent()){
-                if(this.aulaRepository.findByGradoYSeccion(optionalGradoEntity.get().getId(),optionalSeccionEntity.get().getId()).isPresent()){
+                if(this.aulaRepository.findByGradoYSeccion(optionalGradoEntity.get().getId(),optionalSeccionEntity.get().getId(), ConstantsGeneric.CREATED_STATUS).isPresent()){
                     apiResponse.setCode("CLASSROOM_EXISTS");
                 }
             }
@@ -130,8 +128,8 @@ public class AulaService {
                     apiResponse.setCode("SECTION_DOES_NOT_EXISTS");
                     return apiResponse;
                 }
-                if(this.aulaRepository.findByGradoYSeccion(optionalAulaEntity.get().getGradoEntity().getId(), optionalAulaEntity.get().getSeccionEntity().getId()).isPresent()
-                        && this.aulaRepository.findByGradoYSeccion(optionalAulaEntity.get().getGradoEntity().getId(), optionalAulaEntity.get().getSeccionEntity().getId()).get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)){
+                if(this.aulaRepository.findByGradoYSeccion(optionalAulaEntity.get().getGradoEntity().getId(), optionalAulaEntity.get().getSeccionEntity().getId(),ConstantsGeneric.CREATED_STATUS).isPresent()
+                        && this.aulaRepository.findByGradoYSeccion(optionalAulaEntity.get().getGradoEntity().getId(), optionalAulaEntity.get().getSeccionEntity().getId(), ConstantsGeneric.CREATED_STATUS).get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)){
                     log.warn("No se actualizó el registro");
                     apiResponse.setSuccessful(false);
                     apiResponse.setMessage("Aula ya existente, no se puede actualizar");

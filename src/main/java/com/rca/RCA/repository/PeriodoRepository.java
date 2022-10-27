@@ -30,7 +30,21 @@ public interface PeriodoRepository extends JpaRepository<PeriodoEntity, Integer>
     Optional<PeriodoEntity> findByUniqueIdentifier(String uniqueIdentifier);
 
     //Función para obtener un periodo con su nombre
-    Optional<PeriodoEntity> findByName(String name);
+    @Query(value = "SELECT x from AnioLectivoEntity a " +
+            "JOIN a.periodoEntities x " +
+            "WHERE a=x.anio_lectivoEntity " +
+            "AND a.uniqueIdentifier = :id_anioLectivo " +
+            "AND x.name = :name " +
+            "AND x.status = :status " +
+            "AND a.status= :status ")
+    Optional<PeriodoEntity> findByName(String id_anioLectivo, String name, String status);
+    @Query(value = "SELECT x from AnioLectivoEntity a " +
+            "JOIN a.periodoEntities x " +
+            "WHERE a=x.anio_lectivoEntity " +
+            "AND a.id = :id_anioLectivo " +
+            "AND x.status = :status " +
+            "AND a.status= :status ")
+    Optional<List<PeriodoEntity>> findById_AnioLectivo(Integer id_anioLectivo, String status);
 }
 
 
