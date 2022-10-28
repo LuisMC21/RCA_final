@@ -71,7 +71,7 @@ public class MatriculaService {
                 && optionalAnioLectivoEntity.isPresent() && optionalAnioLectivoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)){
             if(this.matriculaRepository.findByAuAlAn(matriculaDTO.getAulaDTO().getId(), matriculaDTO.getAlumnoDTO().getId(), matriculaDTO.getAnioLectivoDTO().getId(), ConstantsGeneric.CREATED_STATUS).isEmpty()) {
                 //Update in database
-                matriculaEntity.setCode(Code.generateCode(Code.CLASSROOM_CODE, this.matriculaRepository.count() + 1, Code.CLASSROOM_LENGTH));
+                matriculaEntity.setCode(Code.generateCode(Code.MAT_CODE, this.matriculaRepository.count() + 1, Code.MAT_LENGTH));
                 matriculaEntity.setDate(matriculaDTO.getDate());
                 matriculaEntity.setAulaEntity(optionalAulaEntity.get());
                 matriculaEntity.setAlumnoEntity(optionalAlumnoEntity.get());
