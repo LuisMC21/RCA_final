@@ -38,7 +38,7 @@ public class MatriculaService {
     @Autowired
     private AnioLectivoRepository anioLectivoRepository;
 
-    //Función para listar aulas con paginación-START
+    //Función para listar mastriculas con paginación-START
     public ApiResponse<Pagination<MatriculaDTO>> getList(String filter, int page, int size){
         log.info("filter page size {} {} {}", filter, page, size);
         ApiResponse<Pagination<MatriculaDTO>> apiResponse = new ApiResponse<>();
@@ -56,9 +56,9 @@ public class MatriculaService {
         apiResponse.setMessage("ok");
         return apiResponse;
     }
-    //Función para listar aulas-END
+    //Función para listar matriculas-END
 
-    //Función para agregar un aula- START
+    //Función para agregar una matricula- START
     public ApiResponse<MatriculaDTO> add(MatriculaDTO matriculaDTO){
         log.info("Aula Alumno AnioLectivo {} {} {}", matriculaDTO.getAulaDTO().getId(), matriculaDTO.getAlumnoDTO().getId(), matriculaDTO.getAnioLectivoDTO().getId());
         ApiResponse<MatriculaDTO> apiResponse = new ApiResponse<>();
@@ -101,75 +101,77 @@ public class MatriculaService {
         apiResponse.setMessage("No se pudo registrar la matrícula");
         return apiResponse;
     }
-    //Función para agregar un aula- END
-/*
-      //Función para actualizar un aula-START
-    public ApiResponse<AulaDTO> update(AulaDTO aulaDTO){
-        ApiResponse<AulaDTO> apiResponse = new ApiResponse<>();
-        if(!aulaDTO.getId().isEmpty()) {
-            Optional<AulaEntity> optionalAulaEntity = this.matriculaRepository.findByUniqueIdentifier(aulaDTO.getId());
+    //Función para agregar una matricula- END
+
+      //Función para actualizar una matricula-START
+    public ApiResponse<MatriculaDTO> update(MatriculaDTO matriculaDTO){
+        ApiResponse<MatriculaDTO> apiResponse = new ApiResponse<>();
+        if(!matriculaDTO.getId().isEmpty()) {
+            Optional<MatriculaEntity> optionalMatriculaEntity = this.matriculaRepository.findByUniqueIdentifier(matriculaDTO.getId());
             //Verifica que el id y el status sean válidos
-            if (optionalAulaEntity.isPresent() && optionalAulaEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
-                Optional<GradoEntity> optionalGradoEntity=Optional.empty();
-                Optional<SeccionEntity> optionalSeccionEntity = Optional.empty();
-                if (aulaDTO.getGradoDTO().getId() != null) {
-                    optionalGradoEntity = this.gradoRepository.findByUniqueIdentifier(aulaDTO.getGradoDTO().getId());
+            if (optionalMatriculaEntity.isPresent() && optionalMatriculaEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
+                Optional<AulaEntity> optionalAulaEntity=Optional.empty();
+                Optional<AlumnoEntity> optionalAlumnoEntity=Optional.empty();
+                Optional<AnioLectivoEntity> optionalAnioLectivoEntity = Optional.empty();
+                if (matriculaDTO.getAlumnoDTO().getId() != null) {
+                    optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(matriculaDTO.getAlumnoDTO().getId());
                 }
-                if (aulaDTO.getSeccionDTO().getId() != null) {
-                    optionalSeccionEntity = this.seccionRepository.findByUniqueIdentifier(aulaDTO.getSeccionDTO().getId());
+                if (matriculaDTO.getAulaDTO().getId() != null) {
+                    optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(matriculaDTO.getAulaDTO().getId());
+                }
+                if (matriculaDTO.getAnioLectivoDTO().getId() != null) {
+                    optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(matriculaDTO.getAnioLectivoDTO().getId());
                 }
                 //Set update data
-                if (optionalGradoEntity.isPresent()) {
-                    optionalAulaEntity.get().setGradoEntity(optionalGradoEntity.get());
+                optionalAlumnoEntity.ifPresent(alumnoEntity -> optionalMatriculaEntity.get().setAlumnoEntity(alumnoEntity));
+                optionalAulaEntity.ifPresent(aulaEntity -> optionalMatriculaEntity.get().setAulaEntity(aulaEntity));
+                optionalAnioLectivoEntity.ifPresent(anioLectivoEntity -> optionalMatriculaEntity.get().setAnio_lectivoEntity(anioLectivoEntity));
+
+                if(this.matriculaRepository.findByAuAlAn(optionalMatriculaEntity.get().getAulaEntity().getUniqueIdentifier(),optionalMatriculaEntity.get().getAlumnoEntity().getUniqueIdentifier(), optionalMatriculaEntity.get().getAnio_lectivoEntity().getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS).isEmpty()) {
+                    optionalMatriculaEntity.get().setUpdateAt(LocalDateTime.now());
+                    //Update in database
+                    apiResponse.setSuccessful(true);
+                    apiResponse.setMessage("ok");
+                    apiResponse.setData(this.matriculaRepository.save(optionalMatriculaEntity.get()).getMatriculaDTO());
+                }else{
+                    log.warn("No se actualizó el registro");
+                    apiResponse.setSuccessful(false);
+                    apiResponse.setMessage("Ya existe esta matrícula");
+                    apiResponse.setCode("ENROLLMENT_EXISTS");
                 }
-                if (optionalSeccionEntity.isPresent()) {
-                    optionalAulaEntity.get().setSeccionEntity(optionalSeccionEntity.get());
-                }
-                optionalAulaEntity.get().setUpdateAt(aulaDTO.getUpdateAt());
-                //Update in database
-                apiResponse.setSuccessful(true);
-                apiResponse.setMessage("ok");
-                apiResponse.setData(this.matriculaRepository.save(optionalAulaEntity.get()).getAulaDTO());
-                return apiResponse;
-            } else {
-                log.warn("No se actualizó el registro");
-                apiResponse.setSuccessful(false);
-                apiResponse.setMessage("No existe el aula para poder actualizar");
-                apiResponse.setCode("CLASSROOM_DOES_NOT_EXISTS");
                 return apiResponse;
             }
         }
         log.warn("No se actualizó el registro");
         apiResponse.setSuccessful(false);
-        apiResponse.setMessage("No existe el aula para poder actualizar");
-        apiResponse.setCode("CLASSROOM_DOES_NOT_EXISTS");
+        apiResponse.setMessage("No existe la matrícula para poder actualizar");
+        apiResponse.setCode("ENROLLMENT_DOES_NOT_EXISTS");
         return apiResponse;
     }
-    //Función para actualizar un aula-END
+    //Función para actualizar una matricula -END
 
     //Función para cambiar estado a eliminado- START
     //id dto=uniqueIdentifier Entity
-    public ApiResponse<AulaDTO> delete(String id){
-        ApiResponse<AulaDTO> apiResponse = new ApiResponse<>();
+    public ApiResponse<MatriculaDTO> delete(String id){
+        ApiResponse<MatriculaDTO> apiResponse = new ApiResponse<>();
         //Verifica que el id y el status sean válidos
-        Optional<AulaEntity> optionalAulaEntity=this.matriculaRepository.findByUniqueIdentifier(id);
-        if(optionalAulaEntity.isPresent() && optionalAulaEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)){
-            AulaEntity aulaEntity =optionalAulaEntity.get();
-            aulaEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
-            aulaEntity.setDeleteAt(LocalDateTime.now());
+        Optional<MatriculaEntity> optionalMatriculaEntity=this.matriculaRepository.findByUniqueIdentifier(id);
+        if(optionalMatriculaEntity.isPresent() && optionalMatriculaEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)){
+            MatriculaEntity matriculaEntity =optionalMatriculaEntity.get();
+            matriculaEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
+            matriculaEntity.setDeleteAt(LocalDateTime.now());
 
+            log.info("Elimación exitosa");
             apiResponse.setSuccessful(true);
             apiResponse.setMessage("ok");
-            apiResponse.setData(this.matriculaRepository.save(aulaEntity).getAulaDTO());
+            apiResponse.setData(this.matriculaRepository.save(matriculaEntity).getMatriculaDTO());
         } else{
             log.warn("No se eliminó el registro");
             apiResponse.setSuccessful(false);
-            apiResponse.setCode("CLASSROOM_DOES_NOT_EXISTS");
-            apiResponse.setMessage("No existe el aula para poder eliminar");
+            apiResponse.setCode("ENROLLMENT_DOES_NOT_EXISTS");
+            apiResponse.setMessage("No existe la matrícula para poder eliminar");
         }
         return apiResponse;
     }
     //Función para cambiar estado a eliminado- END
-
- */
 }

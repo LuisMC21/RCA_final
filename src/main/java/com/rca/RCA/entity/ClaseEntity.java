@@ -31,7 +31,7 @@ public class ClaseEntity extends AuditoryEntity{
     private PeriodoEntity periodoEntity;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "seccionxgrado_id")
+    @JoinColumn(name = "aula_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private AulaEntity aulaEntity;
 

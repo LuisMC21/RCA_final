@@ -28,16 +28,13 @@ public class MatriculaRESTController {
     public ApiResponse<MatriculaDTO> add(@RequestBody MatriculaDTO matriculaDTO) {
         return this.matriculaService.add(matriculaDTO);
     }
-    /*
 
     @PutMapping
-    public ApiResponse<AulaDTO> update(@RequestBody AulaDTO aulaDTO) {
-        return this.aulaService.update(aulaDTO);
+    public ApiResponse<MatriculaDTO> update(@RequestBody MatriculaDTO matriculaDTO) {
+        return this.matriculaService.update(matriculaDTO);
     }
     @DeleteMapping("{id}")
-    public ApiResponse<AulaDTO> delete(@PathVariable String id){
-        return this.aulaService.delete(id);
+    public ApiResponse<MatriculaDTO> delete(@PathVariable String id){
+        return this.matriculaService.delete(id);
     }
-
- */
 }

@@ -36,6 +36,9 @@ public class AulaEntity extends AuditoryEntity {
     @OneToMany(mappedBy = "aulaEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<MatriculaEntity> matriculaEntities = new HashSet<>();
 
+    @OneToMany(mappedBy = "aulaEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    private Set<ClaseEntity> claseEntities = new HashSet<>();
+
     public AulaDTO getAulaDTO(){
         AulaDTO aulaDTO = new AulaDTO();
         aulaDTO.setId(this.getUniqueIdentifier());
