@@ -24,7 +24,7 @@ public class MatriculaEntity extends AuditoryEntity{
     private Date date;
     //Sección y grado
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "seccionxgrado_id", referencedColumnName = "id")
+    @JoinColumn(name = "aula_id", referencedColumnName = "id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private AulaEntity aulaEntity;
     //Año lectivo

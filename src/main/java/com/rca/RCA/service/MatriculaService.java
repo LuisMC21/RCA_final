@@ -66,10 +66,13 @@ public class MatriculaService {
         Optional<AulaEntity> optionalAulaEntity=this.aulaRepository.findByUniqueIdentifier(matriculaDTO.getAulaDTO().getId());
         Optional<AlumnoEntity> optionalAlumnoEntity=this.alumnoRepository.findByUniqueIdentifier(matriculaDTO.getAlumnoDTO().getId());
         Optional<AnioLectivoEntity> optionalAnioLectivoEntity=this.anioLectivoRepository.findByUniqueIdentifier(matriculaDTO.getAnioLectivoDTO().getId());
-        if(optionalAulaEntity.isPresent() && optionalAlumnoEntity.isPresent() && optionalAnioLectivoEntity.isPresent()){
+        if(optionalAulaEntity.isPresent() && optionalAulaEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)
+                && optionalAlumnoEntity.isPresent() && optionalAlumnoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)
+                && optionalAnioLectivoEntity.isPresent() && optionalAnioLectivoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)){
             if(this.matriculaRepository.findByAuAlAn(matriculaDTO.getAulaDTO().getId(), matriculaDTO.getAlumnoDTO().getId(), matriculaDTO.getAnioLectivoDTO().getId(), ConstantsGeneric.CREATED_STATUS).isEmpty()) {
                 //Update in database
                 matriculaEntity.setCode(Code.generateCode(Code.CLASSROOM_CODE, this.matriculaRepository.count() + 1, Code.CLASSROOM_LENGTH));
+                matriculaEntity.setDate(matriculaDTO.getDate());
                 matriculaEntity.setAulaEntity(optionalAulaEntity.get());
                 matriculaEntity.setAlumnoEntity(optionalAlumnoEntity.get());
                 matriculaEntity.setAnio_lectivoEntity(optionalAnioLectivoEntity.get());
@@ -88,15 +91,16 @@ public class MatriculaService {
         }else{
             log.warn("No se completó el registro");
             apiResponse.setSuccessful(false);
-            if(optionalAulaEntity.isEmpty()) {
+            if(optionalAulaEntity.isEmpty() || optionalAulaEntity.get().getStatus().equals(ConstantsGeneric.DELETED_STATUS)) {
                 apiResponse.setCode("CLASSROOM_DOES_NOT_EXISTS");
             }
-            if(optionalAlumnoEntity.isEmpty()) {
+            if(optionalAlumnoEntity.isEmpty() || optionalAlumnoEntity.get().getStatus().equals(ConstantsGeneric.DELETED_STATUS)) {
                 apiResponse.setCode("STUDENT_DOES_NOT_EXISTS");
             }
-            if(optionalAnioLectivoEntity.isEmpty()) {
+            if(optionalAnioLectivoEntity.isEmpty() || optionalAnioLectivoEntity.get().getStatus().equals(ConstantsGeneric.DELETED_STATUS)) {
                 apiResponse.setCode("SCHOOL_YEAR_DOES_NOT_EXISTS");
             }
+
         }
         apiResponse.setMessage("No se pudo registrar la matrícula");
         return apiResponse;
@@ -161,7 +165,7 @@ public class MatriculaService {
             matriculaEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             matriculaEntity.setDeleteAt(LocalDateTime.now());
 
-            log.info("Elimación exitosa");
+            log.info("Eliminación exitosa");
             apiResponse.setSuccessful(true);
             apiResponse.setMessage("ok");
             apiResponse.setData(this.matriculaRepository.save(matriculaEntity).getMatriculaDTO());

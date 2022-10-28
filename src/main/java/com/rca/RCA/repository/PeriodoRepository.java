@@ -41,10 +41,10 @@ public interface PeriodoRepository extends JpaRepository<PeriodoEntity, Integer>
     @Query(value = "SELECT x from AnioLectivoEntity a " +
             "JOIN a.periodoEntities x " +
             "WHERE a=x.anio_lectivoEntity " +
-            "AND a.id = :id_anioLectivo " +
+            "AND a.uniqueIdentifier = :id_anioLectivo " +
             "AND x.status = :status " +
             "AND a.status= :status ")
-    Optional<List<PeriodoEntity>> findById_AnioLectivo(Integer id_anioLectivo, String status);
+    Optional<List<PeriodoEntity>> findById_AnioLectivo(String id_anioLectivo, String status);
 }
 
 

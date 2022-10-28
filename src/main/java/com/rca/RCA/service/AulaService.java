@@ -1,11 +1,7 @@
 package com.rca.RCA.service;
 
-import com.rca.RCA.entity.GradoEntity;
-import com.rca.RCA.entity.SeccionEntity;
-import com.rca.RCA.entity.AulaEntity;
-import com.rca.RCA.repository.GradoRepository;
-import com.rca.RCA.repository.SeccionRepository;
-import com.rca.RCA.repository.AulaRepository;
+import com.rca.RCA.entity.*;
+import com.rca.RCA.repository.*;
 import com.rca.RCA.type.*;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
@@ -28,6 +24,14 @@ public class AulaService {
     private SeccionRepository seccionRepository;
     @Autowired
     private GradoRepository gradoRepository;
+    @Autowired
+    private ClaseRepository claseRepository;
+    @Autowired
+    private ClaseService claseService;
+    @Autowired
+    private MatriculaRepository matriculaRepository;
+    @Autowired
+    private MatriculaService matriculaService;
 
     //Función para listar aulas con paginación-START
     public ApiResponse<Pagination<AulaDTO>> getList(String filter, int page, int size){
@@ -167,6 +171,20 @@ public class AulaService {
             AulaEntity aulaEntity =optionalAulaEntity.get();
             aulaEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             aulaEntity.setDeleteAt(LocalDateTime.now());
+            //Eliminar lista de clases del aula
+            Optional<List<ClaseEntity>> optionalClaseEntities= this.claseRepository.findByAula(aulaEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
+            for(int i=0; i<optionalClaseEntities.get().size(); i++){
+                optionalClaseEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+                optionalClaseEntities.get().get(i).setDeleteAt(aulaEntity.getDeleteAt());
+                this.claseService.delete(optionalClaseEntities.get().get(i).getCode());
+            }
+            //Eliminar lista de matriculas del aula
+            Optional<List<MatriculaEntity>> optionalMatriculaEntities= this.matriculaRepository.findByAula(aulaEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
+            for(int i=0; i<optionalMatriculaEntities.get().size(); i++){
+                optionalMatriculaEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+                optionalMatriculaEntities.get().get(i).setDeleteAt(aulaEntity.getDeleteAt());
+                this.matriculaService.delete(optionalMatriculaEntities.get().get(i).getCode());
+            }
 
             apiResponse.setSuccessful(true);
             apiResponse.setMessage("ok");
