@@ -121,7 +121,7 @@ public class NoticiaService {
         NoticiaEntity.setDate(noticiaDTO.getDate());
         NoticiaEntity.setImage(noticiaDTO.getImage());
 
-        //set category
+        //set usuario
         Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(noticiaDTO.getUsuarioDTO().getId());
         if (optionalUsuarioEntity.isEmpty()) {
             apiResponse.setSuccessful(false);

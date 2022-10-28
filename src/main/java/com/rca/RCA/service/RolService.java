@@ -103,7 +103,6 @@ public class RolService {
             apiResponse.setMessage("No se encontro el rol para actualizar");;
         }
 
-
         return apiResponse;
     }
 
