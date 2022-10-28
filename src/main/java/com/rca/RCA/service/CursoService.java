@@ -1,7 +1,9 @@
 package com.rca.RCA.service;
 
 import com.rca.RCA.entity.CursoEntity;
+import com.rca.RCA.entity.DocentexCursoEntity;
 import com.rca.RCA.repository.CursoRepository;
+import com.rca.RCA.repository.DocentexCursoRepository;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.CursoDTO;
 import com.rca.RCA.type.Pagination;
@@ -26,7 +28,8 @@ public class CursoService {
 
     @Autowired
     private CursoRepository cursoRepository;
-
+    @Autowired
+    private DocentexCursoRepository docentexCursoRepository;
     //Función para listar cursos con paginación-START
     public ApiResponse<Pagination<CursoDTO>> getList(String filter, int page, int size){
         log.info("filter page size {} {} {}", filter, page, size);
@@ -121,7 +124,11 @@ public class CursoService {
             CursoEntity cursoEntity =optionalCursoEntity.get();
             cursoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             cursoEntity.setDeleteAt(LocalDateTime.now());
-
+            Optional<List<DocentexCursoEntity>> optionalDocentexCursoEntities= this.docentexCursoRepository.findByCurso(cursoEntity.getId());
+            for(int i=0; i<optionalDocentexCursoEntities.get().size(); i++){
+                optionalDocentexCursoEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+                this.docentexCursoRepository.save(optionalDocentexCursoEntities.get().get(i));
+            }
             apiResponse.setSuccessful(true);
             apiResponse.setMessage("ok");
             apiResponse.setData(this.cursoRepository.save(cursoEntity).getCursoDTO());

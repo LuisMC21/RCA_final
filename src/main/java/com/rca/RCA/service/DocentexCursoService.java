@@ -77,11 +77,11 @@ public class DocentexCursoService {
         }else{
             log.warn("No se completó el registro");
             apiResponse.setSuccessful(false);
-            if(!optionalDocenteEntity.isPresent()) {
-                apiResponse.setCode("TEACHER_PER_COURSE_DOES_NOT_EXISTS");
+            if(optionalDocenteEntity.isEmpty()) {
+                apiResponse.setCode("TEACHER_DOES_NOT_EXISTS");
             }
-            if(!optionalCursoEntity.isPresent()) {
-                apiResponse.setCode("TEACHER_PER_COURSE_DOES_NOT_EXISTS");
+            if(optionalCursoEntity.isEmpty()) {
+                apiResponse.setCode("COURSE_DOES_NOT_EXISTS");
             }
             apiResponse.setMessage("No se pudo registrar el curso al docente");
         }
