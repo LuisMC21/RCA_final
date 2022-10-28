@@ -8,6 +8,7 @@ import com.rca.RCA.repository.ApoderadoRepository;
 import com.rca.RCA.repository.UsuarioRepository;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.AlumnoDTO;
+import com.rca.RCA.type.ApoderadoDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
@@ -30,7 +31,9 @@ public class AlumnoService {
 
     @Autowired
     private AlumnoRepository alumnoRepository;
+    @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
     private ApoderadoRepository apoderadoRepository;
 
     public AlumnoService(AlumnoRepository alumnoRepository, UsuarioRepository usuarioRepository, ApoderadoRepository apoderadoRepository){
@@ -70,30 +73,37 @@ public class AlumnoService {
         AlumnoEntity AlumnoEntity = new AlumnoEntity();
         AlumnoEntity.setAlumnoDTO(AlumnoDTO);
 
-        //set usaurio
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(AlumnoDTO.getUsuarioDTO().getId());
-        if (optionalUsuarioEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("USUARIO_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el usaurio asociado al Alumno no existe");
+        if (AlumnoDTO.getUsuarioDTO().getId() != "" || AlumnoDTO.getApoderadoDTO().getId() != ""){
+            //set usaurio
+            Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(AlumnoDTO.getUsuarioDTO().getId());
+            if (optionalUsuarioEntity.isEmpty()) {
+                apiResponse.setSuccessful(false);
+                apiResponse.setCode("USUARIO_NOT_EXISTS");
+                apiResponse.setMessage("No se registró, el usaurio asociado al Alumno no existe");
+                return apiResponse;
+            }
+
+            //set Apoderado
+            Optional<ApoderadoEntity> optionalApoderadoEntity = this.apoderadoRepository.findByUniqueIdentifier(AlumnoDTO.getApoderadoDTO().getId());
+            if (optionalUsuarioEntity.isEmpty()) {
+                apiResponse.setSuccessful(false);
+                apiResponse.setCode("APODERADO_NOT_EXISTS");
+                apiResponse.setMessage("No se registró, el apoderado asociado al Alumno no existe");
+                return apiResponse;
+            }
+
+            AlumnoEntity.setUsuarioEntity(optionalUsuarioEntity.get());
+            AlumnoEntity.setApoderadoEntity(optionalApoderadoEntity.get());
+            apiResponse.setData(this.alumnoRepository.save(AlumnoEntity).getAlumnoDTO());
+            apiResponse.setSuccessful(true);
+            apiResponse.setMessage("ok");
+            return apiResponse;
+
+        }else{
+            apiResponse.setCode("User_or_apoderado_is_empty");
+            apiResponse.setMessage("No se registró, el usuario o apoderado no existe");
             return apiResponse;
         }
-
-        //set Apoderado
-        Optional<ApoderadoEntity> optionalApoderadoEntity = this.apoderadoRepository.findByUniqueIdentifier(AlumnoDTO.getApoderadoDTO().getId());
-        if (optionalUsuarioEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("APODERADO_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el apoderado asociado al Alumno no existe");
-            return apiResponse;
-        }
-
-        AlumnoEntity.setUsuarioEntity(optionalUsuarioEntity.get());
-        AlumnoEntity.setApoderadoEntity(optionalApoderadoEntity.get());
-        apiResponse.setData(this.alumnoRepository.save(AlumnoEntity).getAlumnoDTO());
-        apiResponse.setSuccessful(true);
-        apiResponse.setMessage("ok");
-        return apiResponse;
     }
 
     //Modificar Alumno
