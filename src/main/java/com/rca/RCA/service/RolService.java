@@ -110,10 +110,12 @@ public class RolService {
     public void delete(String id) {
         Optional<RolEntity> optionalRolEntity = this.rolRepository.findByUniqueIdentifier(id);
         if (optionalRolEntity.isPresent()) {
+            System.out.println(optionalRolEntity.get());
             RolEntity RolEntity = optionalRolEntity.get();
             RolEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             RolEntity.setDeleteAt(LocalDateTime.now());
             this.rolRepository.save(RolEntity);
+            //this.rolRepository.deleteRol(id);
         } else {
             System.out.println("No existe el Rol para poder eliminar");
         }

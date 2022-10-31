@@ -21,7 +21,7 @@ public class RolEntity extends AuditoryEntity{
     private Integer id;
     @Column(name = "code", length = 15)
     private String code;
-    @Column(name = "name")
+    @Column(name = "name", unique = true)
     @NotBlank
     private String name;
 

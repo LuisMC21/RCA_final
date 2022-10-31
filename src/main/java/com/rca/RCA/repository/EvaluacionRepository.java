@@ -11,18 +11,17 @@ import java.util.Optional;
 
 public interface EvaluacionRepository extends JpaRepository<EvaluacionEntity, Integer> {
 
-    @Query(value = "select e from EvaluacionEntity e JOIN e.alumnoEntity a JOIN a.usuarioEntity u WHERE a = e.alumnoEntity " +
-            "and  u = a.usuarioEntity and e.status = :status " +
-            "and (u.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or " +
-            "u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or " +
-            "u.numdoc like concat('%', :filter, '%'))")
+    //Obtener evaluaciones por docentexCurso o por alumno
+    @Query(value = "select e from EvaluacionEntity e JOIN e.alumnoEntity a JOIN e.docentexCursoEntity dc " +
+            "WHERE a = e.alumnoEntity and dc = e.docentexCursoEntity " +
+            "and e.status = :status " +
+            "and (a.code like concat('%', :filter, '%') or dc.code like concat('%', :filter, '%'))")
     Optional<List<EvaluacionEntity>> findEntities(String status, String filter, Pageable pageable);
 
-    @Query(value = "select count(e) from EvaluacionEntity e JOIN e.alumnoEntity a JOIN a.usuarioEntity u WHERE a = e.alumnoEntity " +
-            "and  u = a.usuarioEntity and e.status = :status " +
-            "and (u.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or " +
-            "u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or " +
-            "u.numdoc like concat('%', :filter, '%'))")
+    @Query(value = "select count(e) from EvaluacionEntity e JOIN e.alumnoEntity a JOIN e.docentexCursoEntity dc "+
+            "WHERE a = e.alumnoEntity and dc = e.docentexCursoEntity " +
+            "and e.status = :status " +
+            "and (a.code like concat('%', :filter, '%') or dc.code like concat('%', :filter, '%'))")
     Long findCountEntities(String status, String filter);
 
 

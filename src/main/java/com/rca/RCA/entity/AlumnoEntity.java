@@ -22,11 +22,11 @@ public class AlumnoEntity extends AuditoryEntity{
     private String diseases;
     @Column(name = "namecon_pri")
     private String namecon_pri;
-    @Column(name = "telcon_pri")
+    @Column(name = "telcon_pri", unique = true)
     private String telcon_pri;
     @Column(name = "namecon_sec")
     private String namecon_sec;
-    @Column(name = "telcon_sec")
+    @Column(name = "telcon_sec", unique = true)
     private String telcon_sec;
     @Column(name = "vaccine")
     private String vaccine;
