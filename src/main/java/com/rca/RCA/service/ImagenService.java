@@ -27,6 +27,8 @@ public class ImagenService {
 
     @Autowired
     private ImagenRepository imagenRepository;
+
+    @Autowired
     private UsuarioRepository usuarioRepository;
 
     public ImagenService(ImagenRepository imagenRepository, UsuarioRepository usuarioRepository){

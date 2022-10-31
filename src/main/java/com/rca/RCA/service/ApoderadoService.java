@@ -29,6 +29,7 @@ public class ApoderadoService {
 
     @Autowired
     private ApoderadoRepository apoderadoRepository;
+    @Autowired
     private UsuarioRepository usuarioRepository;
 
     public ApoderadoService(ApoderadoRepository apoderadoRepository, UsuarioRepository usuarioRepository){

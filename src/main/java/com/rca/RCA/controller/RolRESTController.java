@@ -8,6 +8,7 @@ import com.rca.RCA.type.UsuarioDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Map;
 
 @RestController
@@ -30,13 +31,13 @@ public class RolRESTController {
         return this.rolService.getList(filter, page, size);
     }
     @PostMapping
-    public ApiResponse<RolDTO> add(@RequestBody RolDTO rolDTO){
+    public ApiResponse<RolDTO> add(@RequestBody @Valid RolDTO rolDTO){
         return this.rolService.add(rolDTO);
     }
 
     @PutMapping
-    public void update(@RequestBody RolDTO rolDTO) {
-        this.rolService.update(rolDTO);
+    public ApiResponse<RolDTO> update(@RequestBody RolDTO rolDTO) {
+        return this.rolService.update(rolDTO);
     }
 
     @DeleteMapping("{id}")

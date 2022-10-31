@@ -28,7 +28,9 @@ public class AsistenciaService {
 
     @Autowired
     private AsistenciaRepository asistenciaRepository;
+    @Autowired
     private AlumnoRepository alumnoRepository;
+    @Autowired
     private ClaseRepository claseRepository;
 
     public AsistenciaService(AsistenciaRepository asistenciaRepository, AlumnoRepository alumnoRepository, ClaseRepository claseRepository){
@@ -69,7 +71,7 @@ public class AsistenciaService {
         AsistenciaEntity AsistenciaEntity = new AsistenciaEntity();
         AsistenciaEntity.setAsistenciaDTO(AsistenciaDTO);
 
-        //set usaurio
+        //set usuario
         Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(AsistenciaDTO.getAlumnoDTO().getId());
         if (optionalAlumnoEntity.isEmpty()) {
             apiResponse.setSuccessful(false);

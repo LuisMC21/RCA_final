@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public interface ClaseRepository extends JpaRepository<ClaseEntity, Integer> {
 
+/*
     @Query(value = "SELECT c FROM ClaseEntity c " +
             "WHERE c.status = :status " +
             "AND ( c.code like concat('%', :filter, '%'))")
@@ -18,6 +19,17 @@ public interface ClaseRepository extends JpaRepository<ClaseEntity, Integer> {
     @Query(value = "SELECT count(c) FROM ClaseEntity c " +
             "WHERE c.status = :status " +
             "AND ( c.code like concat('%', :filter, '%'))")
+*/
+    //Función para listar las clases según el codigo de docentexCurso
+    @Query(value = "select c from ClaseEntity c JOIN c.docentexCursoEntity dc WHERE dc = c.docentexCursoEntity and " +
+            "c.status = :status " +
+            "and ( dc.code like concat('%', :filter, '%'))")
+    Optional<List<ClaseEntity>> findEntities(String status, String filter, Pageable pageable);
+
+    //Función para contar las clases
+    @Query(value = "select count(c) from ClaseEntity c JOIN c.docentexCursoEntity dc WHERE dc = c.docentexCursoEntity and " +
+            "c.status = :status " +
+            "and ( dc.code like concat('%', :filter, '%'))")
     Long findCountEntities(String status, String filter);
 
     Optional<ClaseEntity> findByUniqueIdentifier(String uniqueIdentifier);

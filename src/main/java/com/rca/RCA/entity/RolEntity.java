@@ -5,6 +5,7 @@ import com.rca.RCA.type.RolDTO;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -20,7 +21,8 @@ public class RolEntity extends AuditoryEntity{
     private Integer id;
     @Column(name = "code", length = 15)
     private String code;
-    @Column(name = "name")
+    @Column(name = "name", unique = true)
+    @NotBlank
     private String name;
 
     @OneToMany(mappedBy = "rolEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

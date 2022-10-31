@@ -28,6 +28,7 @@ public class UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
     private RolRepository rolRepository;
 
     public UsuarioService(UsuarioRepository usuarioRepository, RolRepository rolRepository){

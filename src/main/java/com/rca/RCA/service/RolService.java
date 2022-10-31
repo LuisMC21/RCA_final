@@ -5,6 +5,7 @@ import com.rca.RCA.repository.RolRepository;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.RolDTO;
+import com.rca.RCA.type.UsuarioDTO;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
 import lombok.extern.log4j.Log4j2;
@@ -67,15 +68,20 @@ public class RolService {
     }
 
     //Modificar Rol
-    public void update(RolDTO RolDTO) {
+    public ApiResponse<RolDTO> update(RolDTO RolDTO) {
+        ApiResponse<RolDTO> apiResponse = new ApiResponse<>();
+        System.out.println(RolDTO.toString());
+
         Optional<RolEntity> optionalRolEntity = this.rolRepository.findByUniqueIdentifier(RolDTO.getId());
         if (optionalRolEntity.isPresent()) {
             RolDTO.setUpdateAt(LocalDateTime.now());
             //validamos que no se repita
             Optional<RolEntity> optionalRolEntityValidation = this.rolRepository.findByName(RolDTO.getName(), RolDTO.getName());
             if (optionalRolEntityValidation.isPresent()) {
-                System.out.println("No se actulizo, el rol existe");
-                return;
+                apiResponse.setSuccessful(false);
+                apiResponse.setCode("rol_NOT_EXISTS");
+                apiResponse.setMessage("No se encontro el rol");
+                return apiResponse;
             }
             RolEntity RolEntity = optionalRolEntity.get();
             //set update data
@@ -87,20 +93,29 @@ public class RolService {
             }
             RolEntity.setUpdateAt(RolDTO.getUpdateAt());
             //update in database
-            this.rolRepository.save(RolEntity);
+
+            apiResponse.setData(this.rolRepository.save(RolEntity).getRolDTO());
+            apiResponse.setSuccessful(true);
+            apiResponse.setMessage("ok");
         } else {
-            System.out.println("No existe el rol para poder actualizar");
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("rol_NOT_EXISTS");
+            apiResponse.setMessage("No se encontro el rol para actualizar");;
         }
+
+        return apiResponse;
     }
 
     //Borrar Rol
     public void delete(String id) {
         Optional<RolEntity> optionalRolEntity = this.rolRepository.findByUniqueIdentifier(id);
         if (optionalRolEntity.isPresent()) {
+            System.out.println(optionalRolEntity.get());
             RolEntity RolEntity = optionalRolEntity.get();
             RolEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             RolEntity.setDeleteAt(LocalDateTime.now());
             this.rolRepository.save(RolEntity);
+            //this.rolRepository.deleteRol(id);
         } else {
             System.out.println("No existe el Rol para poder eliminar");
         }
