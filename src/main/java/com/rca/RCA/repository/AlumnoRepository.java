@@ -20,6 +20,24 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
             "u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or u.numdoc like concat('%', :filter, '%'))")
     Optional<List<AlumnoEntity>> findEntities(String status, String filter, Pageable pageable);
 
+    @Query(value="SELECT a FROM MatriculaEntity m JOIN m.alumnoEntity a JOIN m.aulaEntity al JOIN m.anio_lectivoEntity an " +
+            "WHERE a = m.alumnoEntity and al = m.aulaEntity and an = m.anio_lectivoEntity " +
+            "and a.status = :status " +
+            "and m.status = :status " +
+            "and al.status = :status " +
+            "and an.status = :status " +
+            "and (al.code like concat('%', :aula, '%') and an.code = :anio)")
+    Optional<List<AlumnoEntity>> findEntitiesAula(String status, String aula, String anio);
+
+    @Query(value = "SELECT count(a) FROM MatriculaEntity m JOIN m.alumnoEntity a JOIN m.aulaEntity al JOIN m.anio_lectivoEntity an " +
+            "WHERE a = m.alumnoEntity and al = m.aulaEntity and an = m.anio_lectivoEntity " +
+            "and a.status = :status " +
+            "and m.status = :status " +
+            "and al.status = :status " +
+            "and an.status = :status " +
+            "and (al.code like concat('%', :aula, '%') and an.code = :anio)")
+    Long findCountEntitiesAula(String status, String aula, String anio);
+
     //Función para contar los alumnos
     @Query(value = "SELECT count(a) FROM UsuarioEntity u " +
             "JOIN u.alumnoEntity a " +
