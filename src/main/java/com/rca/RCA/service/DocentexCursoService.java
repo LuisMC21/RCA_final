@@ -1,10 +1,7 @@
 package com.rca.RCA.service;
 
 import com.rca.RCA.entity.*;
-import com.rca.RCA.repository.ClaseRepository;
-import com.rca.RCA.repository.CursoRepository;
-import com.rca.RCA.repository.DocenteRepository;
-import com.rca.RCA.repository.DocentexCursoRepository;
+import com.rca.RCA.repository.*;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.DocentexCursoDTO;
 import com.rca.RCA.type.Pagination;
@@ -36,6 +33,10 @@ public class DocentexCursoService {
     private ClaseRepository claseRepository;
     @Autowired
     private ClaseService claseService;
+    @Autowired
+    private EvaluacionRepository evaluacionRepository;
+    @Autowired
+    private EvaluacionService evaluacionService;
 
     //Función para listar los cursos asignados a los docente-START
     public ApiResponse<Pagination<DocentexCursoDTO>> getList(String filter, int page, int size){
@@ -140,11 +141,18 @@ public class DocentexCursoService {
             docentexCursoEntity.setDeleteAt(LocalDateTime.now());
             //eliminar lista de clases
             Optional<List<ClaseEntity>> optionalClaseEntities= this.claseRepository.findById_DxC(docentexCursoEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
-                for (int i = 0; i < optionalClaseEntities.get().size(); i++) {
-                    optionalClaseEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-                    optionalClaseEntities.get().get(i).setDeleteAt(docentexCursoEntity.getDeleteAt());
-                    this.claseService.delete(optionalClaseEntities.get().get(i).getCode());
-                }
+            for (int i = 0; i < optionalClaseEntities.get().size(); i++) {
+                optionalClaseEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+                optionalClaseEntities.get().get(i).setDeleteAt(docentexCursoEntity.getDeleteAt());
+                this.claseService.delete(optionalClaseEntities.get().get(i).getCode());
+            }
+            //eliminar lista de evaluaciones
+            Optional<List<EvaluacionEntity>> optionalEvaluacionEntities= this.evaluacionRepository.findById_DXC(docentexCursoEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
+            for (int i = 0; i < optionalEvaluacionEntities.get().size(); i++) {
+                optionalEvaluacionEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+                optionalEvaluacionEntities.get().get(i).setDeleteAt(docentexCursoEntity.getDeleteAt());
+                this.claseService.delete(optionalEvaluacionEntities.get().get(i).getCode());
+            }
             apiResponse.setSuccessful(true);
             apiResponse.setMessage("ok");
             apiResponse.setData(this.docentexCursoRepository.save(docentexCursoEntity).getDocentexCursoDTO());

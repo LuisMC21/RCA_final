@@ -2,9 +2,11 @@ package com.rca.RCA.service;
 
 import com.rca.RCA.entity.AnioLectivoEntity;
 import com.rca.RCA.entity.ClaseEntity;
+import com.rca.RCA.entity.EvaluacionEntity;
 import com.rca.RCA.entity.PeriodoEntity;
 import com.rca.RCA.repository.AnioLectivoRepository;
 import com.rca.RCA.repository.ClaseRepository;
+import com.rca.RCA.repository.EvaluacionRepository;
 import com.rca.RCA.repository.PeriodoRepository;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
@@ -36,6 +38,10 @@ public class PeriodoService {
     private ClaseRepository claseRepository;
     @Autowired
     private ClaseService claseService;
+    @Autowired
+    private EvaluacionRepository evaluacionRepository;
+    @Autowired
+    private EvaluacionService evaluacionService;
 
     //Función para listar periodos con paginación-START
     public ApiResponse<Pagination<PeriodoDTO>> getList(String filter, int page, int size){
@@ -153,6 +159,13 @@ public class PeriodoService {
                 optionalClaseEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
                 optionalClaseEntities.get().get(i).setDeleteAt(periodoEntity.getDeleteAt());
                 this.claseService.delete(optionalClaseEntities.get().get(i).getCode());
+            }
+            //eliminar lista de evaluaciones
+            Optional<List<EvaluacionEntity>> optionalEvaluacionEntities= this.evaluacionRepository.findById_Periodo(periodoEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
+            for(int i=0; i<optionalEvaluacionEntities.get().size(); i++){
+                optionalEvaluacionEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+                optionalEvaluacionEntities.get().get(i).setDeleteAt(periodoEntity.getDeleteAt());
+                this.claseService.delete(optionalEvaluacionEntities.get().get(i).getCode());
             }
 
             apiResponse.setSuccessful(true);

@@ -40,7 +40,10 @@ public class PeriodoEntity extends AuditoryEntity{
     private AnioLectivoEntity anio_lectivoEntity;
 
     @OneToMany(mappedBy = "periodoEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    private Set<ClaseEntity> claseEntities= new HashSet<ClaseEntity>();
+    private Set<ClaseEntity> claseEntities= new HashSet<>();
+
+    @OneToMany(mappedBy = "periodoEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    private Set<EvaluacionEntity> evaluacionEntities= new HashSet<>();
 
     public PeriodoDTO getPeriodoDTO(){
         PeriodoDTO periodoDTO = new PeriodoDTO();
