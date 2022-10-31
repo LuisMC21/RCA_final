@@ -1,8 +1,7 @@
 package com.rca.RCA.service;
 
-import com.rca.RCA.entity.CursoEntity;
-import com.rca.RCA.entity.DocenteEntity;
-import com.rca.RCA.entity.DocentexCursoEntity;
+import com.rca.RCA.entity.*;
+import com.rca.RCA.repository.ClaseRepository;
 import com.rca.RCA.repository.CursoRepository;
 import com.rca.RCA.repository.DocenteRepository;
 import com.rca.RCA.repository.DocentexCursoRepository;
@@ -33,6 +32,10 @@ public class DocentexCursoService {
     private CursoRepository cursoRepository;
     @Autowired
     private DocenteRepository docenteRepository;
+    @Autowired
+    private ClaseRepository claseRepository;
+    @Autowired
+    private ClaseService claseService;
 
     //Función para listar los cursos asignados a los docente-START
     public ApiResponse<Pagination<DocentexCursoDTO>> getList(String filter, int page, int size){
@@ -61,7 +64,7 @@ public class DocentexCursoService {
         Optional<DocenteEntity> optionalDocenteEntity=this.docenteRepository.findByUniqueIdentifier(docentexCursoDTO.getDocenteDTO().getId());
         Optional<CursoEntity> optionalCursoEntity=this.cursoRepository.findByUniqueIdentifier(docentexCursoDTO.getCursoDTO().getId());
         if(optionalDocenteEntity.isPresent() && optionalCursoEntity.isPresent()){
-                //Update in database
+            //Update in database
             docentexCursoEntity.setCode(Code.generateCode(Code.CXD_CODE, this.docentexCursoRepository.count() + 1,Code.CXD_LENGTH));
             docentexCursoEntity.setDocenteEntity(optionalDocenteEntity.get());
             docentexCursoEntity.setCursoEntity(optionalCursoEntity.get());
@@ -106,23 +109,14 @@ public class DocentexCursoService {
                     optionalCursoEntity = this.cursoRepository.findByUniqueIdentifier(aulaDTO.getCursoDTO().getId());
                 }
                 //Set update data
-                if (optionalDocenteEntity.isPresent()) {
-                    optionalDocentexCursoEntity.get().setDocenteEntity(optionalDocenteEntity.get());
-                }
-                if (optionalCursoEntity.isPresent()) {
-                    optionalDocentexCursoEntity.get().setCursoEntity(optionalCursoEntity.get());
-                }
+                optionalDocenteEntity.ifPresent(docenteEntity -> optionalDocentexCursoEntity.get().setDocenteEntity(docenteEntity));
+                optionalCursoEntity.ifPresent(cursoEntity -> optionalDocentexCursoEntity.get().setCursoEntity(cursoEntity));
+
                 optionalDocentexCursoEntity.get().setUpdateAt(LocalDateTime.now());
                 //Update in database
                 apiResponse.setSuccessful(true);
                 apiResponse.setMessage("ok");
                 apiResponse.setData(this.docentexCursoRepository.save(optionalDocentexCursoEntity.get()).getDocentexCursoDTO());
-                return apiResponse;
-            } else {
-                log.warn("No se actualizó el registro");
-                apiResponse.setSuccessful(false);
-                apiResponse.setMessage("No existe el curso asignado al docente para poder actualizar");
-                apiResponse.setCode("TEACHER_PER_COURSE_DOES_NOT_EXISTS");
                 return apiResponse;
             }
         }
@@ -144,7 +138,13 @@ public class DocentexCursoService {
             DocentexCursoEntity docentexCursoEntity =optionalDocentexCursoEntity.get();
             docentexCursoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             docentexCursoEntity.setDeleteAt(LocalDateTime.now());
-
+            //eliminar lista de clases
+            Optional<List<ClaseEntity>> optionalClaseEntities= this.claseRepository.findById_DxC(docentexCursoEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
+                for (int i = 0; i < optionalClaseEntities.get().size(); i++) {
+                    optionalClaseEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+                    optionalClaseEntities.get().get(i).setDeleteAt(docentexCursoEntity.getDeleteAt());
+                    this.claseService.delete(optionalClaseEntities.get().get(i).getCode());
+                }
             apiResponse.setSuccessful(true);
             apiResponse.setMessage("ok");
             apiResponse.setData(this.docentexCursoRepository.save(docentexCursoEntity).getDocentexCursoDTO());

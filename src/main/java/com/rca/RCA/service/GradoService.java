@@ -52,19 +52,20 @@ public class GradoService {
     //Función para agregar un grado - START
     public ApiResponse<GradoDTO> add(GradoDTO gradoDTO){
         ApiResponse<GradoDTO> apiResponse = new ApiResponse<>();
-        gradoDTO.setId(UUID.randomUUID().toString());
-        gradoDTO.setCode(Code.generateCode(Code.GRADE_CODE, this.gradoRepository.count() + 1, Code.GRADE_LENGTH));
-        gradoDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
-        gradoDTO.setCreateAt(LocalDateTime.now());
-
+        //comprobar que el grado no exista
         Optional<GradoEntity> optionalGradoEntity = this.gradoRepository.findByName(gradoDTO.getName());
-        if (optionalGradoEntity.isPresent()) {
+        if (optionalGradoEntity.isPresent() && optionalGradoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
             log.warn("No se completó el registro");
             apiResponse.setSuccessful(false);
             apiResponse.setCode("GRADE_EXISTS");
             apiResponse.setMessage("No se resgistró, el grado existe");
             return apiResponse;
         }
+        //agregar datos de auditoria
+        gradoDTO.setId(UUID.randomUUID().toString());
+        gradoDTO.setCode(Code.generateCode(Code.GRADE_CODE, this.gradoRepository.count() + 1, Code.GRADE_LENGTH));
+        gradoDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
+        gradoDTO.setCreateAt(LocalDateTime.now());
         //change DTO to entity
         GradoEntity gradoEntity =new GradoEntity();
         gradoEntity.setGradoDTO(gradoDTO);
@@ -80,10 +81,10 @@ public class GradoService {
         ApiResponse<GradoDTO> apiResponse = new ApiResponse<>();
         Optional<GradoEntity> optionalGradoEntity=this.gradoRepository.findByName(gradoDTO.getName());
         //Verifica que el nombre del grado no exista
-        if(optionalGradoEntity.isEmpty()) {
+        if(optionalGradoEntity.isEmpty() || optionalGradoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
             optionalGradoEntity = this.gradoRepository.findByUniqueIdentifier(gradoDTO.getId());
             //Verifica que el id y el status seas válidos
-            if (optionalGradoEntity.isPresent() && optionalGradoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
+            if (optionalGradoEntity.isPresent()) {
                 gradoDTO.setUpdateAt(LocalDateTime.now());
                 GradoEntity gradoEntity = optionalGradoEntity.get();
                 //Set update data

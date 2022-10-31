@@ -1,8 +1,10 @@
 package com.rca.RCA.service;
 
 import com.rca.RCA.entity.AnioLectivoEntity;
+import com.rca.RCA.entity.ClaseEntity;
 import com.rca.RCA.entity.PeriodoEntity;
 import com.rca.RCA.repository.AnioLectivoRepository;
+import com.rca.RCA.repository.ClaseRepository;
 import com.rca.RCA.repository.PeriodoRepository;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
@@ -28,9 +30,12 @@ public class PeriodoService {
 
     @Autowired
     private PeriodoRepository periodoRepository;
-
     @Autowired
     private AnioLectivoRepository anioLectivoRepository;
+    @Autowired
+    private ClaseRepository claseRepository;
+    @Autowired
+    private ClaseService claseService;
 
     //Función para listar periodos con paginación-START
     public ApiResponse<Pagination<PeriodoDTO>> getList(String filter, int page, int size){
@@ -56,27 +61,35 @@ public class PeriodoService {
         ApiResponse<PeriodoDTO> apiResponse = new ApiResponse<>();
         Optional<AnioLectivoEntity> optionalAnioLectivoEntity= this.anioLectivoRepository.findByUniqueIdentifier(periodoDTO.getAnio_lectivoDTO().getId());
         Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByName(periodoDTO.getAnio_lectivoDTO().getId(),periodoDTO.getName(), ConstantsGeneric.CREATED_STATUS);
-        if (optionalPeriodoEntity.isPresent() || optionalAnioLectivoEntity.isEmpty()) {
-            log.warn("No se agregó el registro");
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("PERIOD_EXISTS");
-            apiResponse.setMessage("No se registró, el periodo existe");
+        if (optionalPeriodoEntity.isEmpty() && optionalAnioLectivoEntity.isPresent()) {
+            periodoDTO.setId(UUID.randomUUID().toString());
+            periodoDTO.setCode(Code.generateCode(Code.PERIOD_CODE, this.periodoRepository.count() + 1, Code.PERIOD_LENGTH));
+            periodoDTO.setAnio_lectivoDTO(optionalAnioLectivoEntity.get().getAnioLectivoDTO());
+            periodoDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
+            periodoDTO.setCreateAt(LocalDateTime.now());
+
+            //change DTO to entity
+            PeriodoEntity periodoEntity =new PeriodoEntity();
+            periodoEntity.setPeriodoDTO(periodoDTO);
+            periodoEntity.setAnio_lectivoEntity(optionalAnioLectivoEntity.get());
+            apiResponse.setData(this.periodoRepository.save(periodoEntity).getPeriodoDTO());
+            apiResponse.setSuccessful(true);
+            apiResponse.setMessage("ok");
+            log.info("Registro exitoso");
             return apiResponse;
         }
-        periodoDTO.setId(UUID.randomUUID().toString());
-        periodoDTO.setCode(Code.generateCode(Code.PERIOD_CODE, this.periodoRepository.count() + 1, Code.PERIOD_LENGTH));
-        periodoDTO.setAnio_lectivoDTO(optionalAnioLectivoEntity.get().getAnioLectivoDTO());
-        periodoDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
-        periodoDTO.setCreateAt(LocalDateTime.now());
-
-        //change DTO to entity
-        PeriodoEntity periodoEntity =new PeriodoEntity();
-        periodoEntity.setPeriodoDTO(periodoDTO);
-        periodoEntity.setAnio_lectivoEntity(optionalAnioLectivoEntity.get());
-        apiResponse.setData(this.periodoRepository.save(periodoEntity).getPeriodoDTO());
-        apiResponse.setSuccessful(true);
-        apiResponse.setMessage("ok");
+        if(optionalPeriodoEntity.isPresent()){
+            apiResponse.setCode("PERIOD_EXISTS");
+            apiResponse.setMessage("No se registró, el periodo existe");
+        }
+        if(optionalAnioLectivoEntity.isEmpty()){
+            apiResponse.setCode("SCHOOL_YEAR_DOES_NOT_EXISTS");
+            apiResponse.setMessage("No se registró, el año lectivo no existe");
+        }
+        log.warn("No se agregó el registro");
+        apiResponse.setSuccessful(false);
         return apiResponse;
+
     }
     //Función para agregar periodo-END
 
@@ -88,7 +101,7 @@ public class PeriodoService {
         if(optionalPeriodoEntity.isEmpty()) {
             optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(periodoDTO.getId());
             //Verifica que el id y el status sean válidos
-            if (optionalPeriodoEntity.isPresent()&& optionalPeriodoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
+            if (optionalPeriodoEntity.isPresent() && optionalPeriodoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
                 periodoDTO.setUpdateAt(LocalDateTime.now());
                 PeriodoEntity periodoEntity = optionalPeriodoEntity.get();
                 //Set update data
@@ -134,6 +147,13 @@ public class PeriodoService {
             PeriodoEntity periodoEntity =optionalPeriodoEntity.get();
             periodoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             periodoEntity.setDeleteAt(LocalDateTime.now());
+            //eliminar lista de clases
+            Optional<List<ClaseEntity>> optionalClaseEntities= this.claseRepository.findById_Periodo(periodoEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
+            for(int i=0; i<optionalClaseEntities.get().size(); i++){
+                optionalClaseEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+                optionalClaseEntities.get().get(i).setDeleteAt(periodoEntity.getDeleteAt());
+                this.claseService.delete(optionalClaseEntities.get().get(i).getCode());
+            }
 
             apiResponse.setSuccessful(true);
             apiResponse.setMessage("ok");
