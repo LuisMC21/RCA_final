@@ -25,7 +25,7 @@ public class RolEntity extends AuditoryEntity{
     @NotBlank
     private String name;
 
-    @OneToMany(mappedBy = "rolEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "rolEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<UsuarioEntity> usuarioEntities = new HashSet<>();
 
     public RolDTO getRolDTO(){

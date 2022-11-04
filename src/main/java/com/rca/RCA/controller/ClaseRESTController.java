@@ -38,7 +38,7 @@ public class ClaseRESTController {
     }
 
     @DeleteMapping("{id}")
-    public void delete(@PathVariable String id) {
-        this.claseService.delete(id);
+    public ApiResponse<ClaseDTO> delete(@PathVariable String id) {
+        return this.claseService.delete(id);
     }
 }

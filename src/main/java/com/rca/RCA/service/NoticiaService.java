@@ -120,6 +120,7 @@ public class NoticiaService {
         NoticiaEntity.setDescrip(noticiaDTO.getDescrip());
         NoticiaEntity.setDate(noticiaDTO.getDate());
         NoticiaEntity.setImage(noticiaDTO.getImage());
+        NoticiaEntity.setUpdateAt(LocalDateTime.now());
 
         //set usuario
         Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(noticiaDTO.getUsuarioDTO().getId());
@@ -139,15 +140,23 @@ public class NoticiaService {
     }
 
     //Borrar Noticia
-    public void delete(String id) {
+    public ApiResponse<NoticiaDTO> delete(String id) {
+        ApiResponse<NoticiaDTO> apiResponse = new ApiResponse<>();
         Optional<NoticiaEntity> optionalNoticiaEntity = this.noticiaRepository.findByUniqueIdentifier(id);
         if (optionalNoticiaEntity.isPresent()) {
             NoticiaEntity NoticiaEntity = optionalNoticiaEntity.get();
             NoticiaEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             NoticiaEntity.setDeleteAt(LocalDateTime.now());
-            this.noticiaRepository.save(NoticiaEntity);
+
+            apiResponse.setSuccessful(true);
+            apiResponse.setMessage("ok");
+            apiResponse.setData(this.noticiaRepository.save(NoticiaEntity).getNoticiaDTO());
         } else {
-            System.out.println("No existe el Noticia para poder eliminar");
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("NOTICIA_DOES_NOT_EXISTS");
+            apiResponse.setMessage("No existe la noticia para poder eliminar");;
         }
+
+        return apiResponse;
     }
 }

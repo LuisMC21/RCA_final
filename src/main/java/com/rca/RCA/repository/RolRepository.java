@@ -38,11 +38,11 @@ public interface RolRepository extends JpaRepository<RolEntity, Integer> {
             "where r.name = :name and r.uniqueIdentifier <> :uniqueIdentifier ")
     Optional<RolEntity> findByName(String name, String uniqueIdentifier);
 
-    /*@Transactional
+    @Transactional
     @Modifying
     @Query(value="update usuario u JOIN rol r  SET u.tx_status = 'DELETED' where u.rol_id = r.id" +
-            " and r.tx_unique_identifier = '123'", nativeQuery = true)
-    void deleteRol(@Param("uniqueIdentifier") String uniqueIdentifier);
+            " and r.tx_unique_identifier = :uniqueIdentifier", nativeQuery = true)
+    void deleteUsuarios(@Param("uniqueIdentifier") String uniqueIdentifier);
 
-    https://stackoverflow.com/questions/20089031/could-not-extract-resultset-in-hibernate*/
+
 }

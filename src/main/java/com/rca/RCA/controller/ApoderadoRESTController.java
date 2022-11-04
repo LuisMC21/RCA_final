@@ -39,7 +39,7 @@ public class ApoderadoRESTController {
     }
 
     @DeleteMapping("{id}")
-    public void delete(@PathVariable String id) {
-        this.apoderadoService.delete(id);
+    public ApiResponse<ApoderadoDTO> delete(@PathVariable String id) {
+        return this.apoderadoService.delete(id);
     }
 }

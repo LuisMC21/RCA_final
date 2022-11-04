@@ -38,7 +38,7 @@ public class EvaluacionRESTController {
     }
 
     @DeleteMapping("{id}")
-    public void delete(@PathVariable String id) {
-        this.evaluacionService.delete(id);
+    public ApiResponse<EvaluacionDTO> delete(@PathVariable String id) {
+        return this.evaluacionService.delete(id);
     }
 }

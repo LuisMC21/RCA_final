@@ -3,8 +3,12 @@ package com.rca.RCA.repository;
 import com.rca.RCA.entity.AlumnoEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,5 +54,30 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
 
     //Función para obtener un alumno por su identificador
     Optional<AlumnoEntity> findByUniqueIdentifier(String uniqueIdentifier);
+
+    //Función para eliminar usuario asociado al alumno
+    @Transactional
+    @Modifying
+    @Query(value = "update usuario u JOIN alumno a  SET u.tx_status = 'DELETED', u.tx_delete_at = :fecha " +
+            "where a.user_id = u.id " +
+            "and a.tx_unique_identifier = :uniqueIdentifier", nativeQuery = true)
+    void deleteUsuario(@Param("uniqueIdentifier") String uniqueIdentifier, @Param("fecha")LocalDateTime fecha);
+
+    //Función para eliminar asistencias asociadas al alumno
+    @Transactional
+    @Modifying
+    @Query(value = "update asistencia a JOIN alumno al SET a.tx_status = 'DELETED', a.tx_delete_at = :fecha " +
+            "where a.alumno_id = al.id " +
+            "and al.tx_unique_identifier = :uniqueIdentifier", nativeQuery = true)
+    void deleteAsistencia(@Param("uniqueIdentifier") String uniqueIdentifier, @Param("fecha") LocalDateTime fecha);
+
+    //Función para eliminar evaluaciones asociadas al alumno
+    @Transactional
+    @Modifying
+    @Query(value = "update evaluacion e JOIN alumno al SET e.tx_status = 'DELETED', e.tx_delete_at = :fecha " +
+            "where e.alumno_id = al.id " +
+            "and al.tx_unique_identifier = :uniqueIdentifier", nativeQuery = true)
+    void deleteEvaluciones(@Param("uniqueIdentifier") String uniqueIdentifier, @Param("fecha") LocalDateTime fecha);
+
 
 }

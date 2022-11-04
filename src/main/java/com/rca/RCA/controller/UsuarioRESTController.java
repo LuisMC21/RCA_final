@@ -38,7 +38,7 @@ public class UsuarioRESTController {
     }
 
     @DeleteMapping("{id}")
-    public void delete(@PathVariable String id) {
-        this.usuarioService.delete(id);
+    public ApiResponse<UsuarioDTO> delete(@PathVariable String id) {
+        return this.usuarioService.delete(id);
     }
 }

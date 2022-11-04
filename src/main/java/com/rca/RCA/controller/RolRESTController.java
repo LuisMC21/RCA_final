@@ -41,7 +41,7 @@ public class RolRESTController {
     }
 
     @DeleteMapping("{id}")
-    public void delete(@PathVariable String id) {
-        this.rolService.delete(id);
+    public ApiResponse<RolDTO> delete(@PathVariable String id) {
+        return this.rolService.delete(id);
     }
 }
