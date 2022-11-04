@@ -141,15 +141,24 @@ public class AsistenciaService {
     }
 
     //Borrar asistencia
-    public void delete(String id) {
+    public ApiResponse<AsistenciaDTO> delete(String id) {
+
+        ApiResponse<AsistenciaDTO> apiResponse = new ApiResponse<>();
         Optional<AsistenciaEntity> optionalAsistenciaEntity = this.asistenciaRepository.findByUniqueIdentifier(id);
         if (optionalAsistenciaEntity.isPresent()) {
             AsistenciaEntity AsistenciaEntity = optionalAsistenciaEntity.get();
             AsistenciaEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             AsistenciaEntity.setDeleteAt(LocalDateTime.now());
-            this.asistenciaRepository.save(AsistenciaEntity);
+
+            apiResponse.setSuccessful(true);
+            apiResponse.setMessage("ok");
+            apiResponse.setData(this.asistenciaRepository.save(AsistenciaEntity).getAsistenciaDTO());
         } else {
-            System.out.println("No existe la Asistencia para poder eliminar");
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("ROL_DOES_NOT_EXISTS");
+            apiResponse.setMessage("No existela asistencia para poder eliminar");
         }
+
+        return  apiResponse;
     }
 }

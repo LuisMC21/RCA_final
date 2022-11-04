@@ -116,6 +116,7 @@ public class ApoderadoService {
         //change dto to entity
         ApoderadoEntity ApoderadoEntity = optionalApoderadoEntity.get();
         ApoderadoEntity.setEmail(ApoderadoDTO.getEmail());
+        ApoderadoEntity.setUpdateAt(LocalDateTime.now());
 
         //set rol
         Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ApoderadoDTO.getUsuarioDTO().getId());
@@ -133,15 +134,26 @@ public class ApoderadoService {
     }
 
     //Borrar Apoderado
-    public void delete(String id) {
+    public ApiResponse<ApoderadoDTO> delete(String id) {
+        ApiResponse<ApoderadoDTO> apiResponse = new ApiResponse<>();
         Optional<ApoderadoEntity> optionalApoderadoEntity = this.apoderadoRepository.findByUniqueIdentifier(id);
         if (optionalApoderadoEntity.isPresent()) {
+
+            this.apoderadoRepository.eliminarUsuario(id, LocalDateTime.now());
+
             ApoderadoEntity ApoderadoEntity = optionalApoderadoEntity.get();
             ApoderadoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             ApoderadoEntity.setDeleteAt(LocalDateTime.now());
-            this.apoderadoRepository.save(ApoderadoEntity);
+
+            apiResponse.setSuccessful(true);
+            apiResponse.setMessage("ok");
+            apiResponse.setData(this.apoderadoRepository.save(ApoderadoEntity).getApoderadoDTO());
         } else {
-            System.out.println("No existe el Apoderado para poder eliminar");
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("APODERADO_DOES_NOT_EXISTS");
+            apiResponse.setMessage("No existe el rol para poder eliminar");;
         }
+
+        return apiResponse;
     }
 }

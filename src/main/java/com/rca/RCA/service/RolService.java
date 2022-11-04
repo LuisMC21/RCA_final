@@ -2,6 +2,7 @@ package com.rca.RCA.service;
 
 import com.rca.RCA.entity.RolEntity;
 import com.rca.RCA.repository.RolRepository;
+import com.rca.RCA.repository.UsuarioRepository;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.RolDTO;
@@ -27,6 +28,9 @@ public class RolService {
 
     @Autowired
     private RolRepository rolRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     public Pagination<RolDTO> getList(String filter, int page, int size) {
 
@@ -107,17 +111,34 @@ public class RolService {
     }
 
     //Borrar Rol
-    public void delete(String id) {
+    public ApiResponse<RolDTO> delete(String id) {
+        ApiResponse<RolDTO> apiResponse = new ApiResponse<>();
         Optional<RolEntity> optionalRolEntity = this.rolRepository.findByUniqueIdentifier(id);
+        Long usuarios = this.usuarioRepository.findCountEntitiesRol(ConstantsGeneric.CREATED_STATUS, id);
         if (optionalRolEntity.isPresent()) {
-            System.out.println(optionalRolEntity.get());
-            RolEntity RolEntity = optionalRolEntity.get();
-            RolEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
-            RolEntity.setDeleteAt(LocalDateTime.now());
-            this.rolRepository.save(RolEntity);
-            //this.rolRepository.deleteRol(id);
+
+            if(usuarios > 0){
+                apiResponse.setSuccessful(false);
+                apiResponse.setCode("No se puede eliminar");
+                apiResponse.setMessage("Existen usuarios asociados con este rol");
+                return  apiResponse;
+            }else{
+                System.out.println(optionalRolEntity.get());
+                RolEntity RolEntity = optionalRolEntity.get();
+                RolEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
+                RolEntity.setDeleteAt(LocalDateTime.now());
+
+                apiResponse.setSuccessful(true);
+                apiResponse.setMessage("ok");
+                apiResponse.setData(this.rolRepository.save(RolEntity).getRolDTO());
+            }
+
         } else {
-            System.out.println("No existe el Rol para poder eliminar");
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("ROL_DOES_NOT_EXISTS");
+            apiResponse.setMessage("No existe el rol para poder eliminar");
         }
+
+        return apiResponse;
     }
 }

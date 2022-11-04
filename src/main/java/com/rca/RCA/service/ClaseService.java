@@ -1,10 +1,7 @@
 package com.rca.RCA.service;
 
 import com.rca.RCA.entity.*;
-import com.rca.RCA.repository.AulaRepository;
-import com.rca.RCA.repository.ClaseRepository;
-import com.rca.RCA.repository.DocentexCursoRepository;
-import com.rca.RCA.repository.PeriodoRepository;
+import com.rca.RCA.repository.*;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.ClaseDTO;
@@ -36,6 +33,20 @@ public class ClaseService {
     private DocentexCursoRepository docentexCursoRepository;
     @Autowired
     private PeriodoRepository periodoRepository;
+
+    @Autowired
+    private AsistenciaRepository asistenciaRepository;
+
+    public ClaseService(ClaseRepository claseRepository, AulaRepository aulaRepository,
+                        DocentexCursoRepository docentexCursoRepository, PeriodoRepository periodoRepository,
+                        AsistenciaRepository asistenciaRepository){
+
+        this.claseRepository = claseRepository;
+        this.docentexCursoRepository = docentexCursoRepository;
+        this.periodoRepository = periodoRepository;
+        this.asistenciaRepository = asistenciaRepository;
+
+    }
 
     //Listar clases
     public ApiResponse<Pagination<ClaseDTO>> getList(String filter, int page, int size) {
@@ -161,15 +172,29 @@ public class ClaseService {
     }
 
     //Borrar Clase
-    public void delete(String id) {
+    public ApiResponse<ClaseDTO> delete(String id) {
+        ApiResponse<ClaseDTO> apiResponse = new ApiResponse<>();
         Optional<ClaseEntity> optionalClaseEntity = this.claseRepository.findByUniqueIdentifier(id);
+        Long asistencias = this.asistenciaRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, id);
         if (optionalClaseEntity.isPresent()) {
+
+            if (asistencias > 0){
+                this.claseRepository.eliminarAsistenias(id, LocalDateTime.now());
+            }
+
             ClaseEntity ClaseEntity = optionalClaseEntity.get();
             ClaseEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             ClaseEntity.setDeleteAt(LocalDateTime.now());
-            this.claseRepository.save(ClaseEntity);
+
+            apiResponse.setSuccessful(true);
+            apiResponse.setMessage("ok");
+            apiResponse.setData(this.claseRepository.save(ClaseEntity).getClaseDTO());
         } else {
-            System.out.println("No existe el Clase para poder eliminar");
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("CLASE_DOES_NOT_EXISTS");
+            apiResponse.setMessage("No existe el clase para poder eliminar");
         }
+
+        return apiResponse;
     }
 }

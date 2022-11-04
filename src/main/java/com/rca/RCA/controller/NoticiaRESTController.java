@@ -39,7 +39,7 @@ public class NoticiaRESTController {
     }
 
     @DeleteMapping("{id}")
-    public void delete(@PathVariable String id) {
-        this.noticiaService.delete(id);
+    public ApiResponse<NoticiaDTO> delete(@PathVariable String id) {
+        return this.noticiaService.delete(id);
     }
 }

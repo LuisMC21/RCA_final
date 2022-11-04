@@ -3,9 +3,7 @@ package com.rca.RCA.service;
 import com.rca.RCA.entity.AlumnoEntity;
 import com.rca.RCA.entity.ApoderadoEntity;
 import com.rca.RCA.entity.UsuarioEntity;
-import com.rca.RCA.repository.AlumnoRepository;
-import com.rca.RCA.repository.ApoderadoRepository;
-import com.rca.RCA.repository.UsuarioRepository;
+import com.rca.RCA.repository.*;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.AlumnoDTO;
 import com.rca.RCA.type.ApoderadoDTO;
@@ -36,10 +34,20 @@ public class AlumnoService {
     @Autowired
     private ApoderadoRepository apoderadoRepository;
 
-    public AlumnoService(AlumnoRepository alumnoRepository, UsuarioRepository usuarioRepository, ApoderadoRepository apoderadoRepository){
+    @Autowired
+    private AsistenciaRepository asistenciaRepository;
+
+    @Autowired
+    private EvaluacionRepository evaluacionRepository;
+
+    public AlumnoService(AlumnoRepository alumnoRepository, UsuarioRepository usuarioRepository,
+                         ApoderadoRepository apoderadoRepository, AsistenciaRepository asistenciaRepository,
+                         EvaluacionRepository evaluacionRepository){
         this.alumnoRepository = alumnoRepository;
         this.usuarioRepository = usuarioRepository;
         this.apoderadoRepository = apoderadoRepository;
+        this.asistenciaRepository = asistenciaRepository;
+        this.evaluacionRepository = evaluacionRepository;
     }
 
     public ApiResponse<Pagination<AlumnoDTO>> getList(String filter, int page, int size) {
@@ -85,7 +93,7 @@ public class AlumnoService {
 
             //set Apoderado
             Optional<ApoderadoEntity> optionalApoderadoEntity = this.apoderadoRepository.findByUniqueIdentifier(AlumnoDTO.getApoderadoDTO().getId());
-            if (optionalUsuarioEntity.isEmpty()) {
+            if (optionalApoderadoEntity.isEmpty()) {
                 apiResponse.setSuccessful(false);
                 apiResponse.setCode("APODERADO_NOT_EXISTS");
                 apiResponse.setMessage("No se registró, el apoderado asociado al Alumno no existe");
@@ -122,6 +130,7 @@ public class AlumnoService {
         //change dto to entity
         AlumnoEntity AlumnoEntity = optionalAlumnoEntity.get();
         AlumnoEntity.setDiseases(AlumnoDTO.getDiseases());
+        AlumnoEntity.setUpdateAt(LocalDateTime.now());
         AlumnoEntity.setNamecon_pri(AlumnoDTO.getNamecon_pri());
         AlumnoEntity.setTelcon_pri(AlumnoDTO.getTelcon_pri());
         AlumnoEntity.setNamecon_sec(AlumnoDTO.getNamecon_sec());
@@ -156,16 +165,38 @@ public class AlumnoService {
     }
 
     //Borrar Alumno
-    public void delete(String id) {
+    public ApiResponse<AlumnoDTO> delete(String id) {
+        ApiResponse<AlumnoDTO> apiResponse = new ApiResponse<>();
         Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(id);
+        Long asistencias = this.asistenciaRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, id);
+        Long evaluaciones = this.evaluacionRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, id);
         if (optionalAlumnoEntity.isPresent()) {
+
+            if (asistencias > 0){
+                this.alumnoRepository.deleteAsistencia(id, LocalDateTime.now());
+            }
+
+            if (evaluaciones > 0){
+                this.alumnoRepository.deleteEvaluciones(id, LocalDateTime.now());
+            }
+
+            this.alumnoRepository.deleteUsuario(id, LocalDateTime.now());
+
             AlumnoEntity AlumnoEntity = optionalAlumnoEntity.get();
             AlumnoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             AlumnoEntity.setDeleteAt(LocalDateTime.now());
-            this.alumnoRepository.save(AlumnoEntity);
+
+            apiResponse.setSuccessful(true);
+            apiResponse.setMessage("ok");
+            apiResponse.setData(this.alumnoRepository.save(AlumnoEntity).getAlumnoDTO());
+
         } else {
-            System.out.println("No existe el Alumno para poder eliminar");
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("ROL_DOES_NOT_EXISTS");
+            apiResponse.setMessage("No existe el alumno para poder eliminar");
         }
+
+        return apiResponse;
     }
 
 

@@ -1,7 +1,10 @@
 package com.rca.RCA.service;
 
+import com.rca.RCA.entity.ImagenEntity;
 import com.rca.RCA.entity.RolEntity;
 import com.rca.RCA.entity.UsuarioEntity;
+import com.rca.RCA.repository.ImagenRepository;
+import com.rca.RCA.repository.NoticiaRepository;
 import com.rca.RCA.repository.RolRepository;
 import com.rca.RCA.repository.UsuarioRepository;
 import com.rca.RCA.type.ApiResponse;
@@ -30,6 +33,12 @@ public class UsuarioService {
     private UsuarioRepository usuarioRepository;
     @Autowired
     private RolRepository rolRepository;
+
+    @Autowired
+    private ImagenRepository imagenRepository;
+
+    @Autowired
+    private NoticiaRepository noticiaRepository;
 
     public UsuarioService(UsuarioRepository usuarioRepository, RolRepository rolRepository){
         this.usuarioRepository = usuarioRepository;
@@ -139,16 +148,38 @@ public class UsuarioService {
     }
 
     //Borrar usuario
-    public void delete(String id) {
+    public ApiResponse<UsuarioDTO> delete(String id) {
+        ApiResponse<UsuarioDTO> apiResponse = new ApiResponse<>();
         Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(id);
+        Long imagenes = this.imagenRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS,id);
+        Long noticias = this.noticiaRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, id);
+
         if (optionalUsuarioEntity.isPresent()) {
+            //Eliminar imágenes asociadas al usuario eliminado
+            if (imagenes > 0){
+                this.usuarioRepository.deleteImagen(id, LocalDateTime.now());
+            }
+
+            if (noticias > 0){
+                this.usuarioRepository.deleteNoticia(id, LocalDateTime.now());
+            }
+
+            //Eliminar usuario
             UsuarioEntity UsuarioEntity = optionalUsuarioEntity.get();
             UsuarioEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             UsuarioEntity.setDeleteAt(LocalDateTime.now());
-            this.usuarioRepository.save(UsuarioEntity);
+
+            apiResponse.setSuccessful(true);
+            apiResponse.setMessage("ok");
+            apiResponse.setData(this.usuarioRepository.save(UsuarioEntity).getUsuarioDTO());
+
         } else {
-            System.out.println("No existe el usuario para poder eliminar");
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("USUARIO_DOES_NOT_EXISTS");
+            apiResponse.setMessage("No existe el rol para poder eliminar");
         }
+
+        return apiResponse;
     }
 
 

@@ -170,15 +170,23 @@ public class EvaluacionService {
     }
 
     //Borrar Evaluacion
-    public void delete(String id) {
+    public ApiResponse<EvaluacionDTO> delete(String id) {
+        ApiResponse<EvaluacionDTO> apiResponse = new ApiResponse<>();
         Optional<EvaluacionEntity> optionalEvaluacionEntity = this.evaluacionRepository.findByUniqueIdentifier(id);
         if (optionalEvaluacionEntity.isPresent()) {
             EvaluacionEntity EvaluacionEntity = optionalEvaluacionEntity.get();
             EvaluacionEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             EvaluacionEntity.setDeleteAt(LocalDateTime.now());
-            this.evaluacionRepository.save(EvaluacionEntity);
+
+            apiResponse.setSuccessful(true);
+            apiResponse.setMessage("ok");
+            apiResponse.setData(this.evaluacionRepository.save(EvaluacionEntity).getEvaluacionDTO());
         } else {
-            System.out.println("No existe la Evaluacion para poder eliminar");
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("ROL_DOES_NOT_EXISTS");
+            apiResponse.setMessage("No existe la evaluacion para poder eliminar");
         }
+
+        return apiResponse;
     }
 }

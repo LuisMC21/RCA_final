@@ -13,15 +13,19 @@ public interface EvaluacionRepository extends JpaRepository<EvaluacionEntity, In
 
     //Obtener evaluaciones por docentexCurso o por alumno
     @Query(value = "select e from EvaluacionEntity e JOIN e.alumnoEntity a JOIN e.docentexCursoEntity dc " +
-            "WHERE a = e.alumnoEntity and dc = e.docentexCursoEntity " +
-            "and e.status = :status " +
-            "and (a.code like concat('%', :filter, '%') or dc.code like concat('%', :filter, '%'))")
+            "JOIN e.periodoEntity p " +
+            "WHERE a = e.alumnoEntity and dc = e.docentexCursoEntity and p = e.periodoEntity " +
+            "and e.status = :status and a.status = :status and dc.status = :status " +
+            "and (a.code like concat('%', :filter, '%') or dc.code like concat('%', :filter, '%') or " +
+            "a.uniqueIdentifier like concat('%', :filter, '%'))")
     Optional<List<EvaluacionEntity>> findEntities(String status, String filter, Pageable pageable);
 
-    @Query(value = "select count(e) from EvaluacionEntity e JOIN e.alumnoEntity a JOIN e.docentexCursoEntity dc "+
-            "WHERE a = e.alumnoEntity and dc = e.docentexCursoEntity " +
-            "and e.status = :status " +
-            "and (a.code like concat('%', :filter, '%') or dc.code like concat('%', :filter, '%'))")
+    @Query(value = "select count(e) from EvaluacionEntity e JOIN e.alumnoEntity a JOIN e.docentexCursoEntity dc " +
+            "JOIN e.periodoEntity p "+
+            "WHERE a = e.alumnoEntity and dc = e.docentexCursoEntity and p = e.periodoEntity " +
+            "and e.status = :status and a.status = :status and dc.status = :status " +
+            "and (a.code like concat('%', :filter, '%') or dc.code like concat('%', :filter, '%') or " +
+            "a.uniqueIdentifier like concat('%', :filter, '%'))")
     Long findCountEntities(String status, String filter);
 
 

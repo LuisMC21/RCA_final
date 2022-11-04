@@ -39,7 +39,7 @@ public class ImagenRESTController {
     }
 
     @DeleteMapping("{id}")
-    public void delete(@PathVariable String id) {
-        this.imagenService.delete(id);
+    public ApiResponse<ImagenDTO> delete(@PathVariable String id) {
+        return this.imagenService.delete(id);
     }
 }

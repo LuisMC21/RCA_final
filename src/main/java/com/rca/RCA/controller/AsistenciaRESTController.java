@@ -40,7 +40,7 @@ public class AsistenciaRESTController {
     }
 
     @DeleteMapping("{id}")
-    public void delete(@PathVariable String id) {
-        this.asistenciaService.delete(id);
+    public ApiResponse<AsistenciaDTO> delete(@PathVariable String id) {
+        return this.asistenciaService.delete(id);
     }
 }

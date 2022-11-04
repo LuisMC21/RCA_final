@@ -3,8 +3,12 @@ package com.rca.RCA.repository;
 import com.rca.RCA.entity.ApoderadoEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,4 +43,12 @@ public interface ApoderadoRepository extends JpaRepository<ApoderadoEntity, Inte
     @Query(value = "select a from ApoderadoEntity a " +
             "where a.email = :email and a.uniqueIdentifier <> :uniqueIdentifier ")
     Optional<ApoderadoEntity> findByEmail(String email, String uniqueIdentifier);
+
+    //Función para eliminar al usuario asociado al Apoderado
+    @Transactional
+    @Modifying
+    @Query(value = "update usuario u JOIN apoderado a  SET u.tx_status = 'DELETED', u.tx_delete_at = :fecha " +
+            "where a.user_id = u.id " +
+            "and a.tx_unique_identifier = :uniqueIdentifier", nativeQuery = true)
+    void eliminarUsuario(@Param("uniqueIdentifier") String uniqueIdentifier, @Param("fecha")LocalDateTime fecha);
 }

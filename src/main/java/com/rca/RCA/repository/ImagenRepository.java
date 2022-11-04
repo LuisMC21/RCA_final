@@ -13,18 +13,14 @@ public interface ImagenRepository extends JpaRepository<ImagenEntity, Integer> {
 
     //Función para obtener una imagen con filtros por datos de un usuario (codigo, apellidos, nombre)
     @Query(value = "select i from ImagenEntity i join i.usuarioEntity u " +
-            "where u = i.usuarioEntity and u.status=:status " +
-            "and (u.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or " +
-            "u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or " +
-            "u.numdoc like concat('%', :filter, '%'))")
+            "where u = i.usuarioEntity and u.status=:status and i.status=:status " +
+            "and (u.code like concat('%', :filter, '%') or u.uniqueIdentifier like concat('%', :filter, '%'))")
     Optional<List<ImagenEntity>> findEntities(String status, String filter, Pageable pageable);
 
     //Función para contar las imágenes
     @Query(value = "select count(i) from ImagenEntity i join i.usuarioEntity u " +
-            "where u = i.usuarioEntity and u.status=:status " +
-            "and (u.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or " +
-            "u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or " +
-            "u.numdoc like concat('%', :filter, '%'))")
+            "where u = i.usuarioEntity and u.status=:status and i.status=:status " +
+            "and (u.code like concat('%', :filter, '%') or u.uniqueIdentifier like concat('%', :filter, '%'))")
     Long findCountEntities(String status, String filter);
 
     //Función para obtener una imagen según su identificador
