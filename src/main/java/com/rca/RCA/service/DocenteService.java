@@ -106,10 +106,10 @@ public class DocenteService {
         if(!docenteDTO.getId().isEmpty()) {
             Optional<DocenteEntity> optionalDocenteEntity = this.docenteRepository.findByUniqueIdentifier(docenteDTO.getId());
             //Verifica que el docente exista y sea válido
-            if (optionalDocenteEntity.isPresent() && docenteDTO.getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS) && docenteDTO.getUsuarioDTO().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) {
+            if (optionalDocenteEntity.isPresent() && optionalDocenteEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS) && optionalDocenteEntity.get().getUsuarioEntity().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) {
                 //Set update time
                 optionalDocenteEntity.get().setUpdateAt(LocalDateTime.now());
-                optionalDocenteEntity.get().getUsuarioEntity().setUpdateAt(LocalDateTime.now());
+                optionalDocenteEntity.get().getUsuarioEntity().setUpdateAt(optionalDocenteEntity.get().getUpdateAt());
                 //Set update data
                 if (docenteDTO.getExperience() != null) {
                     optionalDocenteEntity.get().setExperience(docenteDTO.getExperience());
@@ -167,7 +167,7 @@ public class DocenteService {
         //Verifica que el id y el status sean válidos
         Optional<DocenteEntity> optionalDocenteEntity=this.docenteRepository.findByUniqueIdentifier(id);
 
-        if(optionalDocenteEntity.isPresent()  && optionalDocenteEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS) && optionalDocenteEntity.get().getUsuarioEntity().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)){
+        if(optionalDocenteEntity.isPresent() && optionalDocenteEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS) && optionalDocenteEntity.get().getUsuarioEntity().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)){
             optionalDocenteEntity.get().getUsuarioEntity().setStatus(ConstantsGeneric.DELETED_STATUS);
             optionalDocenteEntity.get().getUsuarioEntity().setDeleteAt(LocalDateTime.now());
             DocenteEntity docenteEntity =optionalDocenteEntity.get();

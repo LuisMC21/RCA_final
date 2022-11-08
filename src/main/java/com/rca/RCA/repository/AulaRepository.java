@@ -32,7 +32,11 @@ public interface AulaRepository extends JpaRepository<AulaEntity, Integer> {
             "AND s.status = :status " +
             "AND x.status = :status " +
             "AND g.status = :status " +
-            "AND (s.name like concat('%', :filter, '%') or g.name like concat('%', :filter, '%') or s.code like concat('%', :filter, '%') or g.code like concat('%', :filter, '%'))")
+            "AND (s.name like concat('%', :filter, '%') " +
+            "or g.name like concat('%', :filter, '%') " +
+            "or s.code like concat('%', :filter, '%') " +
+            "or g.code like concat('%', :filter, '%')) " +
+            "ORDER BY g.name, s.name")
     Optional<List<AulaEntity>> findAula(String status, String filter, Pageable pageable);
 
     //Función para obtener un aula con su Identificado Único
