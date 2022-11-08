@@ -4,9 +4,10 @@ import com.rca.RCA.service.ImagenService;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.ImagenDTO;
-import com.rca.RCA.type.UsuarioDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("imagen")
@@ -29,7 +30,7 @@ public class ImagenRESTController {
     }
 
     @PostMapping
-    public ApiResponse<ImagenDTO> add(@RequestBody ImagenDTO ImagenDTO) {
+    public ApiResponse<ImagenDTO> add(@RequestBody @Valid ImagenDTO ImagenDTO) {
         return this.imagenService.add(ImagenDTO);
     }
 

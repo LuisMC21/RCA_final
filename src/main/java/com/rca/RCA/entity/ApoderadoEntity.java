@@ -4,6 +4,7 @@ import com.rca.RCA.type.ApoderadoDTO;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +21,7 @@ public class ApoderadoEntity extends AuditoryEntity{
     @Column(name = "code", length = 15)
     private String code;
     @Column(name = "email", unique = true)
+    @NotBlank
     private String email;
 
     @OneToOne(cascade = CascadeType.ALL)

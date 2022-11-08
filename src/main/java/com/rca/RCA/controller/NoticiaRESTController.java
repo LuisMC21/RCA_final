@@ -8,6 +8,8 @@ import com.rca.RCA.type.NoticiaDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("noticia")
 public class NoticiaRESTController {
@@ -29,7 +31,7 @@ public class NoticiaRESTController {
     }
 
     @PostMapping
-    public ApiResponse<NoticiaDTO> add(@RequestBody NoticiaDTO NoticiaDTO) {
+    public ApiResponse<NoticiaDTO> add(@RequestBody @Valid NoticiaDTO NoticiaDTO) {
         return this.noticiaService.add(NoticiaDTO);
     }
 

@@ -5,6 +5,7 @@ import com.rca.RCA.type.NoticiaDTO;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 
 @Data
 @Entity
@@ -17,14 +18,19 @@ public class NoticiaEntity extends AuditoryEntity{
     @Column(name = "code", length = 40)
     private String code;
     @Column(name = "title")
+    @NotBlank
     private String title;
     @Column(name = "sommelier")
+    @NotBlank
     private String sommelier;
     @Column(name = "descrip")
+    @NotBlank
     private String descrip;
     @Column(name = "image")
+    @NotBlank
     private String image;
     @Column(name = "date")
+    @NotBlank
     private String date;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

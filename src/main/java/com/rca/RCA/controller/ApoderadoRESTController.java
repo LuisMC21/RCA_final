@@ -8,6 +8,8 @@ import com.rca.RCA.type.UsuarioDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("apoderado")
 public class ApoderadoRESTController {
@@ -29,7 +31,7 @@ public class ApoderadoRESTController {
     }
 
     @PostMapping
-    public ApiResponse<ApoderadoDTO> add(@RequestBody ApoderadoDTO ApoderadoDTO) {
+    public ApiResponse<ApoderadoDTO> add(@RequestBody @Valid ApoderadoDTO ApoderadoDTO) {
         return this.apoderadoService.add(ApoderadoDTO);
     }
 

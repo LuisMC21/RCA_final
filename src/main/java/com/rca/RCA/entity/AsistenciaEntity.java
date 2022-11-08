@@ -5,6 +5,7 @@ import com.rca.RCA.type.AsistenciaDTO;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 
 @Data
 @Entity
@@ -17,6 +18,7 @@ public class AsistenciaEntity extends AuditoryEntity{
     @Column(name = "code", length = 15)
     private String code;
     @Column(name = "state")
+    @NotBlank
     private String  state;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

@@ -5,6 +5,7 @@ import com.rca.RCA.type.AlumnoDTO;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,18 +20,25 @@ public class AlumnoEntity extends AuditoryEntity{
     @Column(name = "code", length = 15)
     private String code;
     @Column(name = "diseases")
+    @NotBlank
     private String diseases;
     @Column(name = "namecon_pri")
+    @NotBlank
     private String namecon_pri;
     @Column(name = "telcon_pri", unique = true)
+    @NotBlank
     private String telcon_pri;
     @Column(name = "namecon_sec")
+    @NotBlank
     private String namecon_sec;
     @Column(name = "telcon_sec", unique = true)
+    @NotBlank
     private String telcon_sec;
     @Column(name = "vaccine")
+    @NotBlank
     private String vaccine;
     @Column(name = "type_insurance")
+    @NotBlank
     private String type_insurance;
 
     @OneToOne(cascade = CascadeType.ALL)

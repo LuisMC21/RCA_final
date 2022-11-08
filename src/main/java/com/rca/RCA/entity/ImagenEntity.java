@@ -5,6 +5,7 @@ import com.rca.RCA.type.ImagenDTO;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 
 @Data
 @Entity
@@ -17,8 +18,10 @@ public class ImagenEntity extends AuditoryEntity{
     @Column(name = "code", length = 15)
     private String code;
     @Column(name = "name")
+    @NotBlank
     private String name;
     @Column(name = "route")
+    @NotBlank
     private String route;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
