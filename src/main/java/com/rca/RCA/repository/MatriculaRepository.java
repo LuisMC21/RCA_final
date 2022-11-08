@@ -67,7 +67,8 @@ public interface MatriculaRepository extends JpaRepository<MatriculaEntity, Inte
             "AND an.status = :status " +
             "AND au.uniqueIdentifier= :id_aula " +
             "AND al.uniqueIdentifier= :id_alumno " +
-            "AND an.uniqueIdentifier= :id_anioLectivo ")
+            "AND an.uniqueIdentifier= :id_anioLectivo " +
+            "ORDER BY au")
     Optional<MatriculaEntity> findByAuAlAn(String id_aula, String id_alumno, String id_anioLectivo, String status);
 
     @Query(value = "SELECT l from AulaEntity a " +

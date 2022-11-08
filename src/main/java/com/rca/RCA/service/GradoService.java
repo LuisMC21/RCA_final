@@ -84,7 +84,7 @@ public class GradoService {
         if(optionalGradoEntity.isEmpty() || optionalGradoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
             optionalGradoEntity = this.gradoRepository.findByUniqueIdentifier(gradoDTO.getId());
             //Verifica que el id y el status seas válidos
-            if (optionalGradoEntity.isPresent()) {
+            if (optionalGradoEntity.isPresent() && optionalGradoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
                 gradoDTO.setUpdateAt(LocalDateTime.now());
                 GradoEntity gradoEntity = optionalGradoEntity.get();
                 //Set update data
