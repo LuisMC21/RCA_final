@@ -9,6 +9,8 @@ import com.rca.RCA.type.UsuarioDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("asistencia")
 public class AsistenciaRESTController {
@@ -30,7 +32,7 @@ public class AsistenciaRESTController {
     }
 
     @PostMapping
-    public ApiResponse<AsistenciaDTO> add(@RequestBody AsistenciaDTO AsistenciaDTO) {
+    public ApiResponse<AsistenciaDTO> add(@RequestBody @Valid AsistenciaDTO AsistenciaDTO) {
         return this.asistenciaService.add(AsistenciaDTO);
     }
 

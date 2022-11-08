@@ -8,6 +8,8 @@ import com.rca.RCA.type.UsuarioDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/clase")
 public class ClaseRESTController {
@@ -28,7 +30,7 @@ public class ClaseRESTController {
         return this.claseService.getList(filter, page, size);
     }
     @PostMapping
-    public ApiResponse<ClaseDTO> add(@RequestBody ClaseDTO ClaseDTO){
+    public ApiResponse<ClaseDTO> add(@RequestBody @Valid ClaseDTO ClaseDTO){
         return this.claseService.add(ClaseDTO);
     }
 

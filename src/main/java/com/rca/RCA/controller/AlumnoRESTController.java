@@ -5,6 +5,8 @@ import com.rca.RCA.type.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("alumno")
 public class AlumnoRESTController {
@@ -26,7 +28,7 @@ public class AlumnoRESTController {
     }
 
     @PostMapping
-    public ApiResponse<AlumnoDTO> add(@RequestBody AlumnoDTO AlumnoDTO) {
+    public ApiResponse<AlumnoDTO> add(@RequestBody @Valid AlumnoDTO AlumnoDTO) {
         return this.alumnoService.add(AlumnoDTO);
     }
 
