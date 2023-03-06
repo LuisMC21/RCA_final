@@ -79,5 +79,10 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
             "and al.tx_unique_identifier = :uniqueIdentifier", nativeQuery = true)
     void deleteEvaluciones(@Param("uniqueIdentifier") String uniqueIdentifier, @Param("fecha") LocalDateTime fecha);
 
+    @Query(value="Select * from alumno where apoderado_id = :idApo", nativeQuery = true)
+    Optional<List<AlumnoEntity>> findByApoderado(int idApo);
+
+    @Query(value="Select * from alumno where apoderado_id = :idApo", nativeQuery = true)
+    Iterable<AlumnoEntity> findByApoderadoI(int idApo);
 
 }

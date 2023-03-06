@@ -6,21 +6,30 @@ import com.rca.RCA.entity.UsuarioEntity;
 import com.rca.RCA.repository.*;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.AlumnoDTO;
-import com.rca.RCA.type.ApoderadoDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
 import lombok.extern.log4j.Log4j2;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.util.JRLoader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -199,5 +208,116 @@ public class AlumnoService {
         return apiResponse;
     }
 
+    public ResponseEntity<Resource> exportReporte(int idApo) {
+     System.out.println("ID: " + idApo);
+     Optional<List<AlumnoEntity>> optionalAlumnoEntity = this.alumnoRepository.findByApoderado(idApo);
+     Optional<ApoderadoEntity> apoderadoEntity = this.apoderadoRepository.findById(idApo);
 
+     if (optionalAlumnoEntity.isPresent()){
+
+         try{
+             final ApoderadoEntity apoderadoEntity1 = apoderadoEntity.get();
+             final File file = ResourceUtils.getFile("classpath:reportes/alumnos.jasper");
+             final File imgLogo = ResourceUtils.getFile("classpath:images/logo.png");
+             final JasperReport report = (JasperReport) JRLoader.loadObject(file);
+
+             final HashMap<String, Object> parameters = new HashMap<>();
+             parameters.put("nombreCompleto", apoderadoEntity1.getUsuarioEntity().getName());
+             parameters.put("Logo", new FileInputStream(imgLogo));
+             parameters.put("email", apoderadoEntity1.getEmail());
+             parameters.put("ds", new JRBeanCollectionDataSource((Collection<?>) this.alumnoRepository.findByApoderadoI(idApo)));
+
+             JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
+             byte[] reporte = JasperExportManager.exportReportToPdf(jasperPrint);
+             String sdf = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
+             StringBuilder stringBuilder = new StringBuilder().append("InvoicePDF:");
+             ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
+                     .filename(stringBuilder.append(apoderadoEntity1.getId())
+                             .append("generateDate:")
+                             .append(sdf)
+                             .append(".pdf")
+                             .toString())
+                     .build();
+             HttpHeaders httpHeaders = new HttpHeaders();
+             httpHeaders.setContentDisposition(contentDisposition);
+
+             return ResponseEntity.ok().contentLength((long) reporte.length)
+                     .contentType(MediaType.APPLICATION_PDF)
+                     .headers(httpHeaders).body(new ByteArrayResource(reporte));
+         }catch (Exception e){
+            e.printStackTrace();
+         }
+
+     }else{
+         return  ResponseEntity.noContent().build();
+     }
+        return null;
+    }
+
+    public ResponseEntity<Resource> datosPersonales(String uniqueIdentifier) {
+        Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(uniqueIdentifier);
+
+        if (optionalAlumnoEntity.isPresent()){
+
+            try{
+                final AlumnoEntity alumnoEntity = optionalAlumnoEntity.get();
+                final ApoderadoEntity apoderadoEntity = alumnoEntity.getApoderadoEntity();
+                final UsuarioEntity usuarioEntity = alumnoEntity.getUsuarioEntity();
+                final File file = ResourceUtils.getFile("classpath:reportes/reporte.jasper");
+                final File imgLogo = ResourceUtils.getFile("classpath:images/logo.png");
+                final JasperReport report = (JasperReport) JRLoader.loadObject(file);
+
+
+
+                //Parámetros
+                final HashMap<String, Object> parameters = new HashMap<>();
+                parameters.put("codeAlu", alumnoEntity.getCode());
+                parameters.put("nombreAlu", alumnoEntity.getUsuarioEntity().getNameCompleto());
+                parameters.put("emailAlu", usuarioEntity.getEmail_inst());
+                parameters.put("seguro", alumnoEntity.getType_insurance());
+                parameters.put("enfAlu", alumnoEntity.getDiseases());
+                parameters.put("docAlu", usuarioEntity.getType_doc());
+                parameters.put("numDocAlu", usuarioEntity.getNumdoc());
+                parameters.put("telAlu", usuarioEntity.getTel());
+                parameters.put("vacunas", alumnoEntity.getVaccine());
+                parameters.put("logo", new FileInputStream(imgLogo));
+                parameters.put("nombreCon1", alumnoEntity.getNamecon_pri());
+                parameters.put("nombreCon2", alumnoEntity.getNamecon_sec());
+                parameters.put("telCon1", alumnoEntity.getTelcon_pri());
+                parameters.put("telCon2", alumnoEntity.getTelcon_sec());
+                parameters.put("nombreApo",apoderadoEntity.getUsuarioEntity().getNameCompleto());
+                parameters.put("correoApo",apoderadoEntity.getUsuarioEntity().getEmail_inst());
+                parameters.put("typeDocApo",apoderadoEntity.getUsuarioEntity().getType_doc());
+                parameters.put("numDocApo",apoderadoEntity.getUsuarioEntity().getNumdoc());
+                parameters.put("telApo",apoderadoEntity.getUsuarioEntity().getTel());
+                parameters.put("correoPerApo",apoderadoEntity.getEmail());
+
+
+                JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
+                byte[] reporte = JasperExportManager.exportReportToPdf(jasperPrint);
+                String sdf = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
+                StringBuilder stringBuilder = new StringBuilder().append("InvoicePDF:");
+                ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
+                        .filename(stringBuilder.append("1")
+                                .append("generateDate:")
+                                .append(sdf)
+                                .append(".pdf")
+                                .toString())
+                        .build();
+                HttpHeaders httpHeaders = new HttpHeaders();
+                httpHeaders.setContentDisposition(contentDisposition);
+
+                return ResponseEntity.ok().contentLength((long) reporte.length)
+                        .contentType(MediaType.APPLICATION_PDF)
+                        .headers(httpHeaders).body(new ByteArrayResource(reporte));
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }else{
+            return  ResponseEntity.noContent().build();
+        }
+        return null;
+    }
 }
+
