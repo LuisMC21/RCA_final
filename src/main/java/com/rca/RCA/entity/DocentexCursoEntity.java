@@ -31,6 +31,13 @@ public class DocentexCursoEntity extends AuditoryEntity{
     @JoinColumn(name = "curso_id", referencedColumnName = "id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private CursoEntity cursoEntity;
+
+    //D
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "grado_id", referencedColumnName = "id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private GradoEntity gradoEntity;
+
     //Evaluaciones del docente
     @OneToMany(mappedBy = "docentexCursoEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<EvaluacionEntity> evaluacionEntities = new HashSet<>();
@@ -44,6 +51,7 @@ public class DocentexCursoEntity extends AuditoryEntity{
         docentexCursoDTO.setCode(this.code);
         docentexCursoDTO.setDocenteDTO(this.docenteEntity.getDocenteDTO());
         docentexCursoDTO.setCursoDTO(this.cursoEntity.getCursoDTO());
+        docentexCursoDTO.setGradoDTO(this.gradoEntity.getGradoDTO());
         docentexCursoDTO.setStatus(this.getStatus());
         docentexCursoDTO.setCreateAt(this.getCreateAt());
         docentexCursoDTO.setUpdateAt(this.getUpdateAt());

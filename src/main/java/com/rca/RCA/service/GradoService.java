@@ -1,8 +1,10 @@
 package com.rca.RCA.service;
 
 import com.rca.RCA.entity.AulaEntity;
+import com.rca.RCA.entity.DocentexCursoEntity;
 import com.rca.RCA.entity.GradoEntity;
 import com.rca.RCA.repository.AulaRepository;
+import com.rca.RCA.repository.DocentexCursoRepository;
 import com.rca.RCA.repository.GradoRepository;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.GradoDTO;
@@ -29,6 +31,10 @@ public class GradoService {
     private AulaRepository aulaRepository;
     @Autowired
     private AulaService aulaService;
+    @Autowired
+    private DocentexCursoRepository docentexCursoRepository;
+    @Autowired
+    private DocentexCursoService docentexCursoService;
 
     //Función para listar grados con filtro(código o nombre)-START
     public ApiResponse<Pagination<GradoDTO>> getList(String filter, int page, int size){
@@ -124,12 +130,22 @@ public class GradoService {
             GradoEntity gradoEntity =optionalGradoEntity.get();
             gradoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             gradoEntity.setDeleteAt(LocalDateTime.now());
+            //Eliminar lista de aulas del grado
             Optional<List<AulaEntity>> optionalAulaEntities= this.aulaRepository.findById_Grado(gradoEntity.getId(), ConstantsGeneric.CREATED_STATUS);
             if(optionalAulaEntities.isPresent()) {
                 for (int i = 0; i < optionalAulaEntities.get().size(); i++) {
                     optionalAulaEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
                     optionalAulaEntities.get().get(i).setDeleteAt(gradoEntity.getDeleteAt());
                     this.aulaService.delete(optionalAulaEntities.get().get(i).getCode());
+                }
+            }
+            //Eliminar lista de docentesxcurso del grado
+            Optional<List<DocentexCursoEntity>> optionalDocentexCursoEntities= this.docentexCursoRepository.findById_Grado(gradoEntity.getId(), ConstantsGeneric.CREATED_STATUS);
+            if(optionalDocentexCursoEntities.isPresent()) {
+                for (int i = 0; i < optionalDocentexCursoEntities.get().size(); i++) {
+                    optionalDocentexCursoEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+                    optionalDocentexCursoEntities.get().get(i).setDeleteAt(gradoEntity.getDeleteAt());
+                    this.aulaService.delete(optionalDocentexCursoEntities.get().get(i).getCode());
                 }
             }
             apiResponse.setSuccessful(true);
