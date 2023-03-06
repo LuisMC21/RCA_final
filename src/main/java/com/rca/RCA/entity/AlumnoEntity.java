@@ -94,4 +94,19 @@ public class AlumnoEntity extends AuditoryEntity{
         this.setUpdateAt(AlumnoDTO.getUpdateAt());
         this.setDeleteAt(AlumnoDTO.getDeleteAt());
     }
+
+    public String getNombresCompletosAl(){
+        return this.usuarioEntity != null ? (this.usuarioEntity.getPa_surname()+this.usuarioEntity.getMa_surname() +this.usuarioEntity.getName()):"----";
+    }
+
+    public String getNombreApoderado(){
+        return this.apoderadoEntity != null ? (this.apoderadoEntity.getUsuarioEntity().getPa_surname() + this.apoderadoEntity.getUsuarioEntity().getMa_surname()+this.apoderadoEntity.getUsuarioEntity().getName()) :"---";
+    }
+
+    public String getTelApoderado(){
+        return this.apoderadoEntity != null ? this.apoderadoEntity.getUsuarioEntity().getTel() :"---";
+    }
+    public String getEmailApoderado(){
+        return this.apoderadoEntity != null ? this.apoderadoEntity.getEmail():"---";
+    }
 }
