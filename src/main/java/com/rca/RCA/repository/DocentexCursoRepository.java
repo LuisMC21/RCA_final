@@ -64,4 +64,12 @@ public interface DocentexCursoRepository extends JpaRepository<DocentexCursoEnti
             "AND d.status = :status " +
             "AND c.status= :status ")
     Optional<List<DocentexCursoEntity>> findByDocenteYCurso(Integer id_docente, Integer id_curso, String status);
+    @Query(value = "SELECT x from DocenteEntity d " +
+            "JOIN d.docentexCursoEntities x " +
+            "JOIN x.gradoEntity g " +
+            "WHERE d=x.docenteEntity " +
+            "AND g.id = :id_grado " +
+            "AND x.status = :status " +
+            "AND g.status= :status ")
+    Optional<List<DocentexCursoEntity>> findById_Grado(Integer id_grado, String status);
 }

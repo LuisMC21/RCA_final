@@ -38,6 +38,8 @@ public class DocentexCursoService {
     @Autowired
     private EvaluacionService evaluacionService;
 
+    @Autowired
+    private GradoRepository gradoRepository;
     //Función para listar los cursos asignados a los docente-START
     public ApiResponse<Pagination<DocentexCursoDTO>> getList(String filter, int page, int size){
         log.info("filter page size {} {} {}", filter, page, size);
@@ -59,19 +61,21 @@ public class DocentexCursoService {
     //Función para listar los cursos asignados a los docente-END
     //Función para agregar un curso asignado a un docente- START
     public ApiResponse<DocentexCursoDTO> add(DocentexCursoDTO docentexCursoDTO){
-        log.info("Docente Curso {} {}", docentexCursoDTO.getDocenteDTO().getId(), docentexCursoDTO.getCursoDTO().getId());
+        log.info("Docente Curso Grado {} {} {}", docentexCursoDTO.getDocenteDTO().getId(), docentexCursoDTO.getCursoDTO().getId(), docentexCursoDTO.getGradoDTO().getId());
         ApiResponse<DocentexCursoDTO> apiResponse = new ApiResponse<>();
         DocentexCursoEntity docentexCursoEntity = new DocentexCursoEntity();
         Optional<DocenteEntity> optionalDocenteEntity=this.docenteRepository.findByUniqueIdentifier(docentexCursoDTO.getDocenteDTO().getId());
         Optional<CursoEntity> optionalCursoEntity=this.cursoRepository.findByUniqueIdentifier(docentexCursoDTO.getCursoDTO().getId());
-        if(optionalDocenteEntity.isPresent() && optionalCursoEntity.isPresent()){
+        Optional<GradoEntity> optionalGradoEntity=this.gradoRepository.findByUniqueIdentifier(docentexCursoDTO.getGradoDTO().getId());
+        if(optionalDocenteEntity.isPresent() && optionalCursoEntity.isPresent() &&
+        optionalCursoEntity.isPresent() && optionalCursoEntity.isPresent() &&
+        optionalGradoEntity.isPresent() && optionalGradoEntity.isPresent()){
             //Update in database
             docentexCursoEntity.setCode(Code.generateCode(Code.CXD_CODE, this.docentexCursoRepository.count() + 1,Code.CXD_LENGTH));
             docentexCursoEntity.setDocenteEntity(optionalDocenteEntity.get());
             docentexCursoEntity.setCursoEntity(optionalCursoEntity.get());
+            docentexCursoEntity.setGradoEntity(optionalGradoEntity.get());
             docentexCursoEntity.setUniqueIdentifier(UUID.randomUUID().toString());
-            docentexCursoEntity.setCursoEntity(docentexCursoEntity.getCursoEntity());
-            docentexCursoEntity.setDocenteEntity(docentexCursoEntity.getDocenteEntity());
             docentexCursoEntity.setStatus(ConstantsGeneric.CREATED_STATUS);
             docentexCursoEntity.setCreateAt(LocalDateTime.now());
             apiResponse.setSuccessful(true);
@@ -87,6 +91,9 @@ public class DocentexCursoService {
             if(optionalCursoEntity.isEmpty()) {
                 apiResponse.setCode("COURSE_DOES_NOT_EXISTS");
             }
+            if(optionalGradoEntity.isEmpty()) {
+                apiResponse.setCode("GRADE_DOES_NOT_EXISTS");
+            }
             apiResponse.setMessage("No se pudo registrar el curso al docente");
         }
         return apiResponse;
@@ -94,24 +101,29 @@ public class DocentexCursoService {
     //Función para agregar un curso asignado a un docente- END
 
       //Función para actualizar un curso asignado a un docente-START
-    public ApiResponse<DocentexCursoDTO> update(DocentexCursoDTO aulaDTO){
+    public ApiResponse<DocentexCursoDTO> update(DocentexCursoDTO docentexCursoDTO){
         ApiResponse<DocentexCursoDTO> apiResponse = new ApiResponse<>();
-        if(!aulaDTO.getId().isEmpty()) {
-            Optional<DocentexCursoEntity> optionalDocentexCursoEntity = this.docentexCursoRepository.findByUniqueIdentifier(aulaDTO.getId());
+        if(!docentexCursoDTO.getId().isEmpty()) {
+            Optional<DocentexCursoEntity> optionalDocentexCursoEntity = this.docentexCursoRepository.findByUniqueIdentifier(docentexCursoDTO.getId());
             //Verifica que el id y el status sean válidos
             if (optionalDocentexCursoEntity.isPresent() && optionalDocentexCursoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
-                optionalDocentexCursoEntity.get().setUpdateAt(aulaDTO.getUpdateAt());
+                optionalDocentexCursoEntity.get().setUpdateAt(docentexCursoDTO.getUpdateAt());
                 Optional<DocenteEntity> optionalDocenteEntity=Optional.empty();
                 Optional<CursoEntity> optionalCursoEntity = Optional.empty();
-                if (aulaDTO.getDocenteDTO().getId() != null) {
-                    optionalDocenteEntity = this.docenteRepository.findByUniqueIdentifier(aulaDTO.getDocenteDTO().getId());
+                Optional<GradoEntity> optionalGradoEntity = Optional.empty();
+                if (docentexCursoDTO.getDocenteDTO().getId() != null) {
+                    optionalDocenteEntity = this.docenteRepository.findByUniqueIdentifier(docentexCursoDTO.getDocenteDTO().getId());
                 }
-                if (aulaDTO.getCursoDTO().getId() != null) {
-                    optionalCursoEntity = this.cursoRepository.findByUniqueIdentifier(aulaDTO.getCursoDTO().getId());
+                if (docentexCursoDTO.getCursoDTO().getId() != null) {
+                    optionalCursoEntity = this.cursoRepository.findByUniqueIdentifier(docentexCursoDTO.getCursoDTO().getId());
+                }
+                if (docentexCursoDTO.getGradoDTO().getId() != null) {
+                    optionalGradoEntity = this.gradoRepository.findByUniqueIdentifier(docentexCursoDTO.getGradoDTO().getId());
                 }
                 //Set update data
                 optionalDocenteEntity.ifPresent(docenteEntity -> optionalDocentexCursoEntity.get().setDocenteEntity(docenteEntity));
                 optionalCursoEntity.ifPresent(cursoEntity -> optionalDocentexCursoEntity.get().setCursoEntity(cursoEntity));
+                optionalGradoEntity.ifPresent(gradoEntity -> optionalDocentexCursoEntity.get().setGradoEntity(gradoEntity));
 
                 optionalDocentexCursoEntity.get().setUpdateAt(LocalDateTime.now());
                 //Update in database
