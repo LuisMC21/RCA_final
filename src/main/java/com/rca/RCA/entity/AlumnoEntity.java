@@ -94,4 +94,20 @@ public class AlumnoEntity extends AuditoryEntity{
         this.setUpdateAt(AlumnoDTO.getUpdateAt());
         this.setDeleteAt(AlumnoDTO.getDeleteAt());
     }
+
+    public String getName(){
+        return this.usuarioEntity.getName();
+    }
+
+    public String getNumdoc(){
+        return this.usuarioEntity.getNumdoc();
+    }
+
+    public String getMa_surname(){
+        return this.usuarioEntity.getMa_surname();
+    }
+
+    public String getPa_surname(){
+        return this.usuarioEntity.getPa_surname();
+    }
 }

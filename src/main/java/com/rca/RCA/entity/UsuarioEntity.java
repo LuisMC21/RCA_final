@@ -102,4 +102,8 @@ public class UsuarioEntity extends AuditoryEntity{
         this.setUpdateAt(UsuarioDTO.getUpdateAt());
         this.setDeleteAt(UsuarioDTO.getDeleteAt());
     }
+
+    public String getNameCompleto(){
+        return this.name;
+    }
 }
