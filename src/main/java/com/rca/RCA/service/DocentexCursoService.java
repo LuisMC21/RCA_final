@@ -39,7 +39,7 @@ public class DocentexCursoService {
     private EvaluacionService evaluacionService;
 
     @Autowired
-    private GradoRepository gradoRepository;
+    private AulaRepository aulaRepository;
     //Función para listar los cursos asignados a los docente-START
     public ApiResponse<Pagination<DocentexCursoDTO>> getList(String filter, int page, int size){
         log.info("filter page size {} {} {}", filter, page, size);
@@ -61,20 +61,20 @@ public class DocentexCursoService {
     //Función para listar los cursos asignados a los docente-END
     //Función para agregar un curso asignado a un docente- START
     public ApiResponse<DocentexCursoDTO> add(DocentexCursoDTO docentexCursoDTO){
-        log.info("Docente Curso Grado {} {} {}", docentexCursoDTO.getDocenteDTO().getId(), docentexCursoDTO.getCursoDTO().getId(), docentexCursoDTO.getGradoDTO().getId());
+        log.info("Docente Curso Grado {} {} {}", docentexCursoDTO.getDocenteDTO().getId(), docentexCursoDTO.getCursoDTO().getId(), docentexCursoDTO.getAulaDTO().getId());
         ApiResponse<DocentexCursoDTO> apiResponse = new ApiResponse<>();
         DocentexCursoEntity docentexCursoEntity = new DocentexCursoEntity();
         Optional<DocenteEntity> optionalDocenteEntity=this.docenteRepository.findByUniqueIdentifier(docentexCursoDTO.getDocenteDTO().getId());
         Optional<CursoEntity> optionalCursoEntity=this.cursoRepository.findByUniqueIdentifier(docentexCursoDTO.getCursoDTO().getId());
-        Optional<GradoEntity> optionalGradoEntity=this.gradoRepository.findByUniqueIdentifier(docentexCursoDTO.getGradoDTO().getId());
+        Optional<AulaEntity> optionalAulaEntity=this.aulaRepository.findByUniqueIdentifier(docentexCursoDTO.getAulaDTO().getId());
         if(optionalDocenteEntity.isPresent() && optionalCursoEntity.isPresent() &&
         optionalCursoEntity.isPresent() && optionalCursoEntity.isPresent() &&
-        optionalGradoEntity.isPresent() && optionalGradoEntity.isPresent()){
+                optionalAulaEntity.isPresent() && optionalAulaEntity.isPresent()){
             //Update in database
             docentexCursoEntity.setCode(Code.generateCode(Code.CXD_CODE, this.docentexCursoRepository.count() + 1,Code.CXD_LENGTH));
             docentexCursoEntity.setDocenteEntity(optionalDocenteEntity.get());
             docentexCursoEntity.setCursoEntity(optionalCursoEntity.get());
-            docentexCursoEntity.setGradoEntity(optionalGradoEntity.get());
+            docentexCursoEntity.setAulaEntity(optionalAulaEntity.get());
             docentexCursoEntity.setUniqueIdentifier(UUID.randomUUID().toString());
             docentexCursoEntity.setStatus(ConstantsGeneric.CREATED_STATUS);
             docentexCursoEntity.setCreateAt(LocalDateTime.now());
@@ -91,7 +91,7 @@ public class DocentexCursoService {
             if(optionalCursoEntity.isEmpty()) {
                 apiResponse.setCode("COURSE_DOES_NOT_EXISTS");
             }
-            if(optionalGradoEntity.isEmpty()) {
+            if(optionalAulaEntity.isEmpty()) {
                 apiResponse.setCode("GRADE_DOES_NOT_EXISTS");
             }
             apiResponse.setMessage("No se pudo registrar el curso al docente");
@@ -110,20 +110,20 @@ public class DocentexCursoService {
                 optionalDocentexCursoEntity.get().setUpdateAt(docentexCursoDTO.getUpdateAt());
                 Optional<DocenteEntity> optionalDocenteEntity=Optional.empty();
                 Optional<CursoEntity> optionalCursoEntity = Optional.empty();
-                Optional<GradoEntity> optionalGradoEntity = Optional.empty();
+                Optional<AulaEntity> optionalAulaEntity = Optional.empty();
                 if (docentexCursoDTO.getDocenteDTO().getId() != null) {
                     optionalDocenteEntity = this.docenteRepository.findByUniqueIdentifier(docentexCursoDTO.getDocenteDTO().getId());
                 }
                 if (docentexCursoDTO.getCursoDTO().getId() != null) {
                     optionalCursoEntity = this.cursoRepository.findByUniqueIdentifier(docentexCursoDTO.getCursoDTO().getId());
                 }
-                if (docentexCursoDTO.getGradoDTO().getId() != null) {
-                    optionalGradoEntity = this.gradoRepository.findByUniqueIdentifier(docentexCursoDTO.getGradoDTO().getId());
+                if (docentexCursoDTO.getAulaDTO().getId() != null) {
+                    optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(docentexCursoDTO.getAulaDTO().getId());
                 }
                 //Set update data
                 optionalDocenteEntity.ifPresent(docenteEntity -> optionalDocentexCursoEntity.get().setDocenteEntity(docenteEntity));
                 optionalCursoEntity.ifPresent(cursoEntity -> optionalDocentexCursoEntity.get().setCursoEntity(cursoEntity));
-                optionalGradoEntity.ifPresent(gradoEntity -> optionalDocentexCursoEntity.get().setGradoEntity(gradoEntity));
+                optionalAulaEntity.ifPresent(aulaEntity -> optionalDocentexCursoEntity.get().setAulaEntity(aulaEntity));
 
                 optionalDocentexCursoEntity.get().setUpdateAt(LocalDateTime.now());
                 //Update in database

@@ -10,15 +10,15 @@ public class ReporteApoderadosDTO {
 
 
     public String getNombresCompletosAl(){
-        return (this.alumnoDTO.getUsuarioDTO().getPa_surname() + " " + this.alumnoDTO.getUsuarioDTO().getMa_surname() + " " + this.alumnoDTO.getUsuarioDTO().getName());
+        return this.alumnoDTO !=null ? (this.alumnoDTO.getUsuarioDTO().getPa_surname() + " " + this.alumnoDTO.getUsuarioDTO().getMa_surname() + " " + this.alumnoDTO.getUsuarioDTO().getName()): "---";
     }
     public String getNombreApoderado(){
-        return (this.apoderadoDTO.getUsuarioDTO().getPa_surname() + " " + this.apoderadoDTO.getUsuarioDTO().getMa_surname() + " " + this.apoderadoDTO.getUsuarioDTO().getName());
+        return this.apoderadoDTO!=null ?(this.apoderadoDTO.getUsuarioDTO().getPa_surname() + " " + this.apoderadoDTO.getUsuarioDTO().getMa_surname() + " " + this.apoderadoDTO.getUsuarioDTO().getName()): "---";
     }
     public String getTelApoderado(){
-        return this.apoderadoDTO.getUsuarioDTO().getTel();
+        return this.apoderadoDTO!=null?this.apoderadoDTO.getUsuarioDTO().getTel():"---";
     }
     public String getEmailApoderado(){
-        return this.apoderadoDTO.getEmail();
+        return this.apoderadoDTO!=null?this.apoderadoDTO.getEmail():"---";
     }
 }
