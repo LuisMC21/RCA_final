@@ -2,12 +2,15 @@ package com.rca.RCA.type;
 
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 public class UsuarioDTO extends AuditoryDTO{
     private String code;
     private String name;
     private String pa_surname;
     private String ma_surname;
+    private Date birthdate;
     private String type_doc;
     private String numdoc;
     private String tel;
