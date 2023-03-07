@@ -40,7 +40,8 @@ public class AulaRESTController {
         return this.aulaService.delete(id);
     }
     @GetMapping("exportApoderados")
-    public ResponseEntity<Resource> exportListApoderados(@RequestParam String id_aula){
-        return this.aulaService.exportListApoderados(id_aula);
+    public ResponseEntity<Resource> exportListApoderados(@RequestParam String id_aula,
+                                                        @RequestParam String id_aniolectivo){
+        return this.aulaService.exportListApoderados(id_aula, id_aniolectivo);
     }
 }

@@ -47,7 +47,8 @@ public class AulaService {
     private MatriculaRepository matriculaRepository;
     @Autowired
     private MatriculaService matriculaService;
-
+    @Autowired
+    private AnioLectivoRepository anioLectivoRepository;
     //Función para listar aulas con paginación-START
     public ApiResponse<Pagination<AulaDTO>> getList(String filter, int page, int size) {
         log.info("filter page size {} {} {}", filter, page, size);
@@ -215,19 +216,20 @@ public class AulaService {
     }
 
     @NotNull
-    public ResponseEntity<Resource> exportListApoderados(String id_aula) {
+    public ResponseEntity<Resource> exportListApoderados(String id_aula, String id_aniolectivo) {
         log.info("id_aula {}", id_aula);
         Optional<AulaEntity> optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(id_aula);
-        if (optionalAulaEntity.isPresent() && (optionalAulaEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS))) {
+        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(id_aniolectivo);
+        if (optionalAulaEntity.isPresent() && (optionalAulaEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) &&
+                optionalAnioLectivoEntity.isPresent() && optionalAulaEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) {
             try {
                 final AulaEntity aulaEntity = optionalAulaEntity.get();
-                final File file = ResourceUtils.getFile("classpath:reportes/lista_apoderados.jasper");
-                final File imgLogo = ResourceUtils.getFile("classpath:images/logoC.jpg");
+                final File file = ResourceUtils.getFile("classpath:reportes/lista_apoderados.jasper"); //la ruta del reporte
+                final File imgLogo = ResourceUtils.getFile("classpath:images/logoC.jpg"); //Ruta de la imagen
                 final JasperReport report = (JasperReport) JRLoader.loadObject(file);
-
                 //Se consultan los datos para el reporte de apoderados DTO
-                Optional<List<AlumnoEntity>> optionalAlumnoDTOS = this.aulaRepository.findAlumnosxAula(id_aula, ConstantsGeneric.CREATED_STATUS);
-                Optional<List<ApoderadoEntity>> optionalApoderadoDTOS = this.aulaRepository.findApoderadosxAula(id_aula, ConstantsGeneric.CREATED_STATUS);
+                Optional<List<AlumnoEntity>> optionalAlumnoDTOS = this.aulaRepository.findAlumnosxAula(id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
+                Optional<List<ApoderadoEntity>> optionalApoderadoDTOS = this.aulaRepository.findApoderadosxAula(id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
                 //Se agregan los datos para ReporteApoderadosDTO
                 List<ReporteApoderadosDTO> reporteApoderadosDTOList= new ArrayList<>();
                 for (int i = 0; i < optionalAlumnoDTOS.get().size(); i++) {
@@ -237,13 +239,15 @@ public class AulaService {
                     reporteApoderadosDTOList.add(reporteApoderadosDTO);
                 }
 
-
-                //Se imprime el reporte
+                //Se llenan los parámetros del reporte
                 final HashMap<String, Object> parameters = new HashMap<>();
                 parameters.put("logoEmpresa", new FileInputStream(imgLogo));
+                parameters.put("grado", aulaEntity.getAulaDTO().getGradoDTO().getName().toString());
+                parameters.put("seccion", aulaEntity.getAulaDTO().getSeccionDTO().getName().toString());
+                parameters.put("año", optionalAnioLectivoEntity.get().getName());
                 parameters.put("dsLA", new JRBeanArrayDataSource(reporteApoderadosDTOList.toArray()));
 
-
+                //Se imprime el reporte
                 JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
                 byte [] reporte = JasperExportManager.exportReportToPdf(jasperPrint);
                 String sdf = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
