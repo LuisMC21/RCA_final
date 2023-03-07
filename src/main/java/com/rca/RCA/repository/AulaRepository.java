@@ -1,5 +1,7 @@
 package com.rca.RCA.repository;
 
+import com.rca.RCA.entity.AlumnoEntity;
+import com.rca.RCA.entity.ApoderadoEntity;
 import com.rca.RCA.entity.AulaEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -7,8 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 public interface AulaRepository extends JpaRepository<AulaEntity, Integer> {
@@ -66,4 +68,38 @@ public interface AulaRepository extends JpaRepository<AulaEntity, Integer> {
             "AND s.id= :id_seccion " +
             "AND x.status= :status ")
     Optional<AulaEntity> findByGradoYSeccion(Integer id_grado, Integer id_seccion, String status);
+
+
+    @Query(value = "SELECT al " +
+            "from AulaEntity a " +
+            "JOIN a.matriculaEntities m " +
+            "JOIN m.alumnoEntity al " +
+            "JOIN m.anio_lectivoEntity an " +
+            "JOIN al.apoderadoEntity ap " +
+            "JOIN al.usuarioEntity ua " +
+            "WHERE a=m.aulaEntity " +
+            "AND al= m.alumnoEntity " +
+            "AND ap= al.apoderadoEntity " +
+            "AND ua= al.usuarioEntity " +
+            "AND an= m.anio_lectivoEntity " +
+            "AND a.uniqueIdentifier= :id_aula " +
+            "AND an.uniqueIdentifier= :anio_lectivo " +
+            "AND a.status= :status ")
+    Optional<List<AlumnoEntity>> findAlumnosxAula(String id_aula, String anio_lectivo, String status);
+    @Query(value = "SELECT ap " +
+            "from AulaEntity a " +
+            "JOIN a.matriculaEntities m " +
+            "JOIN m.alumnoEntity al " +
+            "JOIN m.anio_lectivoEntity an " +
+            "JOIN al.apoderadoEntity ap " +
+            "JOIN ap.usuarioEntity ua " +
+            "WHERE a=m.aulaEntity " +
+            "AND al= m.alumnoEntity " +
+            "AND ap= al.apoderadoEntity " +
+            "AND ua= ap.usuarioEntity " +
+            "AND an= m.anio_lectivoEntity " +
+            "AND a.uniqueIdentifier= :id_aula " +
+            "AND an.uniqueIdentifier= :anio_lectivo " +
+            "AND a.status= :status ")
+    Optional<List<ApoderadoEntity>> findApoderadosxAula(String id_aula, String anio_lectivo, String status);
 }
