@@ -48,6 +48,10 @@ public class AulaService {
     @Autowired
     private MatriculaService matriculaService;
     @Autowired
+    private DocentexCursoService docentexCursoService;
+    @Autowired
+    private DocentexCursoRepository docentexCursoRepository;
+    @Autowired
     private AnioLectivoRepository anioLectivoRepository;
     //Función para listar aulas con paginación-START
     public ApiResponse<Pagination<AulaDTO>> getList(String filter, int page, int size) {
@@ -201,6 +205,13 @@ public class AulaService {
                 optionalMatriculaEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
                 optionalMatriculaEntities.get().get(i).setDeleteAt(aulaEntity.getDeleteAt());
                 this.matriculaService.delete(optionalMatriculaEntities.get().get(i).getCode());
+            }
+
+            Optional<List<DocentexCursoEntity>> optionalDocentexCursoEntities = this.docentexCursoRepository.findByAula(aulaEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
+            for (int i = 0; i < optionalDocentexCursoEntities.get().size(); i++) {
+                optionalDocentexCursoEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+                optionalDocentexCursoEntities.get().get(i).setDeleteAt(aulaEntity.getDeleteAt());
+                this.docentexCursoService.delete(optionalDocentexCursoEntities.get().get(i).getCode());
             }
 
             apiResponse.setSuccessful(true);

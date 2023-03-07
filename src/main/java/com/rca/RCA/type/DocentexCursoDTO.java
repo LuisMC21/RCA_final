@@ -7,5 +7,5 @@ public class DocentexCursoDTO extends AuditoryDTO{
     private String code;
     private DocenteDTO docenteDTO;
     private CursoDTO cursoDTO;
-    private GradoDTO gradoDTO;
+    private AulaDTO aulaDTO;
 }
