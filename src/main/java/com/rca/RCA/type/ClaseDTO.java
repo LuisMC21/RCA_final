@@ -8,5 +8,4 @@ public class ClaseDTO extends AuditoryDTO {
     private String date;
     private PeriodoDTO periodoDTO;
     private DocentexCursoDTO docentexCursoDTO;
-    private AulaDTO aulaDTO;
 }

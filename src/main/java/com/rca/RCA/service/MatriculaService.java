@@ -184,14 +184,16 @@ public class MatriculaService {
     }
 
     public ResponseEntity<Resource> exportMatricula(String id_alumno, String id_aniolectivo) {
-        log.info("id_alumno {}", id_alumno);
+        log.info("id_alumno id_aniolectivo {} {}", id_alumno, id_aniolectivo);
         Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(id_alumno);
         Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(id_aniolectivo);
         Optional<GradoEntity> optionalGradoEntity = this.matriculaRepository.findGradoMatriculado(id_alumno, id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
         Optional<SeccionEntity> optionalSeccionEntity = this.matriculaRepository.findSeccionMatriculado(id_alumno, id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
 
         if (optionalAlumnoEntity.isPresent() && (optionalAlumnoEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) &&
-                optionalAnioLectivoEntity.isPresent() && optionalAnioLectivoEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) {
+                optionalAnioLectivoEntity.isPresent() && optionalAnioLectivoEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS) &&
+                optionalGradoEntity.isPresent() && optionalGradoEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS) &&
+                optionalSeccionEntity.isPresent() && optionalSeccionEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) {
             try {
                 final AlumnoEntity alumnoEntity = optionalAlumnoEntity.get();
                 final File file = ResourceUtils.getFile("classpath:reportes/ficha_matricula.jasper"); //la ruta del reporte
@@ -199,42 +201,25 @@ public class MatriculaService {
                 final JasperReport report = (JasperReport) JRLoader.loadObject(file);
                 //Se consultan los datos para el reporte de cursos matriculados DTO
                 Optional<List<CursoEntity>> optionalCursoEntities = this.matriculaRepository.findCursosMatriculados(id_alumno, id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
-                Optional<List<DocenteEntity>> optionalDocenteEntities = this.matriculaRepository.findDocentesdeCurosMatriculados(id_alumno, id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
+                Optional<List<DocenteEntity>> optionalDocenteEntities = this.matriculaRepository.findDocentesdeCursosMatriculados(id_alumno, id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
                 //Se agregan los datos para ReporteApoderadosDTO
                 List<ReporteFichaMatriculaDTO> reporteFichaMatriculaDTOS= new ArrayList<>();
-                System.out.println("1");
                 for (int i = 0; i < optionalCursoEntities.get().size(); i++) {
                     ReporteFichaMatriculaDTO reporteFichaMatriculaDTO = new ReporteFichaMatriculaDTO();
                     reporteFichaMatriculaDTO.setCursoDTO(optionalCursoEntities.get().get(i).getCursoDTO());
                     reporteFichaMatriculaDTO.setDocenteDTO(optionalDocenteEntities.get().get(i).getDocenteDTO());
                     reporteFichaMatriculaDTOS.add(reporteFichaMatriculaDTO);
                 }
-                System.out.println("2");
                 //Se llenan los parámetros del reporte
                 final HashMap<String, Object> parameters = new HashMap<>();
                 parameters.put("logoEmpresa", new FileInputStream(imgLogo));
-                System.out.println("3");
                 parameters.put("nombreAlumno", alumnoEntity.getNombresCompletosAl());
-                System.out.println("4");
-
                 parameters.put("docAlumno", alumnoEntity.getUsuarioEntity().getNumdoc());
-                System.out.println("5");
-
                 parameters.put("fechaNacimiento", alumnoEntity.getUsuarioEntity().getBirthdate());
-                System.out.println("6");
-
                 parameters.put("grado", optionalGradoEntity.get().getName().toString());
-                System.out.println("7");
-
                 parameters.put("seccion", optionalSeccionEntity.get().getName().toString());
-                System.out.println("8");
-
                 parameters.put("año", optionalAnioLectivoEntity.get().getName());
-                System.out.println("9");
-
                 parameters.put("dsLA", new JRBeanArrayDataSource(reporteFichaMatriculaDTOS.toArray()));
-                System.out.println("10");
-
                 //Se imprime el reporte
                 JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
                 byte [] reporte = JasperExportManager.exportReportToPdf(jasperPrint);

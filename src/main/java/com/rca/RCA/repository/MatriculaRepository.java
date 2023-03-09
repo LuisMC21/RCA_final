@@ -122,7 +122,7 @@ public interface MatriculaRepository extends JpaRepository<MatriculaEntity, Inte
             "AND a.status = :status " +
             "AND al.uniqueIdentifier = :id_alumno " +
             "AND a.uniqueIdentifier= :id_aniolectivo ")
-    Optional<List<DocenteEntity>> findDocentesdeCurosMatriculados(String id_alumno, String id_aniolectivo, String status);
+    Optional<List<DocenteEntity>> findDocentesdeCursosMatriculados(String id_alumno, String id_aniolectivo, String status);
     @Query(value = "SELECT g FROM AnioLectivoEntity a " +
             "JOIN a.matriculaEntities l " +
             "JOIN l.alumnoEntity al " +
