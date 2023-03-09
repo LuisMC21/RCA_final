@@ -7,6 +7,8 @@ import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.AsistenciaDTO;
 import com.rca.RCA.type.UsuarioDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -44,5 +46,11 @@ public class AsistenciaRESTController {
     @DeleteMapping("{id}")
     public ApiResponse<AsistenciaDTO> delete(@PathVariable String id) {
         return this.asistenciaService.delete(id);
+    }
+    @GetMapping("exportAsistencia")
+    public ResponseEntity<Resource> exportAsistencia(@RequestParam String id_alumno,
+                                                    @RequestParam String id_periodo,
+                                                     @RequestParam String id_aniolectivo){
+        return this.asistenciaService.exportAsistencia(id_alumno, id_periodo,id_aniolectivo);
     }
 }

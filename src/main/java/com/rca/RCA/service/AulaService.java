@@ -192,13 +192,7 @@ public class AulaService {
             AulaEntity aulaEntity = optionalAulaEntity.get();
             aulaEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
             aulaEntity.setDeleteAt(LocalDateTime.now());
-            //Eliminar lista de clases del aula
-            Optional<List<ClaseEntity>> optionalClaseEntities = this.claseRepository.findByAula(aulaEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
-            for (int i = 0; i < optionalClaseEntities.get().size(); i++) {
-                optionalClaseEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-                optionalClaseEntities.get().get(i).setDeleteAt(aulaEntity.getDeleteAt());
-                this.claseService.delete(optionalClaseEntities.get().get(i).getCode());
-            }
+
             //Eliminar lista de matriculas del aula
             Optional<List<MatriculaEntity>> optionalMatriculaEntities = this.matriculaRepository.findByAula(aulaEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
             for (int i = 0; i < optionalMatriculaEntities.get().size(); i++) {
@@ -265,7 +259,7 @@ public class AulaService {
                 StringBuilder stringBuilder = new StringBuilder().append("ApoderadosPDF:");
                 ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
                         .filename(stringBuilder
-                                .append(aulaEntity.getId())
+                                .append(aulaEntity.getCode())
                                 .append("generateDate:").append(sdf)
                                 .append(".pdf").toString())
                         .build();

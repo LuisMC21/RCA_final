@@ -8,9 +8,9 @@ public class ReporteFichaMatriculaDTO {
     private CursoDTO cursoDTO;
 
     public  String getNombreCurso(){
-        return this.cursoDTO.getName();
+        return this.cursoDTO!=null?this.cursoDTO.getName():"---";
     }
     public  String getNombreDocente(){
-        return (this.docenteDTO.getUsuarioDTO().getPa_surname() + " " + this.docenteDTO.getUsuarioDTO().getMa_surname() + " " + this.docenteDTO.getUsuarioDTO().getName());
+        return this.docenteDTO!=null?(this.docenteDTO.getUsuarioDTO().getPa_surname() + " " + this.docenteDTO.getUsuarioDTO().getMa_surname() + " " + this.docenteDTO.getUsuarioDTO().getName()):"---";
     }
 }

@@ -6,6 +6,8 @@ import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
@@ -32,18 +34,15 @@ public class ClaseEntity extends AuditoryEntity{
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private PeriodoEntity periodoEntity;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "aula_id", referencedColumnName = "id")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private AulaEntity aulaEntity;
 
+    @OneToMany(mappedBy = "claseEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    private Set<AsistenciaEntity> asistenciaEntities = new HashSet<>();
     public ClaseDTO getClaseDTO(){
         ClaseDTO ClaseDTO = new ClaseDTO();
         ClaseDTO.setId(this.getUniqueIdentifier());
         ClaseDTO.setCode(this.code);
         ClaseDTO.setDate(this.date);
         ClaseDTO.setPeriodoDTO(this.periodoEntity.getPeriodoDTO());
-        ClaseDTO.setAulaDTO(this.aulaEntity.getAulaDTO());
         ClaseDTO.setDocentexCursoDTO(this.docentexCursoEntity.getDocentexCursoDTO());
         ClaseDTO.setStatus(this.getStatus());
         ClaseDTO.setCreateAt(this.getCreateAt());

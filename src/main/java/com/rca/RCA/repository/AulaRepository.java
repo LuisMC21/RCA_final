@@ -84,7 +84,12 @@ public interface AulaRepository extends JpaRepository<AulaEntity, Integer> {
             "AND an= m.anio_lectivoEntity " +
             "AND a.uniqueIdentifier= :id_aula " +
             "AND an.uniqueIdentifier= :anio_lectivo " +
-            "AND a.status= :status ")
+            "AND a.status= :status " +
+            "AND m.status= :status " +
+            "AND al.status= :status " +
+            "AND ap.status= :status " +
+            "AND ua.status= :status " +
+            "AND an.status= :status ")
     Optional<List<AlumnoEntity>> findAlumnosxAula(String id_aula, String anio_lectivo, String status);
     @Query(value = "SELECT ap " +
             "from AulaEntity a " +
@@ -100,6 +105,11 @@ public interface AulaRepository extends JpaRepository<AulaEntity, Integer> {
             "AND an= m.anio_lectivoEntity " +
             "AND a.uniqueIdentifier= :id_aula " +
             "AND an.uniqueIdentifier= :anio_lectivo " +
-            "AND a.status= :status ")
+            "AND a.status= :status " +
+            "AND m.status= :status " +
+            "AND al.status= :status " +
+            "AND ap.status= :status " +
+            "AND ua.status= :status " +
+            "AND an.status= :status ")
     Optional<List<ApoderadoEntity>> findApoderadosxAula(String id_aula, String anio_lectivo, String status);
 }
