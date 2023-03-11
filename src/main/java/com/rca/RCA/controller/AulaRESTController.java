@@ -6,9 +6,9 @@ import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.SeccionDTO;
 import com.rca.RCA.type.AulaDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/aula")
@@ -38,5 +38,10 @@ public class AulaRESTController {
     @DeleteMapping("{id}")
     public ApiResponse<AulaDTO> delete(@PathVariable String id){
         return this.aulaService.delete(id);
+    }
+    @GetMapping("exportApoderados")
+    public ResponseEntity<Resource> exportListApoderados(@RequestParam String id_aula,
+                                                        @RequestParam String id_aniolectivo){
+        return this.aulaService.exportListApoderados(id_aula, id_aniolectivo);
     }
 }

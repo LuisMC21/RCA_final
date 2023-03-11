@@ -126,6 +126,7 @@ public class UsuarioService {
         UsuarioEntity.setName(UsuarioDTO.getName());
         UsuarioEntity.setPa_surname(UsuarioDTO.getPa_surname());
         UsuarioEntity.setMa_surname(UsuarioDTO.getMa_surname());
+        UsuarioEntity.setBirthdate(UsuarioDTO.getBirthdate());
         UsuarioEntity.setType_doc(UsuarioDTO.getType_doc());
         UsuarioEntity.setNumdoc(UsuarioDTO.getNumdoc());
         UsuarioEntity.setGra_inst(UsuarioDTO.getGra_inst());

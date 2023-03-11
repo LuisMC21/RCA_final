@@ -1,11 +1,13 @@
 package com.rca.RCA.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rca.RCA.type.UsuarioDTO;
 import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,6 +30,10 @@ public class UsuarioEntity extends AuditoryEntity{
     @Column(name = "ma_surname")
     @NotBlank
     private String ma_surname;
+
+    @JsonFormat(pattern = "YYYY-MM-dd")
+    @Column(name = "birthdate")
+    private Date birthdate;
     @Column(name = "type_doc")
     @NotBlank
     private String type_doc;
@@ -73,6 +79,7 @@ public class UsuarioEntity extends AuditoryEntity{
         usuarioDTO.setName(this.name);
         usuarioDTO.setPa_surname(this.pa_surname);
         usuarioDTO.setMa_surname(this.ma_surname);
+        usuarioDTO.setBirthdate(this.birthdate);
         usuarioDTO.setType_doc(this.type_doc);
         usuarioDTO.setNumdoc(this.numdoc);
         usuarioDTO.setTel(this.tel);
@@ -92,6 +99,7 @@ public class UsuarioEntity extends AuditoryEntity{
         this.name = UsuarioDTO.getName();
         this.pa_surname = UsuarioDTO.getPa_surname();
         this.ma_surname = UsuarioDTO.getMa_surname();
+        this.birthdate = UsuarioDTO.getBirthdate();
         this.type_doc = UsuarioDTO.getType_doc();
         this.numdoc = UsuarioDTO.getNumdoc();
         this.tel = UsuarioDTO.getTel();

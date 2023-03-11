@@ -1,6 +1,6 @@
 package com.rca.RCA.repository;
 
-import com.rca.RCA.entity.MatriculaEntity;
+import com.rca.RCA.entity.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -87,5 +87,82 @@ public interface MatriculaRepository extends JpaRepository<MatriculaEntity, Inte
             "AND a.uniqueIdentifier= :id_aniolectivo ")
     Optional<List<MatriculaEntity>> findByAnioLectivo(String id_aniolectivo, String status);
 
+
+    @Query(value = "SELECT c FROM AnioLectivoEntity a " +
+            "JOIN a.matriculaEntities l " +
+            "JOIN l.alumnoEntity al " +
+            "JOIN l.aulaEntity au " +
+            "JOIN au.docentexCursoEntities dc " +
+            "JOIN dc.docenteEntity d " +
+            "JOIN dc.cursoEntity c " +
+            "WHERE a=l.anio_lectivoEntity " +
+            "AND al=l.alumnoEntity " +
+            "AND au=l.aulaEntity " +
+            "AND au= dc.aulaEntity " +
+            "AND d= dc.docenteEntity " +
+            "AND c= dc.cursoEntity " +
+            "AND l.status = :status " +
+            "AND a.status = :status " +
+            "AND al.uniqueIdentifier = :id_alumno " +
+            "AND a.uniqueIdentifier= :id_aniolectivo ")
+    Optional<List<CursoEntity>> findCursosMatriculados(String id_alumno, String id_aniolectivo, String status);
+    @Query(value = "SELECT d FROM AnioLectivoEntity a " +
+            "JOIN a.matriculaEntities l " +
+            "JOIN l.alumnoEntity al " +
+            "JOIN l.aulaEntity au " +
+            "JOIN au.docentexCursoEntities dc " +
+            "JOIN dc.docenteEntity d " +
+            "JOIN dc.cursoEntity c " +
+            "WHERE a=l.anio_lectivoEntity " +
+            "AND al=l.alumnoEntity " +
+            "AND au=l.aulaEntity " +
+            "AND au= dc.aulaEntity " +
+            "AND d= dc.docenteEntity " +
+            "AND c= dc.cursoEntity " +
+            "AND l.status = :status " +
+            "AND a.status = :status " +
+            "AND al.uniqueIdentifier = :id_alumno " +
+            "AND a.uniqueIdentifier= :id_aniolectivo ")
+    Optional<List<DocenteEntity>> findDocentesdeCursosMatriculados(String id_alumno, String id_aniolectivo, String status);
+    @Query(value = "SELECT g FROM AnioLectivoEntity a " +
+            "JOIN a.matriculaEntities l " +
+            "JOIN l.alumnoEntity al " +
+            "JOIN l.aulaEntity au " +
+            "JOIN au.gradoEntity g " +
+            "JOIN au.seccionEntity s " +
+            "JOIN au.docentexCursoEntities dc " +
+            "JOIN dc.docenteEntity d " +
+            "JOIN dc.cursoEntity c " +
+            "WHERE a=l.anio_lectivoEntity " +
+            "AND al=l.alumnoEntity " +
+            "AND au=l.aulaEntity " +
+            "AND au= dc.aulaEntity " +
+            "AND d= dc.docenteEntity " +
+            "AND c= dc.cursoEntity " +
+            "AND l.status = :status " +
+            "AND a.status = :status " +
+            "AND al.uniqueIdentifier = :id_alumno " +
+            "AND a.uniqueIdentifier= :id_aniolectivo ")
+    Optional<GradoEntity> findGradoMatriculado(String id_alumno, String id_aniolectivo, String status);
+    @Query(value = "SELECT s FROM AnioLectivoEntity a " +
+            "JOIN a.matriculaEntities l " +
+            "JOIN l.alumnoEntity al " +
+            "JOIN l.aulaEntity au " +
+            "JOIN au.gradoEntity g " +
+            "JOIN au.seccionEntity s " +
+            "JOIN au.docentexCursoEntities dc " +
+            "JOIN dc.docenteEntity d " +
+            "JOIN dc.cursoEntity c " +
+            "WHERE a=l.anio_lectivoEntity " +
+            "AND al=l.alumnoEntity " +
+            "AND au=l.aulaEntity " +
+            "AND au= dc.aulaEntity " +
+            "AND d= dc.docenteEntity " +
+            "AND c= dc.cursoEntity " +
+            "AND l.status = :status " +
+            "AND a.status = :status " +
+            "AND al.uniqueIdentifier = :id_alumno " +
+            "AND a.uniqueIdentifier= :id_aniolectivo ")
+    Optional<SeccionEntity> findSeccionMatriculado(String id_alumno, String id_aniolectivo, String status);
 
 }

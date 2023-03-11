@@ -89,15 +89,6 @@ public class ClaseService {
             return apiResponse;
         }
 
-        //set aula
-        Optional<AulaEntity> optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(ClaseDTO.getAulaDTO().getId());
-        if (optionalAulaEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("Aula_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el aula asociada a la clase no existe");
-            return apiResponse;
-        }
-
         //Set docentexcurso
         Optional<DocentexCursoEntity> optionalDocentexCursoEntity = this.docentexCursoRepository.findByUniqueIdentifier(ClaseDTO.getDocentexCursoDTO().getId());
         if (optionalDocentexCursoEntity.isEmpty()) {
@@ -107,7 +98,6 @@ public class ClaseService {
             return apiResponse;
         }
 
-        ClaseEntity.setAulaEntity(optionalAulaEntity.get());
         ClaseEntity.setPeriodoEntity(optionalPeriodoEntity.get());
         ClaseEntity.setDocentexCursoEntity(optionalDocentexCursoEntity.get());
         apiResponse.setData(this.claseRepository.save(ClaseEntity).getClaseDTO());
@@ -144,15 +134,6 @@ public class ClaseService {
             return apiResponse;
         }
 
-        //set aula
-        Optional<AulaEntity> optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(ClaseDTO.getAulaDTO().getId());
-        if (optionalAulaEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("Aula_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el aula asociada a la clase no existe");
-            return apiResponse;
-        }
-
         //Set docentexcurso
         Optional<DocentexCursoEntity> optionalDocentexCursoEntity = this.docentexCursoRepository.findByUniqueIdentifier(ClaseDTO.getDocentexCursoDTO().getId());
         if (optionalDocentexCursoEntity.isEmpty()) {
@@ -163,7 +144,6 @@ public class ClaseService {
         }
 
         ClaseEntity.setPeriodoEntity(optionalPeriodoEntity.get());
-        ClaseEntity.setAulaEntity(optionalAulaEntity.get());
         ClaseEntity.setDocentexCursoEntity(optionalDocentexCursoEntity.get());
         apiResponse.setData(this.claseRepository.save(ClaseEntity).getClaseDTO());
         apiResponse.setSuccessful(true);

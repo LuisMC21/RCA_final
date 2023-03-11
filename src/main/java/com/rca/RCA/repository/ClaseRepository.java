@@ -28,13 +28,6 @@ public interface ClaseRepository extends JpaRepository<ClaseEntity, Integer> {
 
     Optional<ClaseEntity> findByUniqueIdentifier(String uniqueIdentifier);
 
-    @Query(value = "SELECT c FROM AulaEntity a " +
-            "JOIN a.claseEntities c " +
-            "WHERE a=c.aulaEntity " +
-            "AND a.uniqueIdentifier = :id_aula " +
-            "AND a.status = :status " +
-            "AND c.status= :status ")
-    Optional<List<ClaseEntity>> findByAula(String id_aula, String status);
     @Query(value = "SELECT c FROM PeriodoEntity p " +
             "JOIN p.claseEntities c " +
             "WHERE p=c.periodoEntity " +
