@@ -86,4 +86,6 @@ public interface MatriculaRepository extends JpaRepository<MatriculaEntity, Inte
             "AND a.status = :status " +
             "AND a.uniqueIdentifier= :id_aniolectivo ")
     Optional<List<MatriculaEntity>> findByAnioLectivo(String id_aniolectivo, String status);
+
+
 }

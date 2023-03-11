@@ -110,4 +110,8 @@ public class AlumnoEntity extends AuditoryEntity{
     public String getPa_surname(){
         return this.usuarioEntity.getPa_surname();
     }
+
+    public String getTel(){
+        return this.usuarioEntity.getTel();
+    }
 }

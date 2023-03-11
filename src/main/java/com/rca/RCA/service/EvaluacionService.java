@@ -2,22 +2,30 @@ package com.rca.RCA.service;
 
 import com.rca.RCA.entity.*;
 import com.rca.RCA.repository.*;
-import com.rca.RCA.type.ApiResponse;
-import com.rca.RCA.type.EvaluacionDTO;
-import com.rca.RCA.type.Pagination;
+import com.rca.RCA.type.*;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
 import lombok.extern.log4j.Log4j2;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.util.JRLoader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -30,12 +38,19 @@ public class EvaluacionService {
     private DocentexCursoRepository docentexCursoRepository;
     private PeriodoRepository periodoRepository;
 
+    private AnioLectivoRepository anioLectivoRepository;
+
+    private CursoRepository cursoRepository;
+
     public EvaluacionService(EvaluacionRepository evaluacionRepository, AlumnoRepository alumnoRepository,
-                             DocentexCursoRepository docentexCursoRepository, PeriodoRepository periodoRepository){
+                             DocentexCursoRepository docentexCursoRepository, PeriodoRepository periodoRepository,
+                             AnioLectivoRepository anioLectivoRepository, CursoRepository cursoRepository){
         this.evaluacionRepository = evaluacionRepository;
         this.alumnoRepository = alumnoRepository;
         this.docentexCursoRepository = docentexCursoRepository;
         this.periodoRepository = periodoRepository;
+        this.anioLectivoRepository = anioLectivoRepository;
+        this.cursoRepository = cursoRepository;
     }
 
     //Obtener Evaluaciones
@@ -188,5 +203,129 @@ public class EvaluacionService {
         }
 
         return apiResponse;
+    }
+
+    public ResponseEntity<Resource> exportBoletaNotas(String periodo, String anio, String alumno) {
+        Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(alumno);
+        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(periodo);
+        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(anio);
+        if (optionalAlumnoEntity.isPresent() && optionalPeriodoEntity.isPresent()){
+
+            List<Object[]> tuples = this.evaluacionRepository.findByAlumnoPeriodoAnio(alumno, anio, periodo);
+            List<CursoEvaluacionDTO> cursos = new ArrayList<>();
+
+            for (Object[] tuple : tuples) {
+                String name = (String) tuple[0];
+                String note = (String) tuple[1];
+                CursoEvaluacionDTO curso = new CursoEvaluacionDTO(name, note);
+                cursos.add(curso);
+            }
+
+            try{
+                final PeriodoEntity periodoEntity = optionalPeriodoEntity.get();
+                final AlumnoEntity alumnoEntity = optionalAlumnoEntity.get();
+                final AnioLectivoEntity anioLectivoEntity = optionalAnioLectivoEntity.get();
+                final File file = ResourceUtils.getFile("classpath:reportes/cursosEvaluacion.jasper");
+                final File imgLogo = ResourceUtils.getFile("classpath:images/logo.png");
+                final JasperReport report = (JasperReport) JRLoader.loadObject(file);
+
+
+
+                final HashMap<String, Object> parameters = new HashMap<>();
+                parameters.put("logoEmpresa", new FileInputStream(imgLogo));
+                parameters.put("apellidoPaterno", alumnoEntity.getUsuarioEntity().getPa_surname());
+                parameters.put("apellidoMaterno", alumnoEntity.getUsuarioEntity().getMa_surname());
+                parameters.put("nombres", alumnoEntity.getUsuarioEntity().getName());
+                parameters.put("Periodo", periodoEntity.getName());
+                parameters.put("anio", anioLectivoEntity.getAnioLectivoDTO().getName());
+                parameters.put("gradoSeccion", "3");
+                parameters.put("dsCursos",  new JRBeanCollectionDataSource(cursos));
+
+                JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
+                byte[] reporte = JasperExportManager.exportReportToPdf(jasperPrint);
+                String sdf = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
+                StringBuilder stringBuilder = new StringBuilder().append("InvoicePDF:");
+                ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
+                        .filename(stringBuilder.append("1")
+                                .append("generateDate:")
+                                .append(sdf)
+                                .append(".pdf")
+                                .toString())
+                        .build();
+                HttpHeaders httpHeaders = new HttpHeaders();
+                httpHeaders.setContentDisposition(contentDisposition);
+
+                return ResponseEntity.ok().contentLength((long) reporte.length)
+                        .contentType(MediaType.APPLICATION_PDF)
+                        .headers(httpHeaders).body(new ByteArrayResource(reporte));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }else{
+            return  ResponseEntity.noContent().build();
+        }
+        return null;
+    }
+
+    public ResponseEntity<Resource> exportNotas(String curso, String periodo, String anio) {
+        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(periodo);
+        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(anio);
+        Optional<CursoEntity> optionalCursoEntity = this.cursoRepository.findByUniqueIdentifier(curso);
+
+        if (optionalCursoEntity.isPresent() && optionalPeriodoEntity.isPresent() && optionalAnioLectivoEntity.isPresent()){
+
+            List<Object[]> tuples = this.evaluacionRepository.findByCursoPeriodoAnio(curso, anio, periodo);
+            List<CursoNotasDTO> notas = new ArrayList<>();
+
+            for (Object[] tuple : tuples) {
+                String estudiante = (String) tuple[0];
+                String note = (String) tuple[1];
+                CursoNotasDTO nota = new CursoNotasDTO(estudiante, note);
+                notas.add(nota);
+            }
+
+            try{
+                final PeriodoEntity periodoEntity = optionalPeriodoEntity.get();
+                final CursoEntity cursoEntity = optionalCursoEntity.get();
+                final AnioLectivoEntity anioLectivoEntity = optionalAnioLectivoEntity.get();
+                final File file = ResourceUtils.getFile("classpath:reportes/notasCurso.jasper");
+                final File imgLogo = ResourceUtils.getFile("classpath:images/logo.png");
+                final JasperReport report = (JasperReport) JRLoader.loadObject(file);
+
+
+
+                final HashMap<String, Object> parameters = new HashMap<>();
+                parameters.put("logoEmpresa", new FileInputStream(imgLogo));
+                parameters.put("curso", cursoEntity.getName());
+                parameters.put("Periodo", periodoEntity.getName());
+                parameters.put("anio", anioLectivoEntity.getAnioLectivoDTO().getName());
+                parameters.put("dsAlumnos",  new JRBeanCollectionDataSource(notas));
+
+                JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
+                byte[] reporte = JasperExportManager.exportReportToPdf(jasperPrint);
+                String sdf = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
+                StringBuilder stringBuilder = new StringBuilder().append("InvoicePDF:");
+                ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
+                        .filename(stringBuilder.append("1")
+                                .append("generateDate:")
+                                .append(sdf)
+                                .append(".pdf")
+                                .toString())
+                        .build();
+                HttpHeaders httpHeaders = new HttpHeaders();
+                httpHeaders.setContentDisposition(contentDisposition);
+
+                return ResponseEntity.ok().contentLength((long) reporte.length)
+                        .contentType(MediaType.APPLICATION_PDF)
+                        .headers(httpHeaders).body(new ByteArrayResource(reporte));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }else{
+            return  ResponseEntity.noContent().build();
+        }
+        return null;
     }
 }

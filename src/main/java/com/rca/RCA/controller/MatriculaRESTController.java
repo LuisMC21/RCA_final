@@ -5,6 +5,8 @@ import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.MatriculaDTO;
 import com.rca.RCA.type.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -36,5 +38,11 @@ public class MatriculaRESTController {
     @DeleteMapping("{id}")
     public ApiResponse<MatriculaDTO> delete(@PathVariable String id){
         return this.matriculaService.delete(id);
+    }
+
+    //Exportar reporte de alumnos matriuclados por aula y periodo
+    @GetMapping("alumnosAula")
+    public ResponseEntity<Resource> exportMatricula(@RequestParam String uniqueIdentifierAula, @RequestParam String uniqueIdentifierPeriodo){
+        return this.matriculaService.exportMatricula(uniqueIdentifierAula, uniqueIdentifierPeriodo);
     }
 }

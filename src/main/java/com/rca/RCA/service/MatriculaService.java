@@ -1,9 +1,6 @@
 package com.rca.RCA.service;
 
-import com.rca.RCA.entity.AlumnoEntity;
-import com.rca.RCA.entity.AnioLectivoEntity;
-import com.rca.RCA.entity.AulaEntity;
-import com.rca.RCA.entity.MatriculaEntity;
+import com.rca.RCA.entity.*;
 import com.rca.RCA.repository.AlumnoRepository;
 import com.rca.RCA.repository.AnioLectivoRepository;
 import com.rca.RCA.repository.AulaRepository;
@@ -14,16 +11,26 @@ import com.rca.RCA.type.Pagination;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
 import lombok.extern.log4j.Log4j2;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.util.JRLoader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -177,5 +184,56 @@ public class MatriculaService {
         }
         return apiResponse;
     }
+
     //Función para cambiar estado a eliminado- END
+
+    //Función para generar pdf
+    public ResponseEntity<Resource> exportMatricula(String uniqueIdentifierAula, String uniqueIdentifierPeriodo) {
+
+        Optional<List<AlumnoEntity>> optionalAlumnoEntity = this.alumnoRepository.findByAulaPeriodo(uniqueIdentifierAula, uniqueIdentifierPeriodo);
+        Optional<AulaEntity> optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(uniqueIdentifierAula);
+        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(uniqueIdentifierPeriodo);
+
+        if (optionalAlumnoEntity.isPresent() && optionalAlumnoEntity.isPresent() && optionalAnioLectivoEntity.isPresent()){
+
+            try{
+                final AnioLectivoEntity anioLectivoEntity = optionalAnioLectivoEntity.get();
+                final AulaEntity aulaEntity = optionalAulaEntity.get();
+                final File file = ResourceUtils.getFile("classpath:reportes/alumnosAula.jasper");
+                final File imgLogo = ResourceUtils.getFile("classpath:images/logo.png");
+                final JasperReport report = (JasperReport) JRLoader.loadObject(file);
+
+                final HashMap<String, Object> parameters = new HashMap<>();
+                parameters.put("logoEmpresa", new FileInputStream(imgLogo));
+                parameters.put("Grado", String.valueOf(aulaEntity.getAulaDTO().getGradoDTO().getName()));
+                parameters.put("Seccion", String.valueOf(aulaEntity.getAulaDTO().getSeccionDTO().getName()));
+                parameters.put("Anio", anioLectivoEntity.getAnioLectivoDTO().getName());
+                parameters.put("dsAlumnosAula", new JRBeanCollectionDataSource((Collection<?>) this.alumnoRepository.findByAulaPeriodoI(uniqueIdentifierAula, uniqueIdentifierPeriodo)));
+
+                JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
+                byte[] reporte = JasperExportManager.exportReportToPdf(jasperPrint);
+                String sdf = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
+                StringBuilder stringBuilder = new StringBuilder().append("InvoicePDF:");
+                ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
+                        .filename(stringBuilder.append("1")
+                                .append("generateDate:")
+                                .append(sdf)
+                                .append(".pdf")
+                                .toString())
+                        .build();
+                HttpHeaders httpHeaders = new HttpHeaders();
+                httpHeaders.setContentDisposition(contentDisposition);
+
+                return ResponseEntity.ok().contentLength((long) reporte.length)
+                        .contentType(MediaType.APPLICATION_PDF)
+                        .headers(httpHeaders).body(new ByteArrayResource(reporte));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }else{
+            return  ResponseEntity.noContent().build();
+        }
+        return null;
+    }
 }
