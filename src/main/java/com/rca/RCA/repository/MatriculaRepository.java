@@ -87,6 +87,7 @@ public interface MatriculaRepository extends JpaRepository<MatriculaEntity, Inte
             "AND a.uniqueIdentifier= :id_aniolectivo ")
     Optional<List<MatriculaEntity>> findByAnioLectivo(String id_aniolectivo, String status);
 
+
     @Query(value = "SELECT c FROM AnioLectivoEntity a " +
             "JOIN a.matriculaEntities l " +
             "JOIN l.alumnoEntity al " +
@@ -163,4 +164,5 @@ public interface MatriculaRepository extends JpaRepository<MatriculaEntity, Inte
             "AND al.uniqueIdentifier = :id_alumno " +
             "AND a.uniqueIdentifier= :id_aniolectivo ")
     Optional<SeccionEntity> findSeccionMatriculado(String id_alumno, String id_aniolectivo, String status);
+
 }

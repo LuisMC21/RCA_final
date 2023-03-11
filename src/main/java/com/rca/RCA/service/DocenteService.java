@@ -3,7 +3,6 @@ package com.rca.RCA.service;
 import com.rca.RCA.entity.DocenteEntity;
 import com.rca.RCA.entity.DocentexCursoEntity;
 import com.rca.RCA.entity.RolEntity;
-import com.rca.RCA.entity.UsuarioEntity;
 import com.rca.RCA.repository.DocenteRepository;
 import com.rca.RCA.repository.DocentexCursoRepository;
 import com.rca.RCA.repository.RolRepository;

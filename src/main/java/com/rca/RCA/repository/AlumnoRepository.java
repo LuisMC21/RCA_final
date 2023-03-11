@@ -85,4 +85,15 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
     @Query(value="Select * from alumno where apoderado_id = :idApo", nativeQuery = true)
     Iterable<AlumnoEntity> findByApoderadoI(int idApo);
 
+
+    @Query(value="select * from alumno a join matricula m on a.id = m.alumno_id join aula al on al.id = m.aula_id join anio_lectivo ale on " +
+            "ale.id = m.anio_lectivo_id where al.tx_unique_identifier = :aula " +
+            "and ale.tx_unique_identifier = :periodo", nativeQuery=true)
+    Optional<List<AlumnoEntity>> findByAulaPeriodo(String aula, String periodo);
+    @Query(value="select * from alumno a join matricula m on a.id = m.alumno_id join aula al on al.id = m.aula_id join anio_lectivo ale on " +
+            "ale.id = m.anio_lectivo_id where al.tx_unique_identifier = :aula " +
+            "and ale.tx_unique_identifier = :periodo", nativeQuery=true)
+    Iterable<AlumnoEntity> findByAulaPeriodoI(String aula, String periodo);
+
+
 }

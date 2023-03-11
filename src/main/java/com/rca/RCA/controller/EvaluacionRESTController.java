@@ -5,6 +5,8 @@ import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.EvaluacionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -40,5 +42,17 @@ public class EvaluacionRESTController {
     @DeleteMapping("{id}")
     public ApiResponse<EvaluacionDTO> delete(@PathVariable String id) {
         return this.evaluacionService.delete(id);
+    }
+
+    @GetMapping("boletaNotas")
+    public ResponseEntity<Resource> notas(@RequestParam String periodo, @RequestParam String anio,
+                                          @RequestParam String alumno){
+        return this.evaluacionService.exportBoletaNotas(periodo, anio, alumno);
+    }
+
+    @GetMapping("cursoNotas")
+    public ResponseEntity<Resource> exportNotas(@RequestParam String periodo, @RequestParam String anio,
+                                                @RequestParam String curso){
+        return this.evaluacionService.exportNotas(curso, periodo, anio);
     }
 }

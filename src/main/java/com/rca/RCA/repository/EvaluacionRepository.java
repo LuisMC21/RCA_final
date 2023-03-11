@@ -1,7 +1,7 @@
 package com.rca.RCA.repository;
 
 import com.rca.RCA.entity.EvaluacionEntity;
-import com.rca.RCA.entity.UsuarioEntity;
+import com.rca.RCA.type.CursoEvaluacionDTO;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -45,4 +45,22 @@ public interface EvaluacionRepository extends JpaRepository<EvaluacionEntity, In
             "AND e.status= :status " +
             "AND d.status= :status ")
     Optional<List<EvaluacionEntity>> findById_DXC(String id_dxc, String status);
+
+    @Query(value = "Select c.name, e.note from curso c join docentexcurso dxc on c.id = dxc.curso_id " +
+            "join evaluacion e on dxc.id = e.docentexcurso_id join periodo p on p.id = e.periodo_id " +
+            "join alumno a on a.id = e.alumno_id join anio_lectivo al on al.id = p.anio_lectivo_id " +
+            "where a.tx_unique_identifier = :alumno and " +
+            "al.tx_unique_identifier = :anio " +
+            "and p.tx_unique_identifier = :periodo ", nativeQuery = true)
+    List<Object[]> findByAlumnoPeriodoAnio(String alumno, String anio, String periodo);
+
+    @Query(value = "Select concat(u.pa_surname, ' ', u.ma_surname, ' ', u.name) as estudiante, e.note from curso c join docentexcurso dxc on c.id = dxc.curso_id " +
+            "join evaluacion e on dxc.id = e.docentexcurso_id join periodo p on p.id = e.periodo_id " +
+            "join alumno a on a.id = e.alumno_id join anio_lectivo al on al.id = p.anio_lectivo_id " +
+            "join usuario u on u.id = a.user_id " +
+            "where c.tx_unique_identifier = :curso " +
+            "and al.tx_unique_identifier = :anio " +
+            "and p.tx_unique_identifier = :periodo", nativeQuery = true)
+    List<Object[]> findByCursoPeriodoAnio(String curso, String anio, String periodo);
+
 }

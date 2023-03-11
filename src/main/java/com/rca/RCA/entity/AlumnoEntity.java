@@ -107,6 +107,10 @@ public class AlumnoEntity extends AuditoryEntity{
         return this.usuarioEntity.getMa_surname();
     }
 
+
+    public String getTel(){
+        return this.usuarioEntity.getTel();
+
     public String getPa_surname() {
         return this.usuarioEntity.getPa_surname();
     }
@@ -123,5 +127,6 @@ public class AlumnoEntity extends AuditoryEntity{
     }
     public String getEmailApoderado(){
         return this.apoderadoEntity != null ? this.apoderadoEntity.getEmail():"---";
+
     }
 }

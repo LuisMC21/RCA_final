@@ -1,6 +1,5 @@
 package com.rca.RCA.service;
 
-import com.rca.RCA.entity.ImagenEntity;
 import com.rca.RCA.entity.NoticiaEntity;
 import com.rca.RCA.entity.UsuarioEntity;
 import com.rca.RCA.repository.NoticiaRepository;

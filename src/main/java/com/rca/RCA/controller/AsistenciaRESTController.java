@@ -1,11 +1,9 @@
 package com.rca.RCA.controller;
 
-import com.rca.RCA.repository.AsistenciaRepository;
 import com.rca.RCA.service.AsistenciaService;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.AsistenciaDTO;
-import com.rca.RCA.type.UsuarioDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;

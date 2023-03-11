@@ -39,9 +39,16 @@ public class MatriculaRESTController {
     public ApiResponse<MatriculaDTO> delete(@PathVariable String id){
         return this.matriculaService.delete(id);
     }
+
+    //Exportar reporte de alumnos matriuclados por aula y periodo
+    @GetMapping("alumnosAula")
+    public ResponseEntity<Resource> exportMatricula(@RequestParam String uniqueIdentifierAula, @RequestParam String uniqueIdentifierPeriodo){
+        return this.matriculaService.exportMatricula(uniqueIdentifierAula, uniqueIdentifierPeriodo);
+
     @GetMapping("exportMatricula")
     public ResponseEntity<Resource> exportMatricula(@RequestParam String id_alumno,
                                                     @RequestParam String id_aniolectivo){
         return this.matriculaService.exportMatricula(id_alumno, id_aniolectivo);
+
     }
 }
