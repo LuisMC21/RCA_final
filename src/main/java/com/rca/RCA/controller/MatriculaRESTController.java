@@ -42,9 +42,11 @@ public class MatriculaRESTController {
 
     //Exportar reporte de alumnos matriuclados por aula y periodo
     @GetMapping("alumnosAula")
-    public ResponseEntity<Resource> exportMatricula(@RequestParam String uniqueIdentifierAula, @RequestParam String uniqueIdentifierPeriodo){
-        return this.matriculaService.exportMatricula(uniqueIdentifierAula, uniqueIdentifierPeriodo);
+    public ResponseEntity<Resource> exportListAlumnos(@RequestParam String uniqueIdentifierAula, @RequestParam String uniqueIdentifierPeriodo) {
+        return this.matriculaService.exportListaAlumnos(uniqueIdentifierAula, uniqueIdentifierPeriodo);
+    }
 
+    //Exportar reporte de matrícula por alumno y año lectivo
     @GetMapping("exportMatricula")
     public ResponseEntity<Resource> exportMatricula(@RequestParam String id_alumno,
                                                     @RequestParam String id_aniolectivo){
