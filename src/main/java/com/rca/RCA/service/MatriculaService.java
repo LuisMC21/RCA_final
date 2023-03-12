@@ -252,7 +252,7 @@ public class MatriculaService {
     //Función para cambiar estado a eliminado- END
 
     //Función para generar pdf
-    public ResponseEntity<Resource> exportMatricula(String uniqueIdentifierAula, String uniqueIdentifierPeriodo) {
+    public ResponseEntity<Resource> exportListaAlumnos(String uniqueIdentifierAula, String uniqueIdentifierPeriodo) {
 
         Optional<List<AlumnoEntity>> optionalAlumnoEntity = this.alumnoRepository.findByAulaPeriodo(uniqueIdentifierAula, uniqueIdentifierPeriodo);
         Optional<AulaEntity> optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(uniqueIdentifierAula);
