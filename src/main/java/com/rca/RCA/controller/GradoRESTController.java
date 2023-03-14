@@ -7,7 +7,7 @@ import com.rca.RCA.type.GradoDTO;
 import com.rca.RCA.type.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/grado")
 public class GradoRESTController {
