@@ -6,6 +6,7 @@ import com.rca.RCA.repository.UsuarioRepository;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.RolDTO;
+import com.rca.RCA.type.SeccionDTO;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
 import lombok.extern.log4j.Log4j2;
@@ -31,8 +32,9 @@ public class RolService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    public Pagination<RolDTO> getList(String filter, int page, int size) {
-
+    public ApiResponse<Pagination<RolDTO>> getList(String filter, int page, int size) {
+        log.info("filter page size {} {} {}", filter, page, size);
+        ApiResponse<Pagination<RolDTO>> apiResponse = new ApiResponse<>();
         Pagination<RolDTO> pagination = new Pagination();
         pagination.setCountFilter(this.rolRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, filter));
         if (pagination.getCountFilter() > 0) {
@@ -41,7 +43,10 @@ public class RolService {
             pagination.setList(RolEntities.stream().map(RolEntity::getRolDTO).collect(Collectors.toList()));
         }
         pagination.setTotalPages(pagination.processAndGetTotalPages(size));
-        return pagination;
+        apiResponse.setData(pagination);
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
     }
 
     //Agregar Rol

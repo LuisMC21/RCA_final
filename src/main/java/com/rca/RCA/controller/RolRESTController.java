@@ -21,7 +21,7 @@ public class RolRESTController {
     }
 
     @GetMapping
-    public Pagination<RolDTO> list(
+    public ApiResponse<Pagination<RolDTO>> list(
             @RequestParam(defaultValue = "") String filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
