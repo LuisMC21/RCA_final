@@ -22,32 +22,24 @@ public class UsuarioEntity extends AuditoryEntity{
     @Column(name = "code", length = 15)
     private String code;
     @Column(name = "name")
-    @NotBlank
     private String name;
     @Column(name = "pa_surname")
-    @NotBlank
     private String pa_surname;
     @Column(name = "ma_surname")
-    @NotBlank
     private String ma_surname;
 
     @JsonFormat(pattern = "YYYY-MM-dd")
     @Column(name = "birthdate")
     private Date birthdate;
     @Column(name = "type_doc")
-    @NotBlank
     private String type_doc;
     @Column(name = "numdoc", unique = true)
-    @NotBlank
     private String numdoc;
     @Column(name = "tel", unique = true)
-    @NotBlank
     private String tel;
     @Column(name = "gra_inst")
-    @NotBlank
     private String gra_inst;
     @Column(name = "email_inst", unique = true)
-    @NotBlank
     private String email_inst;
 
     @OneToOne(mappedBy = "usuarioEntity")

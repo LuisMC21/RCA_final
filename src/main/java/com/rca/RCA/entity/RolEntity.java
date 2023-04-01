@@ -22,7 +22,6 @@ public class RolEntity extends AuditoryEntity{
     @Column(name = "code", length = 15)
     private String code;
     @Column(name = "name", unique = true)
-    @NotBlank
     private String name;
 
     @OneToMany(mappedBy = "rolEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
