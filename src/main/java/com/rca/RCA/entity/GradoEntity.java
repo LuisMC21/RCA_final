@@ -3,7 +3,7 @@ package com.rca.RCA.entity;
 import com.rca.RCA.type.GradoDTO;
 import lombok.Data;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 

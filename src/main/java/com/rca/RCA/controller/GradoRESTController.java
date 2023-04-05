@@ -5,6 +5,8 @@ import com.rca.RCA.service.SeccionService;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.GradoDTO;
 import com.rca.RCA.type.Pagination;
+import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "http://localhost:4200")
@@ -39,7 +41,7 @@ public class GradoRESTController {
     }
 
     @DeleteMapping("{id}")
-    public ApiResponse<GradoDTO> delete(@PathVariable String id){
+    public ApiResponse<GradoDTO> delete(@PathVariable String id) throws ResourceNotFoundException, AttributeException {
         return this.gradoService.delete(id);
     }
 }

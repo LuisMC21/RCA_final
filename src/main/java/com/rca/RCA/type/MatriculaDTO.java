@@ -3,7 +3,7 @@ package com.rca.RCA.type;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 
 @Data

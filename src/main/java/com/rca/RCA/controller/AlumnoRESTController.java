@@ -3,13 +3,11 @@ package com.rca.RCA.controller;
 import com.rca.RCA.service.AlumnoService;
 import com.rca.RCA.type.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController

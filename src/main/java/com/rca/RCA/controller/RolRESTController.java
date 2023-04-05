@@ -7,7 +7,7 @@ import com.rca.RCA.type.RolDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/rol")

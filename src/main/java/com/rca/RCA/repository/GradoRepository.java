@@ -27,7 +27,10 @@ public interface GradoRepository extends JpaRepository<GradoEntity, Integer> {
     Long findCountGrados(String status, String filter);
 
     //Función para obtener un grado con su Identificado Único
-    Optional<GradoEntity> findByUniqueIdentifier(String uniqueIdentifier);
+    @Query(value = "select g from GradoEntity g " +
+            "where g.status = :status " +
+            "and g.uniqueIdentifier = :id ")
+    Optional<GradoEntity> findByUniqueIdentifier(String id, String status);
     //Función para obtener un grado con su nombre
     Optional<GradoEntity> findByName(Character name);
 }

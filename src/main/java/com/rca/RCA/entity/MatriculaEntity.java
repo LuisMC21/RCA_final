@@ -3,7 +3,7 @@ package com.rca.RCA.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;import com.rca.RCA.type.MatriculaDTO;
 import lombok.Data;
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 
 @Data

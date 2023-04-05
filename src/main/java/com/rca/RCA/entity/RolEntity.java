@@ -1,14 +1,11 @@
 package com.rca.RCA.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.rca.RCA.type.RolDTO;
 import lombok.Data;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import java.util.ArrayList;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Data

@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rca.RCA.type.UsuarioDTO;
 import lombok.Data;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;

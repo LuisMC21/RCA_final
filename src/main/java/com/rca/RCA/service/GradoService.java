@@ -9,6 +9,8 @@ import com.rca.RCA.type.GradoDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
+import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -82,7 +84,7 @@ public class GradoService {
         Optional<GradoEntity> optionalGradoEntity=this.gradoRepository.findByName(gradoDTO.getName());
         //Verifica que el nombre del grado no exista
         if(optionalGradoEntity.isEmpty() || optionalGradoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
-            optionalGradoEntity = this.gradoRepository.findByUniqueIdentifier(gradoDTO.getId());
+            optionalGradoEntity = this.gradoRepository.findByUniqueIdentifier(gradoDTO.getId(), ConstantsGeneric.CREATED_STATUS);
             //Verifica que el id y el status seas válidos
             if (optionalGradoEntity.isPresent() && optionalGradoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
                 gradoDTO.setUpdateAt(LocalDateTime.now());
@@ -116,33 +118,22 @@ public class GradoService {
 
     //Función para cambiar estado a eliminado de un grado - START
     //id dto=uniqueIdentifier Entity
-    public ApiResponse<GradoDTO> delete(String id){
+    public ApiResponse<GradoDTO> delete(String id) throws ResourceNotFoundException, AttributeException {
         ApiResponse<GradoDTO> apiResponse = new ApiResponse<>();
-        Optional<GradoEntity> optionalGradoEntity=this.gradoRepository.findByUniqueIdentifier(id);
-        //Verifica que el id y el status sean válidos
-        if(optionalGradoEntity.isPresent() && optionalGradoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)){
-            GradoEntity gradoEntity =optionalGradoEntity.get();
-            gradoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
-            gradoEntity.setDeleteAt(LocalDateTime.now());
-            //Eliminar lista de aulas del grado
-            Optional<List<AulaEntity>> optionalAulaEntities= this.aulaRepository.findById_Grado(gradoEntity.getId(), ConstantsGeneric.CREATED_STATUS);
-            if(optionalAulaEntities.isPresent()) {
-                for (int i = 0; i < optionalAulaEntities.get().size(); i++) {
-                    optionalAulaEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-                    optionalAulaEntities.get().get(i).setDeleteAt(gradoEntity.getDeleteAt());
-                    this.aulaService.delete(optionalAulaEntities.get().get(i).getCode());
-                }
-            }
-
-            apiResponse.setSuccessful(true);
-            apiResponse.setMessage("ok");
-            apiResponse.setData(this.gradoRepository.save(gradoEntity).getGradoDTO());
-        } else{
-            log.warn("No se eliminó el dato");
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("GRADE_DOES_NOT_EXISTS");
-            apiResponse.setMessage("No existe el grado para poder eliminar");
+        GradoEntity gradoEntity=this.gradoRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Grado no encontrado"));
+        gradoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
+        gradoEntity.setDeleteAt(LocalDateTime.now());
+        //Eliminar lista de aulas del grado
+        List<AulaEntity> aulaEntities= this.aulaRepository.findById_Grado(gradoEntity.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new AttributeException("Grado: No encontrado"));
+        for (int i = 0; i < aulaEntities.size(); i++) {
+            aulaEntities.get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+            aulaEntities.get(i).setDeleteAt(gradoEntity.getDeleteAt());
+            this.aulaService.delete(aulaEntities.get(i).getCode());
         }
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(this.gradoRepository.save(gradoEntity).getGradoDTO());
+
         return apiResponse;
     }
     //Función para cambiar estado a elimiado de un grado con respuesta de grado DTO - END

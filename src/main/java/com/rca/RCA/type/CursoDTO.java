@@ -2,7 +2,7 @@ package com.rca.RCA.type;
 
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 @Data
 public class CursoDTO extends AuditoryDTO{

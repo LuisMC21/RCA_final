@@ -5,7 +5,7 @@ import com.rca.RCA.type.DocenteDTO;
 import com.rca.RCA.type.DocentexCursoDTO;
 import lombok.Data;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 

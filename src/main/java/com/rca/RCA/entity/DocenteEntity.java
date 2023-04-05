@@ -1,11 +1,10 @@
 package com.rca.RCA.entity;
 
-import com.rca.RCA.type.CursoDTO;
 import com.rca.RCA.type.DocenteDTO;
 import lombok.Data;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Set;
 

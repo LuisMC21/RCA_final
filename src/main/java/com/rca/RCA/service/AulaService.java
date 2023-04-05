@@ -9,7 +9,6 @@ import com.rca.RCA.util.ConstantsGeneric;
 import lombok.extern.log4j.Log4j2;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanArrayDataSource;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.util.JRLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -23,7 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 import org.springframework.core.io.Resource;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
@@ -79,7 +78,7 @@ public class AulaService {
         log.info("Grado Seccion {} {}", aulaDTO.getGradoDTO().getId(), aulaDTO.getSeccionDTO().getId());
         ApiResponse<AulaDTO> apiResponse = new ApiResponse<>();
         AulaEntity aulaEntity = new AulaEntity();
-        Optional<GradoEntity> optionalGradoEntity = this.gradoRepository.findByUniqueIdentifier(aulaDTO.getGradoDTO().getId());
+        Optional<GradoEntity> optionalGradoEntity = this.gradoRepository.findByUniqueIdentifier(aulaDTO.getGradoDTO().getId(), ConstantsGeneric.CREATED_STATUS);
         Optional<SeccionEntity> optionalSeccionEntity = this.seccionRepository.findByUniqueIdentifier(aulaDTO.getSeccionDTO().getId());
         if (optionalGradoEntity.isPresent() &&
                 optionalSeccionEntity.isPresent()
@@ -130,7 +129,7 @@ public class AulaService {
                 Optional<GradoEntity> optionalGradoEntity = Optional.empty();
                 Optional<SeccionEntity> optionalSeccionEntity = Optional.empty();
                 if (aulaDTO.getGradoDTO().getId() != null) {
-                    optionalGradoEntity = this.gradoRepository.findByUniqueIdentifier(aulaDTO.getGradoDTO().getId());
+                    optionalGradoEntity = this.gradoRepository.findByUniqueIdentifier(aulaDTO.getGradoDTO().getId(), ConstantsGeneric.CREATED_STATUS);
                 }
                 if (aulaDTO.getSeccionDTO().getId() != null) {
                     optionalSeccionEntity = this.seccionRepository.findByUniqueIdentifier(aulaDTO.getSeccionDTO().getId());
