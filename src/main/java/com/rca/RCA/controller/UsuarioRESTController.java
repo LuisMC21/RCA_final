@@ -1,6 +1,6 @@
 package com.rca.RCA.controller;
 
-import com.rca.RCA.service.UsuarioService;
+import com.rca.RCA.auth.service.UsuarioService;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.UsuarioDTO;
@@ -27,11 +27,6 @@ public class UsuarioRESTController {
             @RequestParam(defaultValue = "10") int size
     ) {
         return this.usuarioService.getList(filter, page, size);
-    }
-
-    @PostMapping
-    public ApiResponse<UsuarioDTO> add(@RequestBody @Valid UsuarioDTO UsuarioDTO) {
-        return this.usuarioService.add(UsuarioDTO);
     }
 
     @PutMapping

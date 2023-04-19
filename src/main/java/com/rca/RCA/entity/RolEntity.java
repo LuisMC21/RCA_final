@@ -1,4 +1,4 @@
-package com.rca.RCA.entity;
+/*package com.rca.RCA.entity;
 
 import com.rca.RCA.type.RolDTO;
 import lombok.Data;
@@ -46,3 +46,5 @@ public class RolEntity extends AuditoryEntity{
         this.setDeleteAt(RolDTO.getDeleteAt());
     }
 }
+
+ */

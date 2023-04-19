@@ -66,6 +66,12 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
             "and u.tx_unique_identifier = :uniqueIdentifier", nativeQuery = true)
     void deleteNoticia(@Param("uniqueIdentifier") String uniqueIdentifier, @Param("fecha") LocalDateTime fecha);
 
+
+    Optional<UsuarioEntity> findByNombreUsuario(String nombreUsuario);
+    Optional<UsuarioEntity> findByNombreUsuarioOrEmail(String nombreUsuario, String email);
+    Optional<UsuarioEntity> findByTokenPassword(String tokenPassword);
+    boolean existsByNombreUsuario(String nombreUsuario);
+    boolean existsByEmail(String email);
 }
 
 

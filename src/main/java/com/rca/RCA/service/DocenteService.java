@@ -1,8 +1,10 @@
 package com.rca.RCA.service;
 
+import com.rca.RCA.auth.entity.Rol;
+import com.rca.RCA.auth.service.UsuarioService;
 import com.rca.RCA.entity.DocenteEntity;
 import com.rca.RCA.entity.DocentexCursoEntity;
-import com.rca.RCA.entity.RolEntity;
+//import com.rca.RCA.entity.RolEntity;
 import com.rca.RCA.repository.DocenteRepository;
 import com.rca.RCA.repository.DocentexCursoRepository;
 import com.rca.RCA.repository.RolRepository;
@@ -63,15 +65,16 @@ public class DocenteService {
     public ApiResponse<DocenteDTO> add(DocenteDTO docenteDTO){
         ApiResponse<DocenteDTO> apiResponse = new ApiResponse<>();
         //Verifica que el rol sea docente
-        Optional<RolEntity> optionalRolEntity=this.rolRepository.findByName("Docente");
-        if (optionalRolEntity.isEmpty() || !optionalRolEntity.get().getName().equalsIgnoreCase("DOCENTE")) {
+        Optional<Rol> optionalRolEntity=this.rolRepository.findByUniqueIdentifier(docenteDTO.getUsuarioDTO().getRol());
+        /*if (optionalRolEntity.isEmpty() || !optionalRolEntity.get().getName().equalsIgnoreCase("DOCENTE")) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("ROLE_NOT_SUPPORTED");
             apiResponse.setMessage("No se resgistró, el rol docente no existe");
             return apiResponse;
         }
+        */
         //add usuario
-        docenteDTO.getUsuarioDTO().setRolDTO(optionalRolEntity.get().getRolDTO());
+        //docenteDTO.getUsuarioDTO().setRolDTO(optionalRolEntity.get().getRolDTO());
         ApiResponse<UsuarioDTO> apiResponseU= this.usuarioService.add(docenteDTO.getUsuarioDTO());
         if (!apiResponseU.isSuccessful()) {
             log.warn("No se agregó el registro");
@@ -131,8 +134,8 @@ public class DocenteService {
                 if (docenteDTO.getUsuarioDTO().getGra_inst() != null) {
                     optionalDocenteEntity.get().getUsuarioEntity().setGra_inst(docenteDTO.getUsuarioDTO().getGra_inst());
                 }
-                if (docenteDTO.getUsuarioDTO().getEmail_inst() != null) {
-                    optionalDocenteEntity.get().getUsuarioEntity().setEmail_inst(docenteDTO.getUsuarioDTO().getEmail_inst());
+                if (docenteDTO.getUsuarioDTO().getEmail() != null) {
+                    optionalDocenteEntity.get().getUsuarioEntity().setEmail(docenteDTO.getUsuarioDTO().getEmail());
                 }
                 //Update in database to usuario
                 ApiResponse<UsuarioDTO> apiResponseU = this.usuarioService.update(optionalDocenteEntity.get().getUsuarioEntity().getUsuarioDTO());

@@ -1,6 +1,8 @@
 package com.rca.RCA.service;
 
-import com.rca.RCA.entity.RolEntity;
+import com.rca.RCA.auth.entity.Rol;
+import com.rca.RCA.auth.enums.RolNombre;
+//import com.rca.RCA.entity.RolEntity;
 import com.rca.RCA.repository.RolRepository;
 import com.rca.RCA.repository.UsuarioRepository;
 import com.rca.RCA.type.ApiResponse;
@@ -28,7 +30,7 @@ public class RolService {
 
     @Autowired
     private RolRepository rolRepository;
-
+    /*
     @Autowired
     private UsuarioRepository usuarioRepository;
 
@@ -144,5 +146,13 @@ public class RolService {
         }
 
         return apiResponse;
+    }
+    */
+    public Optional<Rol> getByRolNombre(RolNombre rolNombre){
+        return rolRepository.findByRolNombre(rolNombre);
+    }
+
+    public void save(Rol rol){
+        rolRepository.save(rol);
     }
 }

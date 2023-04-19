@@ -1,6 +1,8 @@
-package com.rca.RCA.service;
+package com.rca.RCA.auth.service;
 
-import com.rca.RCA.entity.RolEntity;
+import com.rca.RCA.auth.entity.Rol;
+//import com.rca.RCA.entity.RolEntity;
+import com.rca.RCA.auth.enums.RolNombre;
 import com.rca.RCA.entity.UsuarioEntity;
 import com.rca.RCA.repository.ImagenRepository;
 import com.rca.RCA.repository.NoticiaRepository;
@@ -15,6 +17,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -32,7 +35,8 @@ public class UsuarioService {
     private UsuarioRepository usuarioRepository;
     @Autowired
     private RolRepository rolRepository;
-
+    @Autowired
+    PasswordEncoder passwordEncoder;
     @Autowired
     private ImagenRepository imagenRepository;
 
@@ -62,17 +66,15 @@ public class UsuarioService {
     }
 
     //Agregar usuario
-    public ApiResponse<UsuarioDTO> add(UsuarioDTO UsuarioDTO) {
+    public ApiResponse<UsuarioDTO> add(UsuarioDTO usuarioDTO) {
         ApiResponse<UsuarioDTO> apiResponse = new ApiResponse<>();
-        System.out.println(UsuarioDTO.toString());
-        UsuarioDTO.setId(UUID.randomUUID().toString());
-        UsuarioDTO.setCode(Code.generateCode(Code.USUARIO_CODE, this.usuarioRepository.count() + 1, Code.USUARIO_LENGTH));
-        UsuarioDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
-        UsuarioDTO.setCreateAt(LocalDateTime.now());
-        System.out.println(UsuarioDTO.toString());
+        usuarioDTO.setId(UUID.randomUUID().toString());
+        usuarioDTO.setCode(Code.generateCode(Code.USUARIO_CODE, this.usuarioRepository.count() + 1, Code.USUARIO_LENGTH));
+        usuarioDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
+        usuarioDTO.setCreateAt(LocalDateTime.now());
         //validamos
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByNumdoc(UsuarioDTO.getNumdoc());
-        Optional<UsuarioEntity> optionalUsuarioEntity2 = this.usuarioRepository.findByTel(UsuarioDTO.getTel());
+        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByNumdoc(usuarioDTO.getNumdoc());
+        Optional<UsuarioEntity> optionalUsuarioEntity2 = this.usuarioRepository.findByTel(usuarioDTO.getTel());
         if (optionalUsuarioEntity.isPresent() || optionalUsuarioEntity2.isPresent()) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("Usuario_EXISTS");
@@ -80,20 +82,25 @@ public class UsuarioService {
             return apiResponse;
         }
         //change dto to entity
-        UsuarioEntity UsuarioEntity = new UsuarioEntity();
-        UsuarioEntity.setUsuarioDTO(UsuarioDTO);
+        UsuarioEntity usuarioEntity = new UsuarioEntity();
+        usuarioEntity.setUsuarioDTO(usuarioDTO);
 
-        //set rol
-        Optional<RolEntity> optionalRolEntity = this.rolRepository.findByUniqueIdentifier(UsuarioDTO.getRolDTO().getId());
-        if (optionalRolEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("ROL_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el rol asociado al usuario no existe");
-            return apiResponse;
+        if(usuarioDTO.getRol().equalsIgnoreCase("ADMINISTRADOR")){
+            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_ADMIN).get());
+            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_TEACHER).get());
+            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_STUDENT).get());
+        }
+        if(usuarioDTO.getRol().equalsIgnoreCase("TEACHER")){
+            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_TEACHER).get());
+            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_STUDENT).get());
+        }
+        if(usuarioDTO.getRol().equalsIgnoreCase("STUDENT")){
+            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_STUDENT).get());
         }
 
-        UsuarioEntity.setRolEntity(optionalRolEntity.get());
-        apiResponse.setData(this.usuarioRepository.save(UsuarioEntity).getUsuarioDTO());
+        usuarioEntity.setPassword(passwordEncoder.encode(usuarioDTO.getPassword()));
+        System.out.println(usuarioEntity);
+        apiResponse.setData(this.usuarioRepository.save(usuarioEntity).getUsuarioDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
         return apiResponse;
@@ -130,17 +137,17 @@ public class UsuarioService {
         UsuarioEntity.setType_doc(UsuarioDTO.getType_doc());
         UsuarioEntity.setNumdoc(UsuarioDTO.getNumdoc());
         UsuarioEntity.setGra_inst(UsuarioDTO.getGra_inst());
-        UsuarioEntity.setEmail_inst(UsuarioDTO.getEmail_inst());
+        UsuarioEntity.setEmail(UsuarioDTO.getEmail());
         UsuarioEntity.setTel(UsuarioDTO.getTel());
         //set category
-        Optional<RolEntity> optionalRolEntity = this.rolRepository.findByUniqueIdentifier(UsuarioDTO.getRolDTO().getId());
-        if (optionalRolEntity.isEmpty()) {
+        Optional<Rol> optionalRol = this.rolRepository.findByUniqueIdentifier(UsuarioDTO.getRol());
+        if (optionalRol.isEmpty()) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("CATEGORY_NOT_EXISTS");
             apiResponse.setMessage("No se registro, la categoria asociada al Usuarioo no existe");
             return apiResponse;
         }
-        UsuarioEntity.setRolEntity(optionalRolEntity.get());
+        UsuarioEntity.getRoles().add(optionalRol.get());
         apiResponse.setData(this.usuarioRepository.save(UsuarioEntity).getUsuarioDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");

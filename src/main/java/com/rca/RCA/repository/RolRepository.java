@@ -1,6 +1,8 @@
 package com.rca.RCA.repository;
 
-import com.rca.RCA.entity.RolEntity;
+import com.rca.RCA.auth.entity.Rol;
+import com.rca.RCA.auth.enums.RolNombre;
+//import com.rca.RCA.entity.RolEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -11,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-public interface RolRepository extends JpaRepository<RolEntity, Integer> {
-
+public interface RolRepository extends JpaRepository<Rol, Integer> {
+    /*
     //Fución para listar los roles con filtro por código o nombre
     @Query(value = "select r from RolEntity r " +
             "where r.status = :status " +
@@ -43,6 +45,9 @@ public interface RolRepository extends JpaRepository<RolEntity, Integer> {
     @Query(value="update usuario u JOIN rol r  SET u.tx_status = 'DELETED' where u.rol_id = r.id" +
             " and r.tx_unique_identifier = :uniqueIdentifier", nativeQuery = true)
     void deleteUsuarios(@Param("uniqueIdentifier") String uniqueIdentifier);
+    */
 
+    Optional<Rol> findByRolNombre(RolNombre rolNombre);
 
+    Optional<Rol> findByUniqueIdentifier(String uniqueIdentifier);
 }
