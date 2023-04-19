@@ -5,6 +5,8 @@ import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.DocenteDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.UsuarioDTO;
+import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +30,7 @@ public class DocenteRESTController {
     }
 
     @PostMapping
-    public ApiResponse<DocenteDTO> add(@RequestBody DocenteDTO docenteDTO){
+    public ApiResponse<DocenteDTO> add(@RequestBody DocenteDTO docenteDTO) throws ResourceNotFoundException, AttributeException {
         System.out.println(docenteDTO.getDose());
         return this.docenteService.add(docenteDTO);
     }

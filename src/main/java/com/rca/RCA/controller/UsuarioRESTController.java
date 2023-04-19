@@ -1,13 +1,12 @@
 package com.rca.RCA.controller;
 
-import com.rca.RCA.auth.service.UsuarioService;
+import com.rca.RCA.service.UsuarioService;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.UsuarioDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/usuario")

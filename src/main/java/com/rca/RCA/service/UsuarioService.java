@@ -1,4 +1,4 @@
-package com.rca.RCA.auth.service;
+package com.rca.RCA.service;
 
 import com.rca.RCA.auth.entity.Rol;
 //import com.rca.RCA.entity.RolEntity;
@@ -60,47 +60,6 @@ public class UsuarioService {
         }
         pagination.setTotalPages(pagination.processAndGetTotalPages(size));
         apiResponse.setData(pagination);
-        apiResponse.setSuccessful(true);
-        apiResponse.setMessage("ok");
-        return apiResponse;
-    }
-
-    //Agregar usuario
-    public ApiResponse<UsuarioDTO> add(UsuarioDTO usuarioDTO) {
-        ApiResponse<UsuarioDTO> apiResponse = new ApiResponse<>();
-        usuarioDTO.setId(UUID.randomUUID().toString());
-        usuarioDTO.setCode(Code.generateCode(Code.USUARIO_CODE, this.usuarioRepository.count() + 1, Code.USUARIO_LENGTH));
-        usuarioDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
-        usuarioDTO.setCreateAt(LocalDateTime.now());
-        //validamos
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByNumdoc(usuarioDTO.getNumdoc());
-        Optional<UsuarioEntity> optionalUsuarioEntity2 = this.usuarioRepository.findByTel(usuarioDTO.getTel());
-        if (optionalUsuarioEntity.isPresent() || optionalUsuarioEntity2.isPresent()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("Usuario_EXISTS");
-            apiResponse.setMessage("No se registró, el usuario existe");
-            return apiResponse;
-        }
-        //change dto to entity
-        UsuarioEntity usuarioEntity = new UsuarioEntity();
-        usuarioEntity.setUsuarioDTO(usuarioDTO);
-
-        if(usuarioDTO.getRol().equalsIgnoreCase("ADMINISTRADOR")){
-            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_ADMIN).get());
-            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_TEACHER).get());
-            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_STUDENT).get());
-        }
-        if(usuarioDTO.getRol().equalsIgnoreCase("TEACHER")){
-            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_TEACHER).get());
-            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_STUDENT).get());
-        }
-        if(usuarioDTO.getRol().equalsIgnoreCase("STUDENT")){
-            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_STUDENT).get());
-        }
-
-        usuarioEntity.setPassword(passwordEncoder.encode(usuarioDTO.getPassword()));
-        System.out.println(usuarioEntity);
-        apiResponse.setData(this.usuarioRepository.save(usuarioEntity).getUsuarioDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
         return apiResponse;

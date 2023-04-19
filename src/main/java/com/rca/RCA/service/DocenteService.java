@@ -2,7 +2,7 @@ package com.rca.RCA.service;
 
 import com.rca.RCA.auth.entity.Rol;
 import com.rca.RCA.auth.enums.RolNombre;
-import com.rca.RCA.auth.service.UsuarioService;
+import com.rca.RCA.auth.service.LoginService;
 import com.rca.RCA.entity.DocenteEntity;
 import com.rca.RCA.entity.DocentexCursoEntity;
 import com.rca.RCA.repository.DocenteRepository;
@@ -39,6 +39,9 @@ public class DocenteService {
     private RolRepository rolRepository;
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private LoginService loginService;
     @Autowired
     private DocentexCursoRepository docentexCursoRepository;
     @Autowired
@@ -72,7 +75,7 @@ public class DocenteService {
         Rol optionalRolEntity= this.rolRepository.findByRolNombre(RolNombre.ROLE_TEACHER).orElseThrow(()-> new ResourceNotFoundException("Rol Inválido"));
         //add usuario
         //docenteDTO.getUsuarioDTO().setRolDTO(optionalRolEntity.get().getRolDTO());
-        ApiResponse<UsuarioDTO> apiResponseU= this.usuarioService.add(docenteDTO.getUsuarioDTO());
+        ApiResponse<UsuarioDTO> apiResponseU= this.loginService.add(docenteDTO.getUsuarioDTO());
         if (!apiResponseU.isSuccessful()) {
             log.warn("No se agregó el registro");
             apiResponse.setSuccessful(false);
