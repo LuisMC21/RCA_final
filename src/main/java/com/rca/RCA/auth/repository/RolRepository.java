@@ -1,4 +1,4 @@
-package com.rca.RCA.repository;
+package com.rca.RCA.auth.repository;
 
 import com.rca.RCA.auth.entity.Rol;
 import com.rca.RCA.auth.enums.RolNombre;

@@ -6,7 +6,7 @@ import com.rca.RCA.auth.enums.RolNombre;
 import com.rca.RCA.entity.UsuarioEntity;
 import com.rca.RCA.repository.ImagenRepository;
 import com.rca.RCA.repository.NoticiaRepository;
-import com.rca.RCA.repository.RolRepository;
+import com.rca.RCA.auth.repository.RolRepository;
 import com.rca.RCA.repository.UsuarioRepository;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
@@ -109,7 +109,6 @@ public class UsuarioService {
     //Modificar usuario
     public ApiResponse<UsuarioDTO> update(UsuarioDTO UsuarioDTO) {
         ApiResponse<UsuarioDTO> apiResponse = new ApiResponse<>();
-        System.out.println(UsuarioDTO.toString());
 
         Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(UsuarioDTO.getId());
         if (optionalUsuarioEntity.isEmpty()) {
@@ -183,7 +182,7 @@ public class UsuarioService {
         } else {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("USUARIO_DOES_NOT_EXISTS");
-            apiResponse.setMessage("No existe el rol para poder eliminar");
+            apiResponse.setMessage("No existe el usuario para poder eliminar");
         }
 
         return apiResponse;
