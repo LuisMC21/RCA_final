@@ -4,13 +4,17 @@ import lombok.Data;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class UsuarioDTO extends AuditoryDTO{
     private String code;
-
     @NotBlank (message = "Nombre de usuario no puede estar vacío")
+    private String nombreUsuario;
+    @NotBlank (message = "Nombre no puede estar vacío")
     private String name;
     @NotBlank (message = "Apellido paterno de usuario no puede estar vacío")
     private String pa_surname;
@@ -24,6 +28,11 @@ public class UsuarioDTO extends AuditoryDTO{
     private String numdoc;
     private String tel;
     private String gra_inst;
-    private String email_inst;
-    private RolDTO rolDTO;
+    @NotBlank(message = "Email no puede estar vacío")
+    private String email;
+
+    @NotBlank(message = "password no puede estar vacío")
+    private String password;
+    @NotNull(message = "Rol no puede estar vacío")
+    private String rol;
 }

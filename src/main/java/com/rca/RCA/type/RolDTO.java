@@ -9,5 +9,5 @@ public class RolDTO extends AuditoryDTO{
 
     private String code;
     @NotBlank(message = "Rol name cannot be null")
-    private String name;
+    private String rolNombre;
 }

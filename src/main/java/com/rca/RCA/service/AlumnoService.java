@@ -273,7 +273,7 @@ public class AlumnoService {
                 final HashMap<String, Object> parameters = new HashMap<>();
                 parameters.put("codeAlu", alumnoEntity.getCode());
                 parameters.put("nombreAlu", alumnoEntity.getUsuarioEntity().getNameCompleto());
-                parameters.put("emailAlu", usuarioEntity.getEmail_inst());
+                parameters.put("emailAlu", usuarioEntity.getEmail());
                 parameters.put("seguro", alumnoEntity.getType_insurance());
                 parameters.put("enfAlu", alumnoEntity.getDiseases());
                 parameters.put("docAlu", usuarioEntity.getType_doc());
@@ -286,7 +286,7 @@ public class AlumnoService {
                 parameters.put("telCon1", alumnoEntity.getTelcon_pri());
                 parameters.put("telCon2", alumnoEntity.getTelcon_sec());
                 parameters.put("nombreApo",apoderadoEntity.getUsuarioEntity().getNameCompleto());
-                parameters.put("correoApo",apoderadoEntity.getUsuarioEntity().getEmail_inst());
+                parameters.put("correoApo",apoderadoEntity.getUsuarioEntity().getEmail());
                 parameters.put("typeDocApo",apoderadoEntity.getUsuarioEntity().getType_doc());
                 parameters.put("numDocApo",apoderadoEntity.getUsuarioEntity().getNumdoc());
                 parameters.put("telApo",apoderadoEntity.getUsuarioEntity().getTel());

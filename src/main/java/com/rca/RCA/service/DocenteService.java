@@ -1,15 +1,19 @@
 package com.rca.RCA.service;
 
+import com.rca.RCA.auth.entity.Rol;
+import com.rca.RCA.auth.enums.RolNombre;
+import com.rca.RCA.auth.service.LoginService;
 import com.rca.RCA.entity.DocenteEntity;
 import com.rca.RCA.entity.DocentexCursoEntity;
-import com.rca.RCA.entity.RolEntity;
 import com.rca.RCA.repository.DocenteRepository;
 import com.rca.RCA.repository.DocentexCursoRepository;
-import com.rca.RCA.repository.RolRepository;
+import com.rca.RCA.auth.repository.RolRepository;
 import com.rca.RCA.repository.UsuarioRepository;
 import com.rca.RCA.type.*;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
+import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -35,6 +39,9 @@ public class DocenteService {
     private RolRepository rolRepository;
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private LoginService loginService;
     @Autowired
     private DocentexCursoRepository docentexCursoRepository;
     @Autowired
@@ -60,19 +67,15 @@ public class DocenteService {
     //Función para listar docentes con paginación-END
 
     //Función para agregar docente-START
-    public ApiResponse<DocenteDTO> add(DocenteDTO docenteDTO){
+    public ApiResponse<DocenteDTO> add(DocenteDTO docenteDTO) throws ResourceNotFoundException, AttributeException {
         ApiResponse<DocenteDTO> apiResponse = new ApiResponse<>();
         //Verifica que el rol sea docente
-        Optional<RolEntity> optionalRolEntity=this.rolRepository.findByName("Docente");
-        if (optionalRolEntity.isEmpty() || !optionalRolEntity.get().getName().equalsIgnoreCase("DOCENTE")) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("ROLE_NOT_SUPPORTED");
-            apiResponse.setMessage("No se resgistró, el rol docente no existe");
-            return apiResponse;
-        }
+        if (docenteDTO.getUsuarioDTO().getRol().equalsIgnoreCase("TEACHER"))
+            throw new AttributeException("El rol es inválido");
+        Rol optionalRolEntity= this.rolRepository.findByRolNombre(RolNombre.ROLE_TEACHER).orElseThrow(()-> new ResourceNotFoundException("Rol Inválido"));
         //add usuario
-        docenteDTO.getUsuarioDTO().setRolDTO(optionalRolEntity.get().getRolDTO());
-        ApiResponse<UsuarioDTO> apiResponseU= this.usuarioService.add(docenteDTO.getUsuarioDTO());
+        //docenteDTO.getUsuarioDTO().setRolDTO(optionalRolEntity.get().getRolDTO());
+        ApiResponse<UsuarioDTO> apiResponseU= this.loginService.add(docenteDTO.getUsuarioDTO());
         if (!apiResponseU.isSuccessful()) {
             log.warn("No se agregó el registro");
             apiResponse.setSuccessful(false);
@@ -131,8 +134,8 @@ public class DocenteService {
                 if (docenteDTO.getUsuarioDTO().getGra_inst() != null) {
                     optionalDocenteEntity.get().getUsuarioEntity().setGra_inst(docenteDTO.getUsuarioDTO().getGra_inst());
                 }
-                if (docenteDTO.getUsuarioDTO().getEmail_inst() != null) {
-                    optionalDocenteEntity.get().getUsuarioEntity().setEmail_inst(docenteDTO.getUsuarioDTO().getEmail_inst());
+                if (docenteDTO.getUsuarioDTO().getEmail() != null) {
+                    optionalDocenteEntity.get().getUsuarioEntity().setEmail(docenteDTO.getUsuarioDTO().getEmail());
                 }
                 //Update in database to usuario
                 ApiResponse<UsuarioDTO> apiResponseU = this.usuarioService.update(optionalDocenteEntity.get().getUsuarioEntity().getUsuarioDTO());
