@@ -2,6 +2,7 @@ package com.rca.RCA.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rca.RCA.type.ImagenDTO;
+import com.rca.RCA.type.ImagenFileDTO;
 import lombok.Data;
 
 import jakarta.persistence.*;
@@ -45,7 +46,6 @@ public class ImagenEntity extends AuditoryEntity{
 
     public void setImagenDTO(ImagenDTO ImagenDTO){
         this.setUniqueIdentifier(ImagenDTO.getId());
-        this.code = ImagenDTO.getCode();
         this.name = ImagenDTO.getName();
         this.route = ImagenDTO.getRoute();
         this.setStatus(ImagenDTO.getStatus());

@@ -1,16 +1,23 @@
 package com.rca.RCA.controller;
 
+import com.rca.RCA.entity.ImagenEntity;
 import com.rca.RCA.service.ImagenService;
 import com.rca.RCA.type.ApiResponse;
+import com.rca.RCA.type.ImagenFileDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.ImagenDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+
+import java.io.IOException;
+
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
-@RequestMapping("imagen")
+@RequestMapping("/imagen")
 public class ImagenRESTController {
 
     @Autowired
@@ -29,9 +36,14 @@ public class ImagenRESTController {
         return this.imagenService.getList(filter, page, size);
     }
 
-    @PostMapping
+    /*@PostMapping
     public ApiResponse<ImagenDTO> add(@RequestBody @Valid ImagenDTO ImagenDTO) {
         return this.imagenService.add(ImagenDTO);
+    }*/
+
+    @PostMapping
+    public ApiResponse<ImagenDTO> add(@RequestBody @Valid ImagenFileDTO imagenFileDTO) {
+         return imagenService.add(imagenFileDTO);
     }
 
     @PutMapping

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
-@RequestMapping("noticia")
+@RequestMapping("/noticia")
 public class NoticiaRESTController {
 
     @Autowired
