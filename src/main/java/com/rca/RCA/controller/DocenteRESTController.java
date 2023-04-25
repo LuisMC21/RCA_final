@@ -31,7 +31,6 @@ public class DocenteRESTController {
 
     @PostMapping
     public ApiResponse<DocenteDTO> add(@RequestBody DocenteDTO docenteDTO) throws ResourceNotFoundException, AttributeException {
-        System.out.println(docenteDTO.getDose());
         return this.docenteService.add(docenteDTO);
     }
 

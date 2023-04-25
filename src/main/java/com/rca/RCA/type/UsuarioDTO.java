@@ -30,7 +30,6 @@ public class UsuarioDTO extends AuditoryDTO{
     private String gra_inst;
     @NotBlank(message = "Email no puede estar vacío")
     private String email;
-
     @NotBlank(message = "password no puede estar vacío")
     private String password;
     @NotNull(message = "Rol no puede estar vacío")
