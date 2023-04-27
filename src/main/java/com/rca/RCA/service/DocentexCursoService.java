@@ -67,7 +67,7 @@ public class DocentexCursoService {
         DocentexCursoEntity docentexCursoEntity = new DocentexCursoEntity();
         Optional<DocenteEntity> optionalDocenteEntity=this.docenteRepository.findByUniqueIdentifier(docentexCursoDTO.getDocenteDTO().getId());
         Optional<CursoEntity> optionalCursoEntity=this.cursoRepository.findByUniqueIdentifier(docentexCursoDTO.getCursoDTO().getId());
-        Optional<AulaEntity> optionalAulaEntity=this.aulaRepository.findByUniqueIdentifier(docentexCursoDTO.getAulaDTO().getId());
+        Optional<AulaEntity> optionalAulaEntity=this.aulaRepository.findByUniqueIdentifier(docentexCursoDTO.getAulaDTO().getId(), ConstantsGeneric.CREATED_STATUS);
         if(optionalDocenteEntity.isPresent() && optionalCursoEntity.isPresent() &&
         optionalCursoEntity.isPresent() && optionalCursoEntity.isPresent() &&
                 optionalAulaEntity.isPresent() && optionalAulaEntity.isPresent()){
@@ -119,7 +119,7 @@ public class DocentexCursoService {
                     optionalCursoEntity = this.cursoRepository.findByUniqueIdentifier(docentexCursoDTO.getCursoDTO().getId());
                 }
                 if (docentexCursoDTO.getAulaDTO().getId() != null) {
-                    optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(docentexCursoDTO.getAulaDTO().getId());
+                    optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(docentexCursoDTO.getAulaDTO().getId(), ConstantsGeneric.CREATED_STATUS);
                 }
                 //Set update data
                 optionalDocenteEntity.ifPresent(docenteEntity -> optionalDocentexCursoEntity.get().setDocenteEntity(docenteEntity));

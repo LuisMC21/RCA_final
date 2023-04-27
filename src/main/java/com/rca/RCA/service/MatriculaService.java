@@ -72,7 +72,7 @@ public class MatriculaService {
         log.info("Aula Alumno AnioLectivo {} {} {}", matriculaDTO.getAulaDTO().getId(), matriculaDTO.getAlumnoDTO().getId(), matriculaDTO.getAnioLectivoDTO().getId());
         ApiResponse<MatriculaDTO> apiResponse = new ApiResponse<>();
         MatriculaEntity matriculaEntity = new MatriculaEntity();
-        Optional<AulaEntity> optionalAulaEntity=this.aulaRepository.findByUniqueIdentifier(matriculaDTO.getAulaDTO().getId());
+        Optional<AulaEntity> optionalAulaEntity=this.aulaRepository.findByUniqueIdentifier(matriculaDTO.getAulaDTO().getId(), ConstantsGeneric.CREATED_STATUS);
         Optional<AlumnoEntity> optionalAlumnoEntity=this.alumnoRepository.findByUniqueIdentifier(matriculaDTO.getAlumnoDTO().getId());
         Optional<AnioLectivoEntity> optionalAnioLectivoEntity=this.anioLectivoRepository.findByUniqueIdentifier(matriculaDTO.getAnioLectivoDTO().getId());
         if(optionalAulaEntity.isPresent() && optionalAulaEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)
@@ -130,7 +130,7 @@ public class MatriculaService {
                     optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(matriculaDTO.getAlumnoDTO().getId());
                 }
                 if (matriculaDTO.getAulaDTO().getId() != null) {
-                    optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(matriculaDTO.getAulaDTO().getId());
+                    optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(matriculaDTO.getAulaDTO().getId(), ConstantsGeneric.CREATED_STATUS);
                 }
                 if (matriculaDTO.getAnioLectivoDTO().getId() != null) {
                     optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(matriculaDTO.getAnioLectivoDTO().getId());
@@ -255,7 +255,7 @@ public class MatriculaService {
     public ResponseEntity<Resource> exportListaAlumnos(String uniqueIdentifierAula, String uniqueIdentifierPeriodo) {
 
         Optional<List<AlumnoEntity>> optionalAlumnoEntity = this.alumnoRepository.findByAulaPeriodo(uniqueIdentifierAula, uniqueIdentifierPeriodo);
-        Optional<AulaEntity> optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(uniqueIdentifierAula);
+        Optional<AulaEntity> optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(uniqueIdentifierAula, ConstantsGeneric.CREATED_STATUS);
         Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(uniqueIdentifierPeriodo);
 
         if (optionalAlumnoEntity.isPresent() && optionalAlumnoEntity.isPresent() && optionalAnioLectivoEntity.isPresent()){

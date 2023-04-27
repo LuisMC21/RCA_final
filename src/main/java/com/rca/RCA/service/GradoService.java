@@ -50,6 +50,14 @@ public class GradoService {
         return apiResponse;
     }
     //Función para listar grados con filtro(código o nombre)-END
+    public ApiResponse<GradoDTO> one(String id) throws ResourceNotFoundException {
+        GradoEntity gradoEntity=this.gradoRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Grado no encontrado"));
+        ApiResponse<GradoDTO> apiResponse = new ApiResponse<>();
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(gradoEntity.getGradoDTO());
+        return apiResponse;
+    }
 
     //Función para agregar un grado - START
     public ApiResponse<GradoDTO> add(GradoDTO gradoDTO) throws AttributeException {

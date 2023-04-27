@@ -42,7 +42,10 @@ public interface AulaRepository extends JpaRepository<AulaEntity, Integer> {
     Optional<List<AulaEntity>> findAula(String status, String filter, Pageable pageable);
 
     //Función para obtener un aula con su Identificado Único
-    Optional<AulaEntity> findByUniqueIdentifier(String uniqueIdentifier);
+    @Query(value = "SELECT a FROM AulaEntity a " +
+            "WHERE a.uniqueIdentifier= :id " +
+            "AND a.status= :status ")
+    Optional<AulaEntity> findByUniqueIdentifier(String id, String status);
 
     @Query(value = "SELECT x from GradoEntity g " +
             "JOIN g.aulaEntities x " +
@@ -69,6 +72,15 @@ public interface AulaRepository extends JpaRepository<AulaEntity, Integer> {
             "AND x.status= :status ")
     Optional<AulaEntity> findByGradoYSeccion(Integer id_grado, Integer id_seccion, String status);
 
+    @Query(value = "SELECT count(x)>0 from GradoEntity g " +
+            "JOIN g.aulaEntities x " +
+            "JOIN x.seccionEntity s " +
+            "WHERE g=x.gradoEntity " +
+            "AND g.uniqueIdentifier= :id_grado " +
+            "AND s.uniqueIdentifier= :id_seccion " +
+            "AND x.uniqueIdentifier != :id " +
+            "AND x.status= :status ")
+    boolean existsByGradoYSeccion(String id_grado, String id_seccion, String status, String id);
 
     @Query(value = "SELECT al " +
             "from AulaEntity a " +

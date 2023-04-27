@@ -29,7 +29,10 @@ public class GradoRESTController {
             @RequestParam(defaultValue = "10") int size){
         return this.gradoService.getList(filter, page, size);
     }
-
+    @GetMapping("{id}")
+    public ApiResponse<GradoDTO> one(@PathVariable String id) throws ResourceNotFoundException {
+        return this.gradoService.one(id);
+    }
     @PostMapping
     public ApiResponse<GradoDTO> add(@RequestBody GradoDTO gradoDTO) throws AttributeException {
         return this.gradoService.add(gradoDTO);

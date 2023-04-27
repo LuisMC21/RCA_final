@@ -55,7 +55,7 @@ public interface DocentexCursoRepository extends JpaRepository<DocentexCursoEnti
     @Query(value = "SELECT a from AulaEntity a " +
             "JOIN a.docentexCursoEntities x " +
             "WHERE a=x.aulaEntity " +
-            "AND a.id = :id_aula " +
+            "AND a.uniqueIdentifier = :id_aula " +
             "AND x.status = :status " +
             "AND a.status= :status ")
     Optional<List<DocentexCursoEntity>> findByAula(String id_aula, String status);

@@ -5,6 +5,8 @@ import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.SeccionDTO;
 import com.rca.RCA.type.AulaDTO;
+import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.core.io.Resource;
@@ -27,17 +29,21 @@ public class AulaRESTController {
             @RequestParam(defaultValue = "10") int size){
         return this.aulaService.getList(filter, page, size);
     }
+    @GetMapping("{id}")
+    public ApiResponse<AulaDTO> one(@PathVariable String id) throws ResourceNotFoundException {
+        return this.aulaService.one(id);
+    }
 
     @PostMapping
-    public ApiResponse<AulaDTO> add(@RequestBody AulaDTO aulaDTO) {
+    public ApiResponse<AulaDTO> add(@RequestBody AulaDTO aulaDTO) throws ResourceNotFoundException, AttributeException {
         return this.aulaService.add(aulaDTO);
     }
     @PutMapping
-    public ApiResponse<AulaDTO> update(@RequestBody AulaDTO aulaDTO) {
+    public ApiResponse<AulaDTO> update(@RequestBody AulaDTO aulaDTO) throws ResourceNotFoundException, AttributeException {
         return this.aulaService.update(aulaDTO);
     }
     @DeleteMapping("{id}")
-    public ApiResponse<AulaDTO> delete(@PathVariable String id){
+    public ApiResponse<AulaDTO> delete(@PathVariable String id) throws ResourceNotFoundException {
         return this.aulaService.delete(id);
     }
     @GetMapping("exportApoderados")
