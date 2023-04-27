@@ -65,7 +65,7 @@ public class PeriodoService {
     //Función para agregar periodo-START
     public ApiResponse<PeriodoDTO> add(PeriodoDTO periodoDTO){
         ApiResponse<PeriodoDTO> apiResponse = new ApiResponse<>();
-        Optional<AnioLectivoEntity> optionalAnioLectivoEntity= this.anioLectivoRepository.findByUniqueIdentifier(periodoDTO.getAnio_lectivoDTO().getId());
+        Optional<AnioLectivoEntity> optionalAnioLectivoEntity= this.anioLectivoRepository.findByUniqueIdentifier(periodoDTO.getAnio_lectivoDTO().getId(), ConstantsGeneric.CREATED_STATUS);
         Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByName(periodoDTO.getAnio_lectivoDTO().getId(),periodoDTO.getName(), ConstantsGeneric.CREATED_STATUS);
         if (optionalPeriodoEntity.isEmpty() && optionalAnioLectivoEntity.isPresent()) {
             periodoDTO.setId(UUID.randomUUID().toString());

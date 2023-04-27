@@ -1,8 +1,8 @@
 package com.rca.RCA.type;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-import jakarta.validation.constraints.NotBlank;
 
 @Data
 public class AnioLectivoDTO extends AuditoryDTO{

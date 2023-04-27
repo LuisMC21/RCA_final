@@ -27,9 +27,18 @@ public interface AnioLectivoRepository extends JpaRepository<AnioLectivoEntity, 
     Long findCountSeccion(String status, String filter);
 
     //Función para obtener una sección con su Identificado Único
-    Optional<AnioLectivoEntity> findByUniqueIdentifier(String uniqueIdentifier);
+    @Query(value = "SELECT a FROM AnioLectivoEntity a " +
+            "WHERE a.status = :status " +
+            "AND a.uniqueIdentifier = :id ")
+    Optional<AnioLectivoEntity> findByUniqueIdentifier(String id, String status);
 
     //Función para obtener una sección con su nombre
+    @Query(value = "SELECT count(a)>0 FROM AnioLectivoEntity a " +
+            "WHERE a.name = :name " +
+            "AND a.status = :status " +
+            "AND a.uniqueIdentifier != :id ")
+    boolean existsByName(String name, String status, String id);
+
     Optional<AnioLectivoEntity> findByName(String name);
 }
 

@@ -171,7 +171,7 @@ public class AulaService {
     public ResponseEntity<Resource> exportListApoderados(String id_aula, String id_aniolectivo) {
         log.info("id_aula {}", id_aula);
         Optional<AulaEntity> optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(id_aula, ConstantsGeneric.CREATED_STATUS);
-        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(id_aniolectivo);
+        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
         if (optionalAulaEntity.isPresent() && (optionalAulaEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) &&
                 optionalAnioLectivoEntity.isPresent() && optionalAulaEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) {
             try {

@@ -74,7 +74,7 @@ public class MatriculaService {
         MatriculaEntity matriculaEntity = new MatriculaEntity();
         Optional<AulaEntity> optionalAulaEntity=this.aulaRepository.findByUniqueIdentifier(matriculaDTO.getAulaDTO().getId(), ConstantsGeneric.CREATED_STATUS);
         Optional<AlumnoEntity> optionalAlumnoEntity=this.alumnoRepository.findByUniqueIdentifier(matriculaDTO.getAlumnoDTO().getId());
-        Optional<AnioLectivoEntity> optionalAnioLectivoEntity=this.anioLectivoRepository.findByUniqueIdentifier(matriculaDTO.getAnioLectivoDTO().getId());
+        Optional<AnioLectivoEntity> optionalAnioLectivoEntity=this.anioLectivoRepository.findByUniqueIdentifier(matriculaDTO.getAnioLectivoDTO().getId(), ConstantsGeneric.CREATED_STATUS);
         if(optionalAulaEntity.isPresent() && optionalAulaEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)
                 && optionalAlumnoEntity.isPresent() && optionalAlumnoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)
                 && optionalAnioLectivoEntity.isPresent() && optionalAnioLectivoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)){
@@ -133,7 +133,7 @@ public class MatriculaService {
                     optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(matriculaDTO.getAulaDTO().getId(), ConstantsGeneric.CREATED_STATUS);
                 }
                 if (matriculaDTO.getAnioLectivoDTO().getId() != null) {
-                    optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(matriculaDTO.getAnioLectivoDTO().getId());
+                    optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(matriculaDTO.getAnioLectivoDTO().getId(), ConstantsGeneric.CREATED_STATUS);
                 }
                 //Set update data
                 optionalAlumnoEntity.ifPresent(alumnoEntity -> optionalMatriculaEntity.get().setAlumnoEntity(alumnoEntity));
@@ -190,7 +190,7 @@ public class MatriculaService {
     public ResponseEntity<Resource> exportMatricula(String id_alumno, String id_aniolectivo) {
         log.info("id_alumno id_aniolectivo {} {}", id_alumno, id_aniolectivo);
         Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(id_alumno);
-        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(id_aniolectivo);
+        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
         Optional<GradoEntity> optionalGradoEntity = this.matriculaRepository.findGradoMatriculado(id_alumno, id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
         Optional<SeccionEntity> optionalSeccionEntity = this.matriculaRepository.findSeccionMatriculado(id_alumno, id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
 
@@ -256,7 +256,7 @@ public class MatriculaService {
 
         Optional<List<AlumnoEntity>> optionalAlumnoEntity = this.alumnoRepository.findByAulaPeriodo(uniqueIdentifierAula, uniqueIdentifierPeriodo);
         Optional<AulaEntity> optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(uniqueIdentifierAula, ConstantsGeneric.CREATED_STATUS);
-        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(uniqueIdentifierPeriodo);
+        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(uniqueIdentifierPeriodo, ConstantsGeneric.CREATED_STATUS);
 
         if (optionalAlumnoEntity.isPresent() && optionalAlumnoEntity.isPresent() && optionalAnioLectivoEntity.isPresent()){
 
