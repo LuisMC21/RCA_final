@@ -52,17 +52,12 @@ public class GradoService {
     //Función para listar grados con filtro(código o nombre)-END
 
     //Función para agregar un grado - START
-    public ApiResponse<GradoDTO> add(GradoDTO gradoDTO){
+    public ApiResponse<GradoDTO> add(GradoDTO gradoDTO) throws AttributeException {
         ApiResponse<GradoDTO> apiResponse = new ApiResponse<>();
-        //comprobar que el grado no exista
-        Optional<GradoEntity> optionalGradoEntity = this.gradoRepository.findByName(gradoDTO.getName());
-        if (optionalGradoEntity.isPresent() && optionalGradoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
-            log.warn("No se completó el registro");
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("GRADE_EXISTS");
-            apiResponse.setMessage("No se resgistró, el grado existe");
-            return apiResponse;
-        }
+        //Excepciones
+        if(gradoRepository.existsByName(ConstantsGeneric.CREATED_STATUS, gradoDTO.getName(), ""))
+            throw new AttributeException("El nombre del grado ya existe");
+
         //agregar datos de auditoria
         gradoDTO.setId(UUID.randomUUID().toString());
         gradoDTO.setCode(Code.generateCode(Code.GRADE_CODE, this.gradoRepository.count() + 1, Code.GRADE_LENGTH));
@@ -79,52 +74,37 @@ public class GradoService {
     //Función para agregar un grado - END
 
     //Función para actualizar un grado- START
-    public ApiResponse<GradoDTO> update(GradoDTO gradoDTO){
+    public ApiResponse<GradoDTO> update(GradoDTO gradoDTO) throws ResourceNotFoundException, AttributeException {
+        //Excepciones
+        if(gradoDTO.getId().isBlank())
+            throw new ResourceNotFoundException("El grado no existe");
+        if(gradoRepository.existsByName(ConstantsGeneric.CREATED_STATUS, gradoDTO.getName(),gradoDTO.getId()))
+            throw new AttributeException("El grado ya existe");
+
         ApiResponse<GradoDTO> apiResponse = new ApiResponse<>();
-        Optional<GradoEntity> optionalGradoEntity=this.gradoRepository.findByName(gradoDTO.getName());
-        //Verifica que el nombre del grado no exista
-        if(optionalGradoEntity.isEmpty() || optionalGradoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
-            optionalGradoEntity = this.gradoRepository.findByUniqueIdentifier(gradoDTO.getId(), ConstantsGeneric.CREATED_STATUS);
-            //Verifica que el id y el status seas válidos
-            if (optionalGradoEntity.isPresent() && optionalGradoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
-                gradoDTO.setUpdateAt(LocalDateTime.now());
-                GradoEntity gradoEntity = optionalGradoEntity.get();
-                //Set update data
-                if (gradoDTO.getCode() != null) {
-                    gradoEntity.setCode(gradoDTO.getCode());
-                }
-                if (gradoDTO.getName() != null) {
-                    gradoEntity.setName(gradoDTO.getName());
-                }
-                gradoEntity.setUpdateAt(gradoDTO.getUpdateAt());
-                //Update in database
-                apiResponse.setSuccessful(true);
-                apiResponse.setMessage("ok");
-                apiResponse.setData(this.gradoRepository.save(gradoEntity).getGradoDTO());
-                return apiResponse;
-            } else {
-                apiResponse.setMessage("No existe el grado para poder actualizar");
-                apiResponse.setCode("GRADE_DOES_NOT_EXISTS");
-            }
-        } else{
-            apiResponse.setMessage("No se pudo actualizar, grado existente");
-            apiResponse.setCode("GRADE_EXISTS");
-        }
-        log.warn("No se actualizó el dato");
-        apiResponse.setSuccessful(false);
+        GradoEntity gradoEntity = this.gradoRepository.findByUniqueIdentifier(gradoDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Grado no encontrado"));
+        gradoDTO.setUpdateAt(LocalDateTime.now());
+        //Set update data
+        gradoEntity.setCode(gradoDTO.getCode());
+        gradoEntity.setName(gradoDTO.getName());
+        gradoEntity.setUpdateAt(gradoDTO.getUpdateAt());
+        //Update in database
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(this.gradoRepository.save(gradoEntity).getGradoDTO());
         return apiResponse;
     }
     //Función para actualizar un grado- END
 
     //Función para cambiar estado a eliminado de un grado - START
     //id dto=uniqueIdentifier Entity
-    public ApiResponse<GradoDTO> delete(String id) throws ResourceNotFoundException, AttributeException {
+    public ApiResponse<GradoDTO> delete(String id) throws ResourceNotFoundException {
         ApiResponse<GradoDTO> apiResponse = new ApiResponse<>();
         GradoEntity gradoEntity=this.gradoRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Grado no encontrado"));
         gradoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
         gradoEntity.setDeleteAt(LocalDateTime.now());
         //Eliminar lista de aulas del grado
-        List<AulaEntity> aulaEntities= this.aulaRepository.findById_Grado(gradoEntity.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new AttributeException("Grado: No encontrado"));
+        List<AulaEntity> aulaEntities= this.aulaRepository.findById_Grado(gradoEntity.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Grado: No encontrado"));
         for (int i = 0; i < aulaEntities.size(); i++) {
             aulaEntities.get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
             aulaEntities.get(i).setDeleteAt(gradoEntity.getDeleteAt());

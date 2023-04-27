@@ -9,6 +9,8 @@ import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.SeccionDTO;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
+import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -50,23 +52,24 @@ public class SeccionService {
         return apiResponse;
     }
     //Función para listar secciones con paginación-END
-
-    //Función para agregar seccion-START
-    public ApiResponse<SeccionDTO> add(SeccionDTO seccionDTO){
+    public ApiResponse<SeccionDTO> one(String id) throws ResourceNotFoundException {
+        SeccionEntity seccionEntity = this.seccionRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Sección no existe"));
+        ApiResponse<SeccionDTO> apiResponse = new ApiResponse<>();
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(seccionEntity.getSeccionDTO());
+        return apiResponse;
+    }
+        //Función para agregar seccion-START
+    public ApiResponse<SeccionDTO> add(SeccionDTO seccionDTO) throws AttributeException {
+        //Excepciones
+        if (seccionRepository.existsByName(ConstantsGeneric.CREATED_STATUS, seccionDTO.getName(), ""))
+            throw new AttributeException("Sección ya existe");
         ApiResponse<SeccionDTO> apiResponse = new ApiResponse<>();
         seccionDTO.setId(UUID.randomUUID().toString());
         seccionDTO.setCode(Code.generateCode(Code.SECTION_CODE, this.seccionRepository.count() + 1, Code.SECTION_LENGTH));
         seccionDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         seccionDTO.setCreateAt(LocalDateTime.now());
-
-        Optional<SeccionEntity> optionalSeccionEntity = this.seccionRepository.findByName(seccionDTO.getName());
-        if (optionalSeccionEntity.isPresent()) {
-            log.warn("No se agregó el registro");
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("SECTION_EXISTS");
-            apiResponse.setMessage("No se resgistró, la sección existe");
-            return apiResponse;
-        }
 
         //change DTO to entity
         SeccionEntity seccionEntity =new SeccionEntity();
@@ -79,39 +82,24 @@ public class SeccionService {
     //Función para agregar seccion-END
 
     //Función para actualizar seccion-START
-    public ApiResponse<SeccionDTO> update(SeccionDTO seccionDTO){
+    public ApiResponse<SeccionDTO> update(SeccionDTO seccionDTO) throws ResourceNotFoundException, AttributeException {
+        //Excepciones
+        if(seccionDTO.getId().isBlank())
+            throw new ResourceNotFoundException("Sección no existe para poder actualizar");
+        if(seccionRepository.existsByName(ConstantsGeneric.CREATED_STATUS, seccionDTO.getName(), seccionDTO.getId()))
+            throw new AttributeException("Sección existente");
+
         ApiResponse<SeccionDTO> apiResponse = new ApiResponse<>();
-        Optional<SeccionEntity> optionalSeccionEntity=this.seccionRepository.findByName(seccionDTO.getName());
-        //Verifica que el nombre no exista
-        if(optionalSeccionEntity.isEmpty()) {
-            optionalSeccionEntity = this.seccionRepository.findByUniqueIdentifier(seccionDTO.getId());
-            //Verifica que el id y el status sean válidos
-            if (optionalSeccionEntity.isPresent()&& optionalSeccionEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
-                seccionDTO.setUpdateAt(LocalDateTime.now());
-                SeccionEntity seccionEntity = optionalSeccionEntity.get();
-                //Set update data
-                if (seccionDTO.getCode() != null) {
-                    seccionEntity.setCode(seccionDTO.getCode());
-                }
-                if (seccionDTO.getName() != null) {
-                    seccionEntity.setName(seccionDTO.getName());
-                }
-                seccionEntity.setUpdateAt(seccionDTO.getUpdateAt());
-                //Update in database
-                apiResponse.setSuccessful(true);
-                apiResponse.setMessage("ok");
-                apiResponse.setData(this.seccionRepository.save(seccionEntity).getSeccionDTO());
-                return apiResponse;
-            } else{
-                apiResponse.setMessage("No existe la sección para poder actualizar");
-                apiResponse.setCode("SECTION_DOES_NOT_EXISTS");
-            }
-        } else{
-            apiResponse.setMessage("No se puedo actualizar, sección existente");
-            apiResponse.setCode("SECTION_EXISTS");
-        }
-        log.warn("No se actualizó el registro");
-        apiResponse.setSuccessful(false);
+        seccionDTO.setUpdateAt(LocalDateTime.now());
+        //Set update data
+        SeccionEntity seccionEntity = this.seccionRepository.findByUniqueIdentifier(seccionDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Sección no existe"));
+        seccionEntity.setCode(seccionDTO.getCode());
+        seccionEntity.setName(seccionDTO.getName());
+        seccionEntity.setUpdateAt(seccionDTO.getUpdateAt());
+        //Update in database
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(this.seccionRepository.save(seccionEntity).getSeccionDTO());
         return apiResponse;
     }
     //Función para actualizar seccion-END
@@ -119,29 +107,22 @@ public class SeccionService {
 
     //Función para cambiar estado a eliminado- START
     //id dto=uniqueIdentifier Entity
-    public ApiResponse<SeccionDTO> delete(String id){
+    public ApiResponse<SeccionDTO> delete(String id) throws ResourceNotFoundException {
+        SeccionEntity seccionEntity=this.seccionRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Sección no existe"));
+
         ApiResponse<SeccionDTO> apiResponse = new ApiResponse<>();
         //Verifica que el id y el status sean válidos
-        Optional<SeccionEntity> optionalSeccionEntity=this.seccionRepository.findByUniqueIdentifier(id);
-        if(optionalSeccionEntity.isPresent() && optionalSeccionEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)){
-            SeccionEntity seccionEntity =optionalSeccionEntity.get();
-            seccionEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
-            seccionEntity.setDeleteAt(LocalDateTime.now());
-            Optional<List<AulaEntity>> optionalAulaEntities= this.aulaRepository.findById_Seccion(seccionEntity.getId(), ConstantsGeneric.CREATED_STATUS);
-            for(int i=0; i<optionalAulaEntities.get().size(); i++){
-                optionalAulaEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-                optionalAulaEntities.get().get(i).setDeleteAt(seccionEntity.getDeleteAt());
-                this.aulaService.delete(optionalAulaEntities.get().get(i).getCode());
-            }
-            apiResponse.setSuccessful(true);
-            apiResponse.setMessage("ok");
-            apiResponse.setData(this.seccionRepository.save(seccionEntity).getSeccionDTO());
-        } else{
-            log.warn("No se eliminó el registro");
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("SECTION_DOES_NOT_EXISTS");
-            apiResponse.setMessage("No existe la sección para poder eliminar");
+        seccionEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
+        seccionEntity.setDeleteAt(LocalDateTime.now());
+        Optional<List<AulaEntity>> optionalAulaEntities= this.aulaRepository.findById_Seccion(seccionEntity.getId(), ConstantsGeneric.CREATED_STATUS);
+        for(int i=0; i<optionalAulaEntities.get().size(); i++){
+            optionalAulaEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+            optionalAulaEntities.get().get(i).setDeleteAt(seccionEntity.getDeleteAt());
+            this.aulaService.delete(optionalAulaEntities.get().get(i).getCode());
         }
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(this.seccionRepository.save(seccionEntity).getSeccionDTO());
         return apiResponse;
     }
     //Función para cambiar estado a eliminado- END

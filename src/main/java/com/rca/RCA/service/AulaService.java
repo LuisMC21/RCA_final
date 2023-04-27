@@ -79,7 +79,7 @@ public class AulaService {
         ApiResponse<AulaDTO> apiResponse = new ApiResponse<>();
         AulaEntity aulaEntity = new AulaEntity();
         Optional<GradoEntity> optionalGradoEntity = this.gradoRepository.findByUniqueIdentifier(aulaDTO.getGradoDTO().getId(), ConstantsGeneric.CREATED_STATUS);
-        Optional<SeccionEntity> optionalSeccionEntity = this.seccionRepository.findByUniqueIdentifier(aulaDTO.getSeccionDTO().getId());
+        Optional<SeccionEntity> optionalSeccionEntity = this.seccionRepository.findByUniqueIdentifier(aulaDTO.getSeccionDTO().getId(), ConstantsGeneric.CREATED_STATUS);
         if (optionalGradoEntity.isPresent() &&
                 optionalSeccionEntity.isPresent()
                 && this.aulaRepository.findByGradoYSeccion(optionalGradoEntity.get().getId(), optionalSeccionEntity.get().getId(), ConstantsGeneric.CREATED_STATUS).isEmpty()
@@ -132,7 +132,7 @@ public class AulaService {
                     optionalGradoEntity = this.gradoRepository.findByUniqueIdentifier(aulaDTO.getGradoDTO().getId(), ConstantsGeneric.CREATED_STATUS);
                 }
                 if (aulaDTO.getSeccionDTO().getId() != null) {
-                    optionalSeccionEntity = this.seccionRepository.findByUniqueIdentifier(aulaDTO.getSeccionDTO().getId());
+                    optionalSeccionEntity = this.seccionRepository.findByUniqueIdentifier(aulaDTO.getSeccionDTO().getId(), ConstantsGeneric.CREATED_STATUS);
                 }
                 //Set update data
                 if (optionalGradoEntity.isPresent() && optionalGradoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
