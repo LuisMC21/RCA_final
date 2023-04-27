@@ -183,7 +183,7 @@ public class AsistenciaService {
         Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
         Optional<GradoEntity> optionalGradoEntity = this.matriculaRepository.findGradoMatriculado(id_alumno, id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
         Optional<SeccionEntity> optionalSeccionEntity = this.matriculaRepository.findSeccionMatriculado(id_alumno, id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
-        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(id_periodo);
+        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(id_periodo, ConstantsGeneric.CREATED_STATUS);
         if (optionalAlumnoEntity.isPresent() && (optionalAlumnoEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) &&
                 optionalAnioLectivoEntity.isPresent() && optionalAnioLectivoEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS) &&
                 optionalGradoEntity.isPresent() && optionalGradoEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS) &&

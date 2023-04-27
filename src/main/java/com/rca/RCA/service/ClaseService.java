@@ -81,7 +81,7 @@ public class ClaseService {
         ClaseEntity.setClaseDTO(ClaseDTO);
 
         //set Periodo
-        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(ClaseDTO.getPeriodoDTO().getId());
+        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(ClaseDTO.getPeriodoDTO().getId(), ConstantsGeneric.CREATED_STATUS);
         if (optionalPeriodoEntity.isEmpty()) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("PERIODO_NOT_EXISTS");
@@ -126,7 +126,7 @@ public class ClaseService {
         ClaseEntity.setUpdateAt(LocalDateTime.now());
 
         //Set Periodo
-        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(ClaseDTO.getPeriodoDTO().getId());
+        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(ClaseDTO.getPeriodoDTO().getId(), ConstantsGeneric.CREATED_STATUS);
         if (optionalPeriodoEntity.isEmpty()) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("PERIODO_NOT_EXISTS");

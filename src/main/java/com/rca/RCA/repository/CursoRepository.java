@@ -31,4 +31,9 @@ public interface CursoRepository extends JpaRepository<CursoEntity, Integer> {
 
     //Función para obtener una sección con su nombre
     Optional<CursoEntity> findByName(String name);
+
+    @Query(value = "SELECT count(c)>0 FROM CursoEntity c " +
+            "WHERE c.uniqueIdentifier != :id " +
+            "AND c.status = :status ")
+    boolean existsByName(String id, String status);
 }

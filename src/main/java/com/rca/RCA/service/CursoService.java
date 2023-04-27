@@ -9,12 +9,12 @@ import com.rca.RCA.type.CursoDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
+import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -54,22 +54,24 @@ public class CursoService {
     }
     //Función para listar cursos con paginación-END
 
+    public ApiResponse<CursoDTO> one(String id) throws ResourceNotFoundException {
+        CursoEntity cursoEntity = this.cursoRepository.findByUniqueIdentifier(id).orElseThrow(() -> new ResourceNotFoundException("Curso no existe"));
+        ApiResponse<CursoDTO> apiResponse = new ApiResponse<>();
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(cursoEntity.getCursoDTO());
+        return apiResponse;
+    }
     //Función para agregar un curso con paginación-START
-    public ApiResponse<CursoDTO> add(CursoDTO cursoDTO){
+    public ApiResponse<CursoDTO> add(CursoDTO cursoDTO) throws AttributeException {
+        //Excepciones
+        if(cursoRepository.existsByName("", ConstantsGeneric.CREATED_STATUS))
+            throw new AttributeException("Curso ya existe");
         ApiResponse<CursoDTO> apiResponse = new ApiResponse<>();
         cursoDTO.setId(UUID.randomUUID().toString());
         cursoDTO.setCode(Code.generateCode(Code.COURSE_CODE, this.cursoRepository.count() + 1, Code.COURSE_LENGTH));
         cursoDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         cursoDTO.setCreateAt(LocalDateTime.now());
-
-        Optional<CursoEntity> optionalCursoEntity = this.cursoRepository.findByName(cursoDTO.getName());
-        if (optionalCursoEntity.isPresent()) {
-            log.warn("No se agregó el registro");
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("COURSE_EXISTS");
-            apiResponse.setMessage("No se registró, el curso existe");
-            return apiResponse;
-        }
 
         //change DTO to entity
         CursoEntity cursoEntity =new CursoEntity();
@@ -82,68 +84,42 @@ public class CursoService {
     //Función para agregar un curso con paginación-END
 
     //Función para actualizar un curso-START
-    public ApiResponse<CursoDTO> update(CursoDTO cursoDTO){
+    public ApiResponse<CursoDTO> update(CursoDTO cursoDTO) throws ResourceNotFoundException, AttributeException {
+        //Excepciones
+        if(cursoDTO.getId().isBlank())
+            throw new ResourceNotFoundException("Curso no existe");
+        if(cursoRepository.existsByName(cursoDTO.getId(), ConstantsGeneric.CREATED_STATUS))
+            throw new AttributeException("Cursoya existe");
+
         ApiResponse<CursoDTO> apiResponse = new ApiResponse<>();
-        Optional<CursoEntity> optionalCursoEntity=this.cursoRepository.findByName(cursoDTO.getName());
-        //Verifica que el nombre no exista
-        if(optionalCursoEntity.isEmpty()) {
-            optionalCursoEntity = this.cursoRepository.findByUniqueIdentifier(cursoDTO.getId());
-            //Verifica que el id y el status sean válidos
-            if (optionalCursoEntity.isPresent()&& optionalCursoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
-                cursoDTO.setUpdateAt(LocalDateTime.now());
-                CursoEntity cursoEntity = optionalCursoEntity.get();
-                //Set update data
-                if (cursoDTO.getCode() != null) {
-                    cursoEntity.setCode(cursoDTO.getCode());
-                }
-                if (cursoDTO.getName() != null) {
-                    cursoEntity.setName(cursoDTO.getName());
-                }
-                cursoEntity.setUpdateAt(cursoDTO.getUpdateAt());
-                //Update in database
-                apiResponse.setSuccessful(true);
-                apiResponse.setMessage("ok");
-                apiResponse.setData(this.cursoRepository.save(cursoEntity).getCursoDTO());
-                return apiResponse;
-            } else{
-                apiResponse.setMessage("No existe el curso para poder actualizar");
-                apiResponse.setCode("COURSE_DOES_NOT_EXISTS");
-            }
-        } else{
-            apiResponse.setMessage("No se puedo actualizar, curso existente");
-            apiResponse.setCode("COURSE_EXISTS");
-        }
-        log.warn("No se actualizó el registro");
-        apiResponse.setSuccessful(false);
+        CursoEntity cursoEntity = this.cursoRepository.findByUniqueIdentifier(cursoDTO.getId()).orElseThrow(()-> new ResourceNotFoundException("Curso no existe"));
+        //Verifica que el id y el status sean válidos
+        cursoDTO.setUpdateAt(LocalDateTime.now());
+        //Set update data
+        cursoEntity.setName(cursoDTO.getName());
+        cursoEntity.setUpdateAt(cursoDTO.getUpdateAt());
+        //Update in database
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(this.cursoRepository.save(cursoEntity).getCursoDTO());
         return apiResponse;
     }
     //Función para actualizar un curso-END
 
     //Función para cambiar estado a eliminado- START
     //id dto=uniqueIdentifier Entity
-    public ApiResponse<CursoDTO> delete(String id){
+    public ApiResponse<CursoDTO> delete(String id) throws ResourceNotFoundException {
+        CursoEntity cursoEntity=this.cursoRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Curso no existe"));
         ApiResponse<CursoDTO> apiResponse = new ApiResponse<>();
-        //Verifica que el id y el status sean válidos
-        Optional<CursoEntity> optionalCursoEntity=this.cursoRepository.findByUniqueIdentifier(id);
-        if(optionalCursoEntity.isPresent()){
-            CursoEntity cursoEntity =optionalCursoEntity.get();
-            cursoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
-            cursoEntity.setDeleteAt(LocalDateTime.now());
-            Optional<List<DocentexCursoEntity>> optionalDocentexCursoEntities= this.docentexCursoRepository.findByCurso(cursoEntity.getId(), ConstantsGeneric.CREATED_STATUS);
-            for(int i=0; i<optionalDocentexCursoEntities.get().size(); i++){
-                optionalDocentexCursoEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-                optionalDocentexCursoEntities.get().get(i).setDeleteAt(cursoEntity.getDeleteAt());
-                this.docentexCursoService.delete(optionalDocentexCursoEntities.get().get(i).getCode());
-            }
-            apiResponse.setSuccessful(true);
-            apiResponse.setMessage("ok");
-            apiResponse.setData(this.cursoRepository.save(cursoEntity).getCursoDTO());
-        } else{
-            log.warn("No se eliminó el registro");
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("COURSE_DOES_NOT_EXISTS");
-            apiResponse.setMessage("No existe el curso para poder eliminar");
+        cursoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
+        cursoEntity.setDeleteAt(LocalDateTime.now());
+        Optional<List<DocentexCursoEntity>> optionalDocentexCursoEntities= this.docentexCursoRepository.findByCurso(cursoEntity.getId(), ConstantsGeneric.CREATED_STATUS);
+        for(int i=0; i<optionalDocentexCursoEntities.get().size(); i++){
+            this.docentexCursoService.delete(optionalDocentexCursoEntities.get().get(i).getCode());
         }
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(this.cursoRepository.save(cursoEntity).getCursoDTO());
         return apiResponse;
     }
     //Función para cambiar estado a eliminado- END
