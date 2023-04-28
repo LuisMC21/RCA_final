@@ -6,9 +6,8 @@ import com.rca.RCA.type.CursoDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.util.exceptions.AttributeException;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "http://localhost:4200")
@@ -35,12 +34,12 @@ public class CursoRESTController {
     }
 
         @PostMapping
-    public ApiResponse<CursoDTO> add(@RequestBody CursoDTO cursoDTO) throws AttributeException {
+    public ApiResponse<CursoDTO> add(@RequestBody @Valid CursoDTO cursoDTO) throws AttributeException {
         return this.cursoService.add(cursoDTO);
     }
 
     @PutMapping
-    public ApiResponse<CursoDTO> update(@RequestBody CursoDTO cursoDTO) throws ResourceNotFoundException, AttributeException {
+    public ApiResponse<CursoDTO> update(@RequestBody @Valid CursoDTO cursoDTO) throws ResourceNotFoundException, AttributeException {
         return this.cursoService.update(cursoDTO);
     }
 

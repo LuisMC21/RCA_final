@@ -8,6 +8,8 @@ import com.rca.RCA.type.DocentexCursoDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
+import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -60,121 +62,86 @@ public class DocentexCursoService {
         return apiResponse;
     }
     //Función para listar los cursos asignados a los docente-END
+
     //Función para agregar un curso asignado a un docente- START
-    public ApiResponse<DocentexCursoDTO> add(DocentexCursoDTO docentexCursoDTO){
+    public ApiResponse<DocentexCursoDTO> add(DocentexCursoDTO docentexCursoDTO) throws ResourceNotFoundException, AttributeException {
+        //Excepciones
+        if(docentexCursoRepository.existsByDocenteCursoAula(docentexCursoDTO.getId(), docentexCursoDTO.getDocenteDTO().getId(), docentexCursoDTO.getCursoDTO().getId(), docentexCursoDTO.getAulaDTO().getId(), ConstantsGeneric.CREATED_STATUS ))
+            throw new AttributeException("Asignatura ya existe");
         log.info("Docente Curso Grado {} {} {}", docentexCursoDTO.getDocenteDTO().getId(), docentexCursoDTO.getCursoDTO().getId(), docentexCursoDTO.getAulaDTO().getId());
         ApiResponse<DocentexCursoDTO> apiResponse = new ApiResponse<>();
         DocentexCursoEntity docentexCursoEntity = new DocentexCursoEntity();
-        Optional<DocenteEntity> optionalDocenteEntity=this.docenteRepository.findByUniqueIdentifier(docentexCursoDTO.getDocenteDTO().getId());
-        Optional<CursoEntity> optionalCursoEntity=this.cursoRepository.findByUniqueIdentifier(docentexCursoDTO.getCursoDTO().getId());
-        Optional<AulaEntity> optionalAulaEntity=this.aulaRepository.findByUniqueIdentifier(docentexCursoDTO.getAulaDTO().getId(), ConstantsGeneric.CREATED_STATUS);
-        if(optionalDocenteEntity.isPresent() && optionalCursoEntity.isPresent() &&
-        optionalCursoEntity.isPresent() && optionalCursoEntity.isPresent() &&
-                optionalAulaEntity.isPresent() && optionalAulaEntity.isPresent()){
-            //Update in database
-            docentexCursoEntity.setCode(Code.generateCode(Code.CXD_CODE, this.docentexCursoRepository.count() + 1,Code.CXD_LENGTH));
-            docentexCursoEntity.setDocenteEntity(optionalDocenteEntity.get());
-            docentexCursoEntity.setCursoEntity(optionalCursoEntity.get());
-            docentexCursoEntity.setAulaEntity(optionalAulaEntity.get());
-            docentexCursoEntity.setUniqueIdentifier(UUID.randomUUID().toString());
-            docentexCursoEntity.setStatus(ConstantsGeneric.CREATED_STATUS);
-            docentexCursoEntity.setCreateAt(LocalDateTime.now());
-            apiResponse.setSuccessful(true);
-            apiResponse.setMessage("ok");
-            apiResponse.setData(this.docentexCursoRepository.save(docentexCursoEntity).getDocentexCursoDTO());
-            return apiResponse;
-        }else{
-            log.warn("No se completó el registro");
-            apiResponse.setSuccessful(false);
-            if(optionalDocenteEntity.isEmpty()) {
-                apiResponse.setCode("TEACHER_DOES_NOT_EXISTS");
-            }
-            if(optionalCursoEntity.isEmpty()) {
-                apiResponse.setCode("COURSE_DOES_NOT_EXISTS");
-            }
-            if(optionalAulaEntity.isEmpty()) {
-                apiResponse.setCode("GRADE_DOES_NOT_EXISTS");
-            }
-            apiResponse.setMessage("No se pudo registrar el curso al docente");
-        }
+        DocenteEntity docenteEntity=this.docenteRepository.findByUniqueIdentifier(docentexCursoDTO.getDocenteDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Docente no existe"));
+        CursoEntity cursoEntity=this.cursoRepository.findByUniqueIdentifier(docentexCursoDTO.getCursoDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Curso no existe"));
+        AulaEntity aulaEntity=this.aulaRepository.findByUniqueIdentifier(docentexCursoDTO.getAulaDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Aula no existe"));
+        //Update in database
+        docentexCursoEntity.setCode(Code.generateCode(Code.CXD_CODE, this.docentexCursoRepository.count() + 1,Code.CXD_LENGTH));
+        docentexCursoEntity.setDocenteEntity(docenteEntity);
+        docentexCursoEntity.setCursoEntity(cursoEntity);
+        docentexCursoEntity.setAulaEntity(aulaEntity);
+        docentexCursoEntity.setUniqueIdentifier(UUID.randomUUID().toString());
+        docentexCursoEntity.setStatus(ConstantsGeneric.CREATED_STATUS);
+        docentexCursoEntity.setCreateAt(LocalDateTime.now());
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(this.docentexCursoRepository.save(docentexCursoEntity).getDocentexCursoDTO());
         return apiResponse;
     }
     //Función para agregar un curso asignado a un docente- END
 
       //Función para actualizar un curso asignado a un docente-START
-    public ApiResponse<DocentexCursoDTO> update(DocentexCursoDTO docentexCursoDTO){
+    public ApiResponse<DocentexCursoDTO> update(DocentexCursoDTO docentexCursoDTO) throws ResourceNotFoundException, AttributeException {
+        if(docentexCursoDTO.getId().isBlank())
+            throw new ResourceNotFoundException("Asignatura no existe");
+        if(docentexCursoRepository.existsByDocenteCursoAula(docentexCursoDTO.getId(), docentexCursoDTO.getDocenteDTO().getId(), docentexCursoDTO.getCursoDTO().getId(), docentexCursoDTO.getAulaDTO().getId(), ConstantsGeneric.CREATED_STATUS ))
+            throw new AttributeException("Asignatura ya existe");
         ApiResponse<DocentexCursoDTO> apiResponse = new ApiResponse<>();
-        if(!docentexCursoDTO.getId().isEmpty()) {
-            Optional<DocentexCursoEntity> optionalDocentexCursoEntity = this.docentexCursoRepository.findByUniqueIdentifier(docentexCursoDTO.getId());
-            //Verifica que el id y el status sean válidos
-            if (optionalDocentexCursoEntity.isPresent() && optionalDocentexCursoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
-                optionalDocentexCursoEntity.get().setUpdateAt(docentexCursoDTO.getUpdateAt());
-                Optional<DocenteEntity> optionalDocenteEntity=Optional.empty();
-                Optional<CursoEntity> optionalCursoEntity = Optional.empty();
-                Optional<AulaEntity> optionalAulaEntity = Optional.empty();
-                if (docentexCursoDTO.getDocenteDTO().getId() != null) {
-                    optionalDocenteEntity = this.docenteRepository.findByUniqueIdentifier(docentexCursoDTO.getDocenteDTO().getId());
-                }
-                if (docentexCursoDTO.getCursoDTO().getId() != null) {
-                    optionalCursoEntity = this.cursoRepository.findByUniqueIdentifier(docentexCursoDTO.getCursoDTO().getId());
-                }
-                if (docentexCursoDTO.getAulaDTO().getId() != null) {
-                    optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(docentexCursoDTO.getAulaDTO().getId(), ConstantsGeneric.CREATED_STATUS);
-                }
-                //Set update data
-                optionalDocenteEntity.ifPresent(docenteEntity -> optionalDocentexCursoEntity.get().setDocenteEntity(docenteEntity));
-                optionalCursoEntity.ifPresent(cursoEntity -> optionalDocentexCursoEntity.get().setCursoEntity(cursoEntity));
-                optionalAulaEntity.ifPresent(aulaEntity -> optionalDocentexCursoEntity.get().setAulaEntity(aulaEntity));
-
-                optionalDocentexCursoEntity.get().setUpdateAt(LocalDateTime.now());
-                //Update in database
-                apiResponse.setSuccessful(true);
-                apiResponse.setMessage("ok");
-                apiResponse.setData(this.docentexCursoRepository.save(optionalDocentexCursoEntity.get()).getDocentexCursoDTO());
-                return apiResponse;
-            }
-        }
-        log.warn("No se actualizó el registro");
-        apiResponse.setSuccessful(false);
-        apiResponse.setMessage("No existe el curso asignado al docente para poder actualizar");
-        apiResponse.setCode("TEACHER_PER_COURSE_DOES_NOT_EXISTS");
+        DocentexCursoEntity docentexCursoEntity = this.docentexCursoRepository.findByUniqueIdentifier(docentexCursoDTO.getId()).orElseThrow(()-> new ResourceNotFoundException("DocentexCurso no existe"));
+        //Verifica que el id y el status sean válidos
+        docentexCursoEntity.setUpdateAt(docentexCursoDTO.getUpdateAt());
+        DocenteEntity docenteEntity = this.docenteRepository.findByUniqueIdentifier(docentexCursoDTO.getDocenteDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Docente no existe"));
+        CursoEntity cursoEntity = this.cursoRepository.findByUniqueIdentifier(docentexCursoDTO.getCursoDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Curso no existe"));
+        AulaEntity aulaEntity = this.aulaRepository.findByUniqueIdentifier(docentexCursoDTO.getAulaDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Aula no existe"));
+        //Set update data
+        docentexCursoEntity.setDocenteEntity(docenteEntity);
+        docentexCursoEntity.setCursoEntity(cursoEntity);
+        docentexCursoEntity.setAulaEntity(aulaEntity);
+        docentexCursoEntity.setUpdateAt(LocalDateTime.now());
+        //Update in database
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(this.docentexCursoRepository.save(docentexCursoEntity).getDocentexCursoDTO());
         return apiResponse;
+
     }
     //Función para actualizar un curso asignado a un docente-END
 
     //Función para cambiar estado a eliminado- START
     //id dto=uniqueIdentifier Entity
-    public ApiResponse<DocentexCursoDTO> delete(String id){
+    public ApiResponse<DocentexCursoDTO> delete(String id) throws ResourceNotFoundException {
         ApiResponse<DocentexCursoDTO> apiResponse = new ApiResponse<>();
         //Verifica que el id y el status sean válidos
-        Optional<DocentexCursoEntity> optionalDocentexCursoEntity=this.docentexCursoRepository.findByUniqueIdentifier(id);
-        if(optionalDocentexCursoEntity.isPresent() && optionalDocentexCursoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)){
-            DocentexCursoEntity docentexCursoEntity =optionalDocentexCursoEntity.get();
-            docentexCursoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
-            docentexCursoEntity.setDeleteAt(LocalDateTime.now());
-            //eliminar lista de clases
-            Optional<List<ClaseEntity>> optionalClaseEntities= this.claseRepository.findById_DxC(docentexCursoEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
-            for (int i = 0; i < optionalClaseEntities.get().size(); i++) {
-                optionalClaseEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-                optionalClaseEntities.get().get(i).setDeleteAt(docentexCursoEntity.getDeleteAt());
-                this.claseService.delete(optionalClaseEntities.get().get(i).getCode());
-            }
-            //eliminar lista de evaluaciones
-            Optional<List<EvaluacionEntity>> optionalEvaluacionEntities= this.evaluacionRepository.findById_DXC(docentexCursoEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
-            for (int i = 0; i < optionalEvaluacionEntities.get().size(); i++) {
-                optionalEvaluacionEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-                optionalEvaluacionEntities.get().get(i).setDeleteAt(docentexCursoEntity.getDeleteAt());
-                this.claseService.delete(optionalEvaluacionEntities.get().get(i).getCode());
-            }
-            apiResponse.setSuccessful(true);
-            apiResponse.setMessage("ok");
-            apiResponse.setData(this.docentexCursoRepository.save(docentexCursoEntity).getDocentexCursoDTO());
-        } else{
-            log.warn("No se eliminó el registro");
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("TEACHER_PER_COURSE_DOES_NOT_EXISTS");
-            apiResponse.setMessage("No existe el curso asignado al docente para poder eliminar");
+        DocentexCursoEntity docentexCursoEntity=this.docentexCursoRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Asignatura no existe"));
+        docentexCursoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
+        docentexCursoEntity.setDeleteAt(LocalDateTime.now());
+        //eliminar lista de clases
+        Optional<List<ClaseEntity>> optionalClaseEntities= this.claseRepository.findById_DxC(docentexCursoEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
+        for (int i = 0; i < optionalClaseEntities.get().size(); i++) {
+            optionalClaseEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+            optionalClaseEntities.get().get(i).setDeleteAt(docentexCursoEntity.getDeleteAt());
+            this.claseService.delete(optionalClaseEntities.get().get(i).getCode());
         }
+        //eliminar lista de evaluaciones
+        Optional<List<EvaluacionEntity>> optionalEvaluacionEntities= this.evaluacionRepository.findById_DXC(docentexCursoEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
+        for (int i = 0; i < optionalEvaluacionEntities.get().size(); i++) {
+            optionalEvaluacionEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+            optionalEvaluacionEntities.get().get(i).setDeleteAt(docentexCursoEntity.getDeleteAt());
+            this.claseService.delete(optionalEvaluacionEntities.get().get(i).getCode());
+        }
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(this.docentexCursoRepository.save(docentexCursoEntity).getDocentexCursoDTO());
+
         return apiResponse;
     }
     //Función para cambiar estado a eliminado- END

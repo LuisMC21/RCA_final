@@ -5,6 +5,7 @@ import com.rca.RCA.auth.enums.RolNombre;
 import com.rca.RCA.auth.service.LoginService;
 import com.rca.RCA.entity.DocenteEntity;
 import com.rca.RCA.entity.DocentexCursoEntity;
+import com.rca.RCA.entity.UsuarioEntity;
 import com.rca.RCA.repository.DocenteRepository;
 import com.rca.RCA.repository.DocentexCursoRepository;
 import com.rca.RCA.auth.repository.RolRepository;
@@ -14,6 +15,7 @@ import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
 import com.rca.RCA.util.exceptions.AttributeException;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -66,11 +68,21 @@ public class DocenteService {
     }
     //Función para listar docentes con paginación-END
 
+    public ApiResponse<DocenteDTO> one(String id) throws ResourceNotFoundException {
+        ApiResponse<DocenteDTO> apiResponse = new ApiResponse<>();
+        //Verifica que el id y el status sean válidos
+        DocenteEntity docenteEntity = this.docenteRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(() -> new ResourceNotFoundException("Docente no existe"));
+        apiResponse.setSuccessful(false);
+        apiResponse.setData(docenteEntity.getDocenteDTO());
+        apiResponse.setMessage("ok");
+        return apiResponse;
+    }
     //Función para agregar docente-START
+    @Transactional
     public ApiResponse<DocenteDTO> add(DocenteDTO docenteDTO) throws ResourceNotFoundException, AttributeException {
         ApiResponse<DocenteDTO> apiResponse = new ApiResponse<>();
         //Verifica que el rol sea docente
-        if (docenteDTO.getUsuarioDTO().getRol().equalsIgnoreCase("TEACHER"))
+        if (!docenteDTO.getUsuarioDTO().getRol().equalsIgnoreCase("TEACHER"))
             throw new AttributeException("El rol es inválido");
         Rol optionalRolEntity= this.rolRepository.findByRolNombre(RolNombre.ROLE_TEACHER).orElseThrow(()-> new ResourceNotFoundException("Rol Inválido"));
         //add usuario
@@ -80,19 +92,19 @@ public class DocenteService {
             log.warn("No se agregó el registro");
             apiResponse.setSuccessful(false);
             apiResponse.setCode("DOCENTE_EXISTS");
-            apiResponse.setMessage("No se resgistró, el docente existe");
+            apiResponse.setMessage(apiResponseU.getMessage());
             return apiResponse;
         }
         //add data docente DTO
         docenteDTO.setId(UUID.randomUUID().toString());
         docenteDTO.setCode(Code.generateCode(Code.TEACHER_CODE, this.docenteRepository.count() + 1, Code.TEACHER_LENGTH));
         docenteDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
-        docenteDTO.setCreateAt(LocalDateTime.now());
+        docenteDTO.setCreateAt(apiResponseU.getData().getCreateAt());
         //change DTO to entity
         DocenteEntity docenteEntity =new DocenteEntity();
         docenteEntity.setDocenteDTO(docenteDTO);
         //add usuario to docente
-        docenteEntity.setUsuarioEntity(this.usuarioRepository.findByUniqueIdentifier(docenteDTO.getUsuarioDTO().getId()).get());
+        docenteEntity.setUsuarioEntity(this.usuarioRepository.findByUniqueIdentifier(docenteDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS).get());
         //save docente
         apiResponse.setData(this.docenteRepository.save(docenteEntity).getDocenteDTO());
         apiResponse.setSuccessful(true);
@@ -102,94 +114,67 @@ public class DocenteService {
     //Función para agregar docente-END
 
     //Función para actualizar docente-START
-    public ApiResponse<DocenteDTO> update(DocenteDTO docenteDTO){
+    @Transactional
+    public ApiResponse<DocenteDTO> update(DocenteDTO docenteDTO) throws ResourceNotFoundException {
+        if(docenteDTO.getId().isBlank())
+            throw new ResourceNotFoundException("Docente no encontrado");
         ApiResponse<DocenteDTO> apiResponse = new ApiResponse<>();
-        //Verifica que el id recibido no sea nulo
-        if(!docenteDTO.getId().isEmpty()) {
-            Optional<DocenteEntity> optionalDocenteEntity = this.docenteRepository.findByUniqueIdentifier(docenteDTO.getId());
-            //Verifica que el docente exista y sea válido
-            if (optionalDocenteEntity.isPresent() && optionalDocenteEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS) && optionalDocenteEntity.get().getUsuarioEntity().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) {
-                //Set update time
-                optionalDocenteEntity.get().setUpdateAt(LocalDateTime.now());
-                optionalDocenteEntity.get().getUsuarioEntity().setUpdateAt(optionalDocenteEntity.get().getUpdateAt());
-                //Set update data
-                if (docenteDTO.getExperience() != null) {
-                    optionalDocenteEntity.get().setExperience(docenteDTO.getExperience());
-                }
-                if (docenteDTO.getDose() != null) {
-                    optionalDocenteEntity.get().setDose(docenteDTO.getDose());
-                }
-                if (docenteDTO.getSpecialty() != null) {
-                    optionalDocenteEntity.get().setSpecialty(docenteDTO.getSpecialty());
-                }
-                if (docenteDTO.getUsuarioDTO().getPa_surname() != null) {
-                    optionalDocenteEntity.get().getUsuarioEntity().setPa_surname(docenteDTO.getUsuarioDTO().getPa_surname());
-                }
-                if (docenteDTO.getUsuarioDTO().getMa_surname() != null) {
-                    optionalDocenteEntity.get().getUsuarioEntity().setMa_surname(docenteDTO.getUsuarioDTO().getMa_surname());
-                }
-                if (docenteDTO.getUsuarioDTO().getName() != null) {
-                    optionalDocenteEntity.get().getUsuarioEntity().setName(docenteDTO.getUsuarioDTO().getName());
-                }
-                if (docenteDTO.getUsuarioDTO().getGra_inst() != null) {
-                    optionalDocenteEntity.get().getUsuarioEntity().setGra_inst(docenteDTO.getUsuarioDTO().getGra_inst());
-                }
-                if (docenteDTO.getUsuarioDTO().getEmail() != null) {
-                    optionalDocenteEntity.get().getUsuarioEntity().setEmail(docenteDTO.getUsuarioDTO().getEmail());
-                }
-                //Update in database to usuario
-                ApiResponse<UsuarioDTO> apiResponseU = this.usuarioService.update(optionalDocenteEntity.get().getUsuarioEntity().getUsuarioDTO());
-                if (apiResponseU.isSuccessful()) {
-                    //Update in database to docente
-                    apiResponse.setSuccessful(true);
-                    apiResponse.setMessage("ok");
-                    apiResponse.setData(this.docenteRepository.save(optionalDocenteEntity.get()).getDocenteDTO());
-                    return apiResponse;
-                }
-            } else {
-                log.warn("No se actualizó el registro");
-                apiResponse.setMessage("No se puedo actualizar, docente no existente");
-                apiResponse.setCode("TEACHER_DOES_NOT_EXISTS");
-                return apiResponse;
-            }
+        DocenteEntity docenteEntity = this.docenteRepository.findByUniqueIdentifier(docenteDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Docente no existe"));
+        //Set update time
+        docenteEntity.setUpdateAt(LocalDateTime.now());
+        docenteEntity.getUsuarioEntity().setUpdateAt(docenteEntity.getUpdateAt());
+        //Set update data
+        docenteEntity.setExperience(docenteDTO.getExperience());
+        docenteEntity.setDose(docenteDTO.getDose());
+        docenteEntity.setSpecialty(docenteDTO.getSpecialty());
+        docenteEntity.getUsuarioEntity().setPa_surname(docenteDTO.getUsuarioDTO().getPa_surname());
+        docenteEntity.getUsuarioEntity().setMa_surname(docenteDTO.getUsuarioDTO().getMa_surname());
+        docenteEntity.getUsuarioEntity().setName(docenteDTO.getUsuarioDTO().getName());
+        docenteEntity.getUsuarioEntity().setGra_inst(docenteDTO.getUsuarioDTO().getGra_inst());
+        docenteEntity.getUsuarioEntity().setEmail(docenteDTO.getUsuarioDTO().getEmail());
+        //Update in database to usuario
+        ApiResponse<UsuarioDTO> apiResponseU = this.usuarioService.update(docenteEntity.getUsuarioEntity().getUsuarioDTO());
+        if (apiResponseU.isSuccessful()) {
+            //Update in database to docente
+            apiResponse.setSuccessful(true);
+            apiResponse.setMessage("ok");
+            apiResponse.setData(this.docenteRepository.save(docenteEntity).getDocenteDTO());
+            return apiResponse;
+        } else {
+            apiResponse.setSuccessful(false);
+            apiResponse.setMessage(apiResponseU.getMessage());
+            return apiResponse;
         }
-        log.warn("No se actualizó el registro");
-        apiResponse.setMessage("No se puedo actualizar, docente no existente");
-        apiResponse.setCode("TEACHER_DOES_NOT_EXISTS");
-        apiResponse.setSuccessful(false);
-        return apiResponse;
+
     }
     //Función para actualizar docente-END
 
 
     //Función para cambiar estado a eliminado- START
     //id dto=uniqueIdentifier Entity
-    public ApiResponse<DocenteDTO> delete(String id){
+    @Transactional
+    public ApiResponse<DocenteDTO> delete(String id) throws ResourceNotFoundException {
         ApiResponse<DocenteDTO> apiResponse = new ApiResponse<>();
         //Verifica que el id y el status sean válidos
-        Optional<DocenteEntity> optionalDocenteEntity=this.docenteRepository.findByUniqueIdentifier(id);
-
-        if(optionalDocenteEntity.isPresent() && optionalDocenteEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS) && optionalDocenteEntity.get().getUsuarioEntity().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)){
-            optionalDocenteEntity.get().getUsuarioEntity().setStatus(ConstantsGeneric.DELETED_STATUS);
-            optionalDocenteEntity.get().getUsuarioEntity().setDeleteAt(LocalDateTime.now());
-            DocenteEntity docenteEntity =optionalDocenteEntity.get();
-            docenteEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
-            docenteEntity.setDeleteAt(LocalDateTime.now());
-            Optional<List<DocentexCursoEntity>> optionalDocentexCursoEntities= this.docentexCursoRepository.findByDocente(docenteEntity.getId(), ConstantsGeneric.CREATED_STATUS);
-            for(int i=0; i<optionalDocentexCursoEntities.get().size(); i++){
-                optionalDocentexCursoEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-                optionalDocentexCursoEntities.get().get(i).setDeleteAt(docenteEntity.getDeleteAt());
-                this.docentexCursoService.delete(optionalDocentexCursoEntities.get().get(i).getCode());
-            }
-            apiResponse.setSuccessful(true);
-            apiResponse.setMessage("ok");
-            apiResponse.setData(this.docenteRepository.save(docenteEntity).getDocenteDTO());
-        } else{
-            log.warn("No se eliminó el registro");
+        DocenteEntity docenteEntity=this.docenteRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Docente no existe"));
+        UsuarioEntity usuarioEntity= usuarioRepository.findByUniqueIdentifier(docenteEntity.getUsuarioEntity().getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no existe"));
+        ApiResponse<UsuarioDTO> apiResponseU = usuarioService.delete(usuarioEntity.getUniqueIdentifier());
+        if(!apiResponseU.isSuccessful()){
             apiResponse.setSuccessful(false);
-            apiResponse.setCode("SECTION_DOES_NOT_EXISTS");
-            apiResponse.setMessage("No existe el docente para poder eliminar");
+            apiResponse.setMessage(apiResponseU.getMessage());
+            return apiResponse;
         }
+        Optional<List<DocentexCursoEntity>> optionalDocentexCursoEntities= this.docentexCursoRepository.findByDocente(docenteEntity.getId(), ConstantsGeneric.CREATED_STATUS);
+        for (int i = 0; i < optionalDocentexCursoEntities.get().size(); i++) {
+            optionalDocentexCursoEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+            optionalDocentexCursoEntities.get().get(i).setDeleteAt(docenteEntity.getDeleteAt());
+            this.docentexCursoService.delete(optionalDocentexCursoEntities.get().get(i).getCode());
+        }
+        docenteEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
+        docenteEntity.setDeleteAt(LocalDateTime.now());
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(this.docenteRepository.save(docenteEntity).getDocenteDTO());
         return apiResponse;
     }
     //Función para cambiar estado a eliminado- END

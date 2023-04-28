@@ -32,6 +32,6 @@ public class UsuarioDTO extends AuditoryDTO{
     private String email;
     @NotBlank(message = "password no puede estar vacío")
     private String password;
-    @NotNull(message = "Rol no puede estar vacío")
+    @NotBlank(message = "Rol no puede estar vacío")
     private String rol;
 }

@@ -7,6 +7,7 @@ import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.UsuarioDTO;
 import com.rca.RCA.util.exceptions.AttributeException;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,18 +30,22 @@ public class DocenteRESTController {
         return this.docenteService.getList(filter, page, size);
     }
 
+    @GetMapping("{id}")
+    public ApiResponse<DocenteDTO> one(@PathVariable String id) throws ResourceNotFoundException {
+        return this.docenteService.one(id);
+    }
     @PostMapping
-    public ApiResponse<DocenteDTO> add(@RequestBody DocenteDTO docenteDTO) throws ResourceNotFoundException, AttributeException {
+    public ApiResponse<DocenteDTO> add(@RequestBody @Valid DocenteDTO docenteDTO) throws ResourceNotFoundException, AttributeException {
         return this.docenteService.add(docenteDTO);
     }
 
     @PutMapping
-    public ApiResponse<DocenteDTO> update(@RequestBody DocenteDTO docenteDTO){
+    public ApiResponse<DocenteDTO> update(@RequestBody @Valid DocenteDTO docenteDTO) throws ResourceNotFoundException {
         return this.docenteService.update(docenteDTO);
     }
 
     @DeleteMapping("{id}")
-    public ApiResponse<DocenteDTO> delete(@PathVariable String id){
+    public ApiResponse<DocenteDTO> delete(@PathVariable String id) throws ResourceNotFoundException {
         return this.docenteService.delete(id);
     }
 

@@ -38,7 +38,11 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
     Long findCountEntitiesRol(@Param("status") String status, @Param("uniqueIdentifier") String uniqueIdentifier);
 
     //Funcipon para encontrar un usuario por su identificador
-    Optional<UsuarioEntity> findByUniqueIdentifier(String uniqueIdentifier);
+
+    @Query(value = "SELECT u FROM UsuarioEntity u " +
+            "WHERE u.uniqueIdentifier = :id " +
+            "AND u.status = :status")
+    Optional<UsuarioEntity> findByUniqueIdentifier(String id, String status);
 
     //Función para encontrar un usuario por su numero de documento
     Optional<UsuarioEntity> findByNumdoc(String numdoc);

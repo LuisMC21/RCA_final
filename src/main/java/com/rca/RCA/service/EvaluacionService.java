@@ -271,7 +271,7 @@ public class EvaluacionService {
     public ResponseEntity<Resource> exportNotas(String curso, String periodo, String anio) {
         Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(periodo, ConstantsGeneric.CREATED_STATUS);
         Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(anio, ConstantsGeneric.CREATED_STATUS);
-        Optional<CursoEntity> optionalCursoEntity = this.cursoRepository.findByUniqueIdentifier(curso);
+        Optional<CursoEntity> optionalCursoEntity = this.cursoRepository.findByUniqueIdentifier(curso, ConstantsGeneric.CREATED_STATUS);
 
         if (optionalCursoEntity.isPresent() && optionalPeriodoEntity.isPresent() && optionalAnioLectivoEntity.isPresent()){
 

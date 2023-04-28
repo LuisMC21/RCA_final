@@ -92,7 +92,7 @@ public class AlumnoService {
 
         if (AlumnoDTO.getUsuarioDTO().getId() != "" || AlumnoDTO.getApoderadoDTO().getId() != ""){
             //set usaurio
-            Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(AlumnoDTO.getUsuarioDTO().getId());
+            Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(AlumnoDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS);
             if (optionalUsuarioEntity.isEmpty()) {
                 apiResponse.setSuccessful(false);
                 apiResponse.setCode("USUARIO_NOT_EXISTS");
@@ -148,7 +148,7 @@ public class AlumnoService {
         AlumnoEntity.setType_insurance(AlumnoDTO.getType_insurance());
 
         //set usuario
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(AlumnoDTO.getUsuarioDTO().getId());
+        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(AlumnoDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS);
         if (optionalUsuarioEntity.isEmpty()) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("USUARIO_NOT_EXISTS");

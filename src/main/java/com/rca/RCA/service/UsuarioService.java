@@ -69,7 +69,7 @@ public class UsuarioService {
     public ApiResponse<UsuarioDTO> update(UsuarioDTO UsuarioDTO) {
         ApiResponse<UsuarioDTO> apiResponse = new ApiResponse<>();
 
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(UsuarioDTO.getId());
+        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(UsuarioDTO.getId(), ConstantsGeneric.CREATED_STATUS);
         if (optionalUsuarioEntity.isEmpty()) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("Usuario_NOT_EXISTS");
@@ -115,7 +115,7 @@ public class UsuarioService {
     //Borrar usuario
     public ApiResponse<UsuarioDTO> delete(String id) {
         ApiResponse<UsuarioDTO> apiResponse = new ApiResponse<>();
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(id);
+        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS);
         Long imagenes = this.imagenRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS,id);
         Long noticias = this.noticiaRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, id);
 
@@ -142,6 +142,7 @@ public class UsuarioService {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("USUARIO_DOES_NOT_EXISTS");
             apiResponse.setMessage("No existe el usuario para poder eliminar");
+            return apiResponse;
         }
 
         return apiResponse;

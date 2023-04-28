@@ -75,7 +75,7 @@ public class NoticiaService {
         NoticiaEntity.setNoticiaDTO(NoticiaDTO);
 
         //set usaurio
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(NoticiaDTO.getUsuarioDTO().getId());
+        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(NoticiaDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS);
         if (optionalUsuarioEntity.isEmpty()) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("ROL_NOT_EXISTS");
@@ -122,7 +122,7 @@ public class NoticiaService {
         NoticiaEntity.setUpdateAt(LocalDateTime.now());
 
         //set usuario
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(noticiaDTO.getUsuarioDTO().getId());
+        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(noticiaDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS);
         if (optionalUsuarioEntity.isEmpty()) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("USUARIO_NOT_EXISTS");

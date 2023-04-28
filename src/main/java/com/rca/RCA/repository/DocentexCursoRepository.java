@@ -71,4 +71,14 @@ public interface DocentexCursoRepository extends JpaRepository<DocentexCursoEnti
             "AND c.status= :status ")
     Optional<List<DocentexCursoEntity>> findByDocenteYCurso(Integer id_docente, Integer id_curso, String status);
 
+    @Query(value = "SELECT count(dxc)>0 FROM DocentexCursoEntity dxc " +
+            "JOIN dxc.cursoEntity c " +
+            "JOIN dxc.aulaEntity a " +
+            "JOIN dxc.docenteEntity d " +
+            "WHERE dxc.uniqueIdentifier != :id " +
+            "AND dxc.status = :status " +
+            "AND d.uniqueIdentifier = :idD " +
+            "AND c.uniqueIdentifier = :idC " +
+            "AND a.uniqueIdentifier = :idA ")
+    boolean existsByDocenteCursoAula(String id, String idD, String idC, String idA, String status);
 }
