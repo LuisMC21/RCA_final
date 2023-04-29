@@ -48,7 +48,7 @@ public class AulaRESTController {
     }
     @GetMapping("exportApoderados")
     public ResponseEntity<Resource> exportListApoderados(@RequestParam String id_aula,
-                                                        @RequestParam String id_aniolectivo){
+                                                        @RequestParam String id_aniolectivo) throws ResourceNotFoundException {
         return this.aulaService.exportListApoderados(id_aula, id_aniolectivo);
     }
 }

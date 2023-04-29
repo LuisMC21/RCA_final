@@ -27,6 +27,10 @@ public class DocentexCursoRESTController {
         return this.docentexCursoService.getList(filter, page, size);
     }
 
+    @GetMapping("{id}")
+    public ApiResponse<DocentexCursoDTO> one(@PathVariable String id) throws ResourceNotFoundException {
+        return this.docentexCursoService.one(id);
+    }
     @PostMapping
     public ApiResponse<DocentexCursoDTO> add(@RequestBody DocentexCursoDTO docentexCursoDTO) throws ResourceNotFoundException, AttributeException {
         return this.docentexCursoService.add(docentexCursoDTO);

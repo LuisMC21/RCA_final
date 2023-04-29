@@ -168,58 +168,52 @@ public class AulaService {
     }
 
     @NotNull
-    public ResponseEntity<Resource> exportListApoderados(String id_aula, String id_aniolectivo) {
+    public ResponseEntity<Resource> exportListApoderados(String id_aula, String id_aniolectivo) throws ResourceNotFoundException {
         log.info("id_aula {}", id_aula);
-        Optional<AulaEntity> optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(id_aula, ConstantsGeneric.CREATED_STATUS);
-        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
-        if (optionalAulaEntity.isPresent() && (optionalAulaEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) &&
-                optionalAnioLectivoEntity.isPresent() && optionalAulaEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) {
-            try {
-                final AulaEntity aulaEntity = optionalAulaEntity.get();
-                final File file = ResourceUtils.getFile("classpath:reportes/lista_apoderados.jasper"); //la ruta del reporte
-                final File imgLogo = ResourceUtils.getFile("classpath:images/logoC.jpg"); //Ruta de la imagen
-                final JasperReport report = (JasperReport) JRLoader.loadObject(file);
-                //Se consultan los datos para el reporte de apoderados DTO
-                Optional<List<AlumnoEntity>> optionalAlumnoDTOS = this.aulaRepository.findAlumnosxAula(id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
-                Optional<List<ApoderadoEntity>> optionalApoderadoDTOS = this.aulaRepository.findApoderadosxAula(id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
-                //Se agregan los datos para ReporteApoderadosDTO
-                List<ReporteApoderadosDTO> reporteApoderadosDTOList= new ArrayList<>();
-                for (int i = 0; i < optionalAlumnoDTOS.get().size(); i++) {
-                    ReporteApoderadosDTO reporteApoderadosDTO = new ReporteApoderadosDTO();
-                    reporteApoderadosDTO.setAlumnoDTO(optionalAlumnoDTOS.get().get(i).getAlumnoDTO());
-                    reporteApoderadosDTO.setApoderadoDTO(optionalApoderadoDTOS.get().get(i).getApoderadoDTO());
-                    reporteApoderadosDTOList.add(reporteApoderadosDTO);
-                }
+        AulaEntity aulaEntity = this.aulaRepository.findByUniqueIdentifier(id_aula, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Aula no existe"));
+        AnioLectivoEntity anioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Aula no existe"));
+        try {
+            final File file = ResourceUtils.getFile("classpath:reportes/lista_apoderados.jasper"); //la ruta del reporte
+            final File imgLogo = ResourceUtils.getFile("classpath:images/logoC.jpg"); //Ruta de la imagen
+            final JasperReport report = (JasperReport) JRLoader.loadObject(file);
+            //Se consultan los datos para el reporte de apoderados DTO
+            List<AlumnoEntity> alumnoEntities = this.aulaRepository.findAlumnosxAula(id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("No contiene alumnos"));
 
-                //Se llenan los parámetros del reporte
-                final HashMap<String, Object> parameters = new HashMap<>();
-                parameters.put("logoEmpresa", new FileInputStream(imgLogo));
-                parameters.put("grado", aulaEntity.getAulaDTO().getGradoDTO().getName().toString());
-                parameters.put("seccion", aulaEntity.getAulaDTO().getSeccionDTO().getName().toString());
-                parameters.put("año", optionalAnioLectivoEntity.get().getName());
-                parameters.put("dsLA", new JRBeanArrayDataSource(reporteApoderadosDTOList.toArray()));
-
-                //Se imprime el reporte
-                JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
-                byte [] reporte = JasperExportManager.exportReportToPdf(jasperPrint);
-                String sdf = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
-                StringBuilder stringBuilder = new StringBuilder().append("ApoderadosPDF:");
-                ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
-                        .filename(stringBuilder
-                                .append(aulaEntity.getCode())
-                                .append("generateDate:").append(sdf)
-                                .append(".pdf").toString())
-                        .build();
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentDisposition(contentDisposition);
-                return ResponseEntity.ok().contentLength((long) reporte.length)
-                        .contentType(MediaType.APPLICATION_PDF)
-                        .headers(headers).body(new ByteArrayResource(reporte));
-            } catch (Exception e) {
-                e.printStackTrace();
+            //Se agregan los datos para ReporteApoderadosDTO
+            List<ReporteApoderadosDTO> reporteApoderadosDTOList= new ArrayList<>();
+            for (int i = 0; i < alumnoEntities.size(); i++) {
+                ReporteApoderadosDTO reporteApoderadosDTO = new ReporteApoderadosDTO();
+                reporteApoderadosDTO.setAlumnoDTO(alumnoEntities.get(i).getAlumnoDTO());
+                reporteApoderadosDTO.setApoderadoDTO(alumnoEntities.get(i).getApoderadoEntity().getApoderadoDTO());
+                reporteApoderadosDTOList.add(reporteApoderadosDTO);
             }
-        }else{
-            return ResponseEntity.noContent().build();//Reporte no encontrado
+
+            //Se llenan los parámetros del reporte
+            final HashMap<String, Object> parameters = new HashMap<>();
+            parameters.put("logoEmpresa", new FileInputStream(imgLogo));
+            parameters.put("grado", aulaEntity.getAulaDTO().getGradoDTO().getName().toString());
+            parameters.put("seccion", aulaEntity.getAulaDTO().getSeccionDTO().getName().toString());
+            parameters.put("año", anioLectivoEntity.getName());
+            parameters.put("dsLA", new JRBeanArrayDataSource(reporteApoderadosDTOList.toArray()));
+
+            //Se imprime el reporte
+            JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
+            byte [] reporte = JasperExportManager.exportReportToPdf(jasperPrint);
+            String sdf = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
+            StringBuilder stringBuilder = new StringBuilder().append("ApoderadosPDF:");
+            ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
+                    .filename(stringBuilder
+                            .append(aulaEntity.getCode())
+                            .append("generateDate:").append(sdf)
+                            .append(".pdf").toString())
+                    .build();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentDisposition(contentDisposition);
+            return ResponseEntity.ok().contentLength((long) reporte.length)
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .headers(headers).body(new ByteArrayResource(reporte));
+        } catch (Exception e) {
+            new ResourceNotFoundException("Lista no encontrada");
         }
         return null;
     }

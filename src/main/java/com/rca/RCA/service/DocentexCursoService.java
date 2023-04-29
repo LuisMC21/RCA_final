@@ -63,6 +63,17 @@ public class DocentexCursoService {
     }
     //Función para listar los cursos asignados a los docente-END
 
+    //Función para obtener un curso asignado al docente-START
+    public ApiResponse<DocentexCursoDTO> one(String id) throws ResourceNotFoundException {
+        DocentexCursoEntity docentexCursoEntity=this.docentexCursoRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Asignatura no existe"));
+        ApiResponse<DocentexCursoDTO> apiResponse = new ApiResponse<>();
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(docentexCursoEntity.getDocentexCursoDTO());
+        return apiResponse;
+    }
+        //Función para obtener un curso asignado al docente-END
+
     //Función para agregar un curso asignado a un docente- START
     public ApiResponse<DocentexCursoDTO> add(DocentexCursoDTO docentexCursoDTO) throws ResourceNotFoundException, AttributeException {
         //Excepciones
@@ -95,8 +106,9 @@ public class DocentexCursoService {
             throw new ResourceNotFoundException("Asignatura no existe");
         if(docentexCursoRepository.existsByDocenteCursoAula(docentexCursoDTO.getId(), docentexCursoDTO.getDocenteDTO().getId(), docentexCursoDTO.getCursoDTO().getId(), docentexCursoDTO.getAulaDTO().getId(), ConstantsGeneric.CREATED_STATUS ))
             throw new AttributeException("Asignatura ya existe");
-        ApiResponse<DocentexCursoDTO> apiResponse = new ApiResponse<>();
         DocentexCursoEntity docentexCursoEntity = this.docentexCursoRepository.findByUniqueIdentifier(docentexCursoDTO.getId()).orElseThrow(()-> new ResourceNotFoundException("DocentexCurso no existe"));
+
+        ApiResponse<DocentexCursoDTO> apiResponse = new ApiResponse<>();
         //Verifica que el id y el status sean válidos
         docentexCursoEntity.setUpdateAt(docentexCursoDTO.getUpdateAt());
         DocenteEntity docenteEntity = this.docenteRepository.findByUniqueIdentifier(docentexCursoDTO.getDocenteDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Docente no existe"));
@@ -119,9 +131,9 @@ public class DocentexCursoService {
     //Función para cambiar estado a eliminado- START
     //id dto=uniqueIdentifier Entity
     public ApiResponse<DocentexCursoDTO> delete(String id) throws ResourceNotFoundException {
-        ApiResponse<DocentexCursoDTO> apiResponse = new ApiResponse<>();
-        //Verifica que el id y el status sean válidos
         DocentexCursoEntity docentexCursoEntity=this.docentexCursoRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Asignatura no existe"));
+
+        ApiResponse<DocentexCursoDTO> apiResponse = new ApiResponse<>();
         docentexCursoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
         docentexCursoEntity.setDeleteAt(LocalDateTime.now());
         //eliminar lista de clases

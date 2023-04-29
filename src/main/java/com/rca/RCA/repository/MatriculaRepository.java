@@ -53,8 +53,11 @@ public interface MatriculaRepository extends JpaRepository<MatriculaEntity, Inte
     Optional<List<MatriculaEntity>> findMatricula(String status, String filter, Pageable pageable);
 
     //Función para obtener una matricula con su Identificado Único
-    Optional<MatriculaEntity> findByUniqueIdentifier(String uniqueIdentifier);
-    @Query(value = "SELECT l from AlumnoEntity al " +
+    @Query(value = "SELECT m FROM MatriculaEntity m " +
+            "WHERE m.uniqueIdentifier = :id " +
+            "AND m.status = :status ")
+    Optional<MatriculaEntity> findByUniqueIdentifier(String id, String status);
+    @Query(value = "SELECT count(l)>0 from AlumnoEntity al " +
             "JOIN al.matriculaEntities l " +
             "JOIN l.aulaEntity au " +
             "JOIN l.anio_lectivoEntity an " +
@@ -68,8 +71,8 @@ public interface MatriculaRepository extends JpaRepository<MatriculaEntity, Inte
             "AND au.uniqueIdentifier= :id_aula " +
             "AND al.uniqueIdentifier= :id_alumno " +
             "AND an.uniqueIdentifier= :id_anioLectivo " +
-            "ORDER BY au")
-    Optional<MatriculaEntity> findByAuAlAn(String id_aula, String id_alumno, String id_anioLectivo, String status);
+            "AND l.uniqueIdentifier != :id ")
+    boolean existsByAuAlAn(String id, String id_aula, String id_alumno, String id_anioLectivo, String status);
 
     @Query(value = "SELECT l from AulaEntity a " +
             "JOIN a.matriculaEntities l " +
@@ -111,34 +114,33 @@ public interface MatriculaRepository extends JpaRepository<MatriculaEntity, Inte
             "JOIN l.alumnoEntity al " +
             "JOIN l.aulaEntity au " +
             "JOIN au.docentexCursoEntities dc " +
-            "JOIN dc.docenteEntity d " +
-            "JOIN dc.cursoEntity c " +
-            "WHERE a=l.anio_lectivoEntity " +
-            "AND al=l.alumnoEntity " +
-            "AND au=l.aulaEntity " +
-            "AND au= dc.aulaEntity " +
-            "AND d= dc.docenteEntity " +
-            "AND c= dc.cursoEntity " +
-            "AND l.status = :status " +
+            "INNER JOIN dc.docenteEntity d " +
+            "INNER JOIN dc.cursoEntity c " +
+            "WHERE l.status = :status " +
+            "AND a.status = :status " +
+            "AND au.uniqueIdentifier = :id_aula " +
+            "AND al.uniqueIdentifier = :id_alumno " +
+            "AND a.uniqueIdentifier= :id_aniolectivo ")
+    Optional<List<DocenteEntity>> findDocentesdeCursosMatriculados(String id_alumno, String id_aniolectivo, String id_aula, String status);
+    @Query(value = "SELECT dc FROM AnioLectivoEntity a " +
+            "JOIN a.matriculaEntities l " +
+            "JOIN l.alumnoEntity al " +
+            "JOIN l.aulaEntity au " +
+            "JOIN au.docentexCursoEntities dc " +
+            "WHERE l.status = :status " +
             "AND a.status = :status " +
             "AND al.uniqueIdentifier = :id_alumno " +
             "AND a.uniqueIdentifier= :id_aniolectivo ")
-    Optional<List<DocenteEntity>> findDocentesdeCursosMatriculados(String id_alumno, String id_aniolectivo, String status);
+    Optional<List<DocentexCursoEntity>> findDocentexCursosMatriculados(String id_alumno, String id_aniolectivo, String status);
+
     @Query(value = "SELECT g FROM AnioLectivoEntity a " +
             "JOIN a.matriculaEntities l " +
             "JOIN l.alumnoEntity al " +
             "JOIN l.aulaEntity au " +
             "JOIN au.gradoEntity g " +
-            "JOIN au.seccionEntity s " +
-            "JOIN au.docentexCursoEntities dc " +
-            "JOIN dc.docenteEntity d " +
-            "JOIN dc.cursoEntity c " +
             "WHERE a=l.anio_lectivoEntity " +
             "AND al=l.alumnoEntity " +
             "AND au=l.aulaEntity " +
-            "AND au= dc.aulaEntity " +
-            "AND d= dc.docenteEntity " +
-            "AND c= dc.cursoEntity " +
             "AND l.status = :status " +
             "AND a.status = :status " +
             "AND al.uniqueIdentifier = :id_alumno " +
@@ -148,21 +150,26 @@ public interface MatriculaRepository extends JpaRepository<MatriculaEntity, Inte
             "JOIN a.matriculaEntities l " +
             "JOIN l.alumnoEntity al " +
             "JOIN l.aulaEntity au " +
-            "JOIN au.gradoEntity g " +
             "JOIN au.seccionEntity s " +
-            "JOIN au.docentexCursoEntities dc " +
-            "JOIN dc.docenteEntity d " +
-            "JOIN dc.cursoEntity c " +
             "WHERE a=l.anio_lectivoEntity " +
             "AND al=l.alumnoEntity " +
             "AND au=l.aulaEntity " +
-            "AND au= dc.aulaEntity " +
-            "AND d= dc.docenteEntity " +
-            "AND c= dc.cursoEntity " +
             "AND l.status = :status " +
             "AND a.status = :status " +
             "AND al.uniqueIdentifier = :id_alumno " +
             "AND a.uniqueIdentifier= :id_aniolectivo ")
     Optional<SeccionEntity> findSeccionMatriculado(String id_alumno, String id_aniolectivo, String status);
 
+    @Query(value = "SELECT au FROM AnioLectivoEntity a " +
+            "JOIN a.matriculaEntities l " +
+            "JOIN l.alumnoEntity al " +
+            "JOIN l.aulaEntity au " +
+            "WHERE a=l.anio_lectivoEntity " +
+            "AND al=l.alumnoEntity " +
+            "AND au=l.aulaEntity " +
+            "AND l.status = :status " +
+            "AND a.status = :status " +
+            "AND al.uniqueIdentifier = :id_alumno " +
+            "AND a.uniqueIdentifier= :id_aniolectivo ")
+    Optional<AulaEntity> findAulaMatriculado(String id_alumno, String id_aniolectivo, String status);
 }
