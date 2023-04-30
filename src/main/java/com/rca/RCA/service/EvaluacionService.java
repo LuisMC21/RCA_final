@@ -103,7 +103,7 @@ public class EvaluacionService {
         }
 
         //set Periodo
-        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(EvaluacionDTO.getPeriodoDTO().getId());
+        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(EvaluacionDTO.getPeriodoDTO().getId(), ConstantsGeneric.CREATED_STATUS);
         if (optionalAlumnoEntity.isEmpty()) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("PERIODO_NOT_EXISTS");
@@ -157,7 +157,7 @@ public class EvaluacionService {
         }
 
         //set Periodo
-        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(EvaluacionDTO.getPeriodoDTO().getId());
+        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(EvaluacionDTO.getPeriodoDTO().getId(), ConstantsGeneric.CREATED_STATUS);
         if (optionalAlumnoEntity.isEmpty()) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("PERIODO_NOT_EXISTS");
@@ -207,8 +207,8 @@ public class EvaluacionService {
 
     public ResponseEntity<Resource> exportBoletaNotas(String periodo, String anio, String alumno) {
         Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(alumno);
-        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(periodo);
-        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(anio);
+        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(periodo, ConstantsGeneric.CREATED_STATUS);
+        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(anio, ConstantsGeneric.CREATED_STATUS);
         if (optionalAlumnoEntity.isPresent() && optionalPeriodoEntity.isPresent()){
 
             List<Object[]> tuples = this.evaluacionRepository.findByAlumnoPeriodoAnio(alumno, anio, periodo);
@@ -269,9 +269,9 @@ public class EvaluacionService {
     }
 
     public ResponseEntity<Resource> exportNotas(String curso, String periodo, String anio) {
-        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(periodo);
-        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(anio);
-        Optional<CursoEntity> optionalCursoEntity = this.cursoRepository.findByUniqueIdentifier(curso);
+        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(periodo, ConstantsGeneric.CREATED_STATUS);
+        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(anio, ConstantsGeneric.CREATED_STATUS);
+        Optional<CursoEntity> optionalCursoEntity = this.cursoRepository.findByUniqueIdentifier(curso, ConstantsGeneric.CREATED_STATUS);
 
         if (optionalCursoEntity.isPresent() && optionalPeriodoEntity.isPresent() && optionalAnioLectivoEntity.isPresent()){
 

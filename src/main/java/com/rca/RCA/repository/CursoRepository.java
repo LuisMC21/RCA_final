@@ -27,8 +27,16 @@ public interface CursoRepository extends JpaRepository<CursoEntity, Integer> {
     Long findCountCurso(String status, String filter);
 
     //Función para obtener una sección con su Identificado Único
-    Optional<CursoEntity> findByUniqueIdentifier(String uniqueIdentifier);
+    @Query(value = "SELECT c FROM CursoEntity c " +
+            "WHERE c.uniqueIdentifier = :id " +
+            "AND c.status = :status")
+    Optional<CursoEntity> findByUniqueIdentifier(String id, String status);
 
     //Función para obtener una sección con su nombre
-    Optional<CursoEntity> findByName(String name);
+
+    @Query(value = "SELECT count(c)>0 FROM CursoEntity c " +
+            "WHERE c.uniqueIdentifier != :id " +
+            "AND c.status = :status " +
+            "AND c.name = :name ")
+    boolean existsByName(String name, String id, String status);
 }

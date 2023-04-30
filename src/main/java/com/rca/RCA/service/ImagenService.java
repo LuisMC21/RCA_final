@@ -128,6 +128,7 @@ public class ImagenService {
         ImagenEntity.setCode(code);
 
 
+
         ImagenEntity.setUsuarioEntity(usuarioEntity);
         apiResponse.setData(this.imagenRepository.save(ImagenEntity).getImagenDTO());
         apiResponse.setSuccessful(true);
@@ -160,7 +161,7 @@ public class ImagenService {
             ImagenEntity.setUpdateAt(ImagenDTO.getUpdateAt());
 
             //set rol
-            Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ImagenDTO.getUsuarioDTO().getId());
+            Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ImagenDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS);
             if (optionalUsuarioEntity.isEmpty()) {
                 apiResponse.setSuccessful(false);
                 apiResponse.setCode("USUARIO_NOT_EXISTS");

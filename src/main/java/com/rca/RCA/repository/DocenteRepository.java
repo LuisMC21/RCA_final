@@ -36,5 +36,8 @@ public interface DocenteRepository extends JpaRepository<DocenteEntity, Integer>
     Long findCountDocente(String status, String filter);
 
     //Función para obtener un docente con su Identificado Único
-    Optional<DocenteEntity> findByUniqueIdentifier(String uniqueIdentifier);
+    @Query(value = "SELECT d FROM DocenteEntity d " +
+            "WHERE d.uniqueIdentifier = :id " +
+            "AND d.status = :status ")
+    Optional<DocenteEntity> findByUniqueIdentifier(String id, String status);
 }

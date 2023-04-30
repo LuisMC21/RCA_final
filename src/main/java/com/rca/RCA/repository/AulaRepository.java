@@ -42,7 +42,10 @@ public interface AulaRepository extends JpaRepository<AulaEntity, Integer> {
     Optional<List<AulaEntity>> findAula(String status, String filter, Pageable pageable);
 
     //Función para obtener un aula con su Identificado Único
-    Optional<AulaEntity> findByUniqueIdentifier(String uniqueIdentifier);
+    @Query(value = "SELECT a FROM AulaEntity a " +
+            "WHERE a.uniqueIdentifier= :id " +
+            "AND a.status= :status ")
+    Optional<AulaEntity> findByUniqueIdentifier(String id, String status);
 
     @Query(value = "SELECT x from GradoEntity g " +
             "JOIN g.aulaEntities x " +
@@ -69,28 +72,29 @@ public interface AulaRepository extends JpaRepository<AulaEntity, Integer> {
             "AND x.status= :status ")
     Optional<AulaEntity> findByGradoYSeccion(Integer id_grado, Integer id_seccion, String status);
 
+    @Query(value = "SELECT count(x)>0 from GradoEntity g " +
+            "JOIN g.aulaEntities x " +
+            "JOIN x.seccionEntity s " +
+            "WHERE g=x.gradoEntity " +
+            "AND g.uniqueIdentifier= :id_grado " +
+            "AND s.uniqueIdentifier= :id_seccion " +
+            "AND x.uniqueIdentifier != :id " +
+            "AND x.status= :status ")
+    boolean existsByGradoYSeccion(String id_grado, String id_seccion, String status, String id);
 
-    @Query(value = "SELECT al " +
-            "from AulaEntity a " +
+    @Query(value = "SELECT al FROM AulaEntity a " +
             "JOIN a.matriculaEntities m " +
             "JOIN m.alumnoEntity al " +
             "JOIN m.anio_lectivoEntity an " +
-            "JOIN al.apoderadoEntity ap " +
             "JOIN al.usuarioEntity ua " +
-            "WHERE a=m.aulaEntity " +
-            "AND al= m.alumnoEntity " +
-            "AND ap= al.apoderadoEntity " +
-            "AND ua= al.usuarioEntity " +
-            "AND an= m.anio_lectivoEntity " +
-            "AND a.uniqueIdentifier= :id_aula " +
-            "AND an.uniqueIdentifier= :anio_lectivo " +
+            "WHERE a.uniqueIdentifier= :id_aula " +
+            "AND an.uniqueIdentifier= :idAl " +
             "AND a.status= :status " +
             "AND m.status= :status " +
             "AND al.status= :status " +
-            "AND ap.status= :status " +
             "AND ua.status= :status " +
             "AND an.status= :status ")
-    Optional<List<AlumnoEntity>> findAlumnosxAula(String id_aula, String anio_lectivo, String status);
+    Optional<List<AlumnoEntity>> findAlumnosxAula(String id_aula, String idAl, String status);
     @Query(value = "SELECT ap " +
             "from AulaEntity a " +
             "JOIN a.matriculaEntities m " +

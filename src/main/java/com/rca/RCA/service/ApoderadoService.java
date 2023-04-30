@@ -75,7 +75,7 @@ public class ApoderadoService {
         ApoderadoEntity.setApoderadoDTO(ApoderadoDTO);
 
         //set usaurio
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ApoderadoDTO.getUsuarioDTO().getId());
+        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ApoderadoDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS);
         if (optionalUsuarioEntity.isEmpty()) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("ROL_NOT_EXISTS");
@@ -118,7 +118,7 @@ public class ApoderadoService {
         ApoderadoEntity.setUpdateAt(LocalDateTime.now());
 
         //set rol
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ApoderadoDTO.getUsuarioDTO().getId());
+        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ApoderadoDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS);
         if (optionalUsuarioEntity.isEmpty()) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("USUARIO_NOT_EXISTS");

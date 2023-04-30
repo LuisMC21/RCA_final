@@ -122,6 +122,7 @@ public class NoticiaService {
         NoticiaEntity.setNoticiaDTO(NoticiaDTO);
 
 
+
         NoticiaEntity.setUsuarioEntity(usuarioEntity);
         apiResponse.setData(this.noticiaRepository.save(NoticiaEntity).getNoticiaDTO());
         apiResponse.setSuccessful(true);
@@ -161,7 +162,7 @@ public class NoticiaService {
         NoticiaEntity.setUpdateAt(LocalDateTime.now());
 
         //set usuario
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(noticiaDTO.getUsuarioDTO().getId());
+        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(noticiaDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS);
         if (optionalUsuarioEntity.isEmpty()) {
             apiResponse.setSuccessful(false);
             apiResponse.setCode("USUARIO_NOT_EXISTS");

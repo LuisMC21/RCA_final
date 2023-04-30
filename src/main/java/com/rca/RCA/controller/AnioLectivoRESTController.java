@@ -4,6 +4,9 @@ import com.rca.RCA.service.AnioLectivoService;
 import com.rca.RCA.type.AnioLectivoDTO;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
+import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,19 +28,22 @@ public class AnioLectivoRESTController {
             @RequestParam(defaultValue = "10") int size){
         return this.anioLectivoService.getList(filter, page, size);
     }
-
+    @GetMapping("{id}")
+    public ApiResponse<AnioLectivoDTO> one(@PathVariable String id) throws ResourceNotFoundException {
+        return this.anioLectivoService.one(id);
+    }
     @PostMapping
-    public ApiResponse<AnioLectivoDTO> add(@RequestBody AnioLectivoDTO anioLectivoDTO){
+    public ApiResponse<AnioLectivoDTO> add(@RequestBody @Valid AnioLectivoDTO anioLectivoDTO) throws ResourceNotFoundException, AttributeException {
         return this.anioLectivoService.add(anioLectivoDTO);
     }
 
     @PutMapping
-    public ApiResponse<AnioLectivoDTO> update(@RequestBody AnioLectivoDTO anioLectivoDTO){
+    public ApiResponse<AnioLectivoDTO> update(@RequestBody @Valid AnioLectivoDTO anioLectivoDTO) throws ResourceNotFoundException, AttributeException {
         return this.anioLectivoService.update(anioLectivoDTO);
     }
 
     @DeleteMapping("{id}")
-    public ApiResponse<AnioLectivoDTO> delete(@PathVariable String id){
+    public ApiResponse<AnioLectivoDTO> delete(@PathVariable String id) throws ResourceNotFoundException {
         return this.anioLectivoService.delete(id);
     }
 }

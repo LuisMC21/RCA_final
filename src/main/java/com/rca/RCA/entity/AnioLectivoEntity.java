@@ -1,6 +1,7 @@
 package com.rca.RCA.entity;
 
 import com.rca.RCA.type.AnioLectivoDTO;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import jakarta.persistence.*;

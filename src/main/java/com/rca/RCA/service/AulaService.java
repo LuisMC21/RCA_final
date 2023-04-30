@@ -6,6 +6,8 @@ import com.rca.RCA.repository.*;
 import com.rca.RCA.type.*;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
+import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanArrayDataSource;
@@ -73,206 +75,145 @@ public class AulaService {
     }
 
     //Función para listar aulas-END
+    //Función para obtener un aula con ID- START
+    public ApiResponse<AulaDTO> one(String id) throws ResourceNotFoundException {
+        AulaEntity aulaEntity = this.aulaRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Aula no existe para eliminar"));
+        ApiResponse<AulaDTO> apiResponse = new ApiResponse<>();
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(aulaEntity.getAulaDTO());
+        return apiResponse;
+    }
+    //Función para obtener un aula con ID- END
+
+
     //Función para agregar un aula- START
-    public ApiResponse<AulaDTO> add(AulaDTO aulaDTO) {
+    public ApiResponse<AulaDTO> add(AulaDTO aulaDTO) throws ResourceNotFoundException, AttributeException {
+        //Excepciones
+        if(aulaRepository.existsByGradoYSeccion(aulaDTO.getGradoDTO().getId(), aulaDTO.getSeccionDTO().getId(), ConstantsGeneric.CREATED_STATUS,""))
+            throw new AttributeException("El aula ya existe");
+
         log.info("Grado Seccion {} {}", aulaDTO.getGradoDTO().getId(), aulaDTO.getSeccionDTO().getId());
         ApiResponse<AulaDTO> apiResponse = new ApiResponse<>();
         AulaEntity aulaEntity = new AulaEntity();
-        Optional<GradoEntity> optionalGradoEntity = this.gradoRepository.findByUniqueIdentifier(aulaDTO.getGradoDTO().getId(), ConstantsGeneric.CREATED_STATUS);
-        Optional<SeccionEntity> optionalSeccionEntity = this.seccionRepository.findByUniqueIdentifier(aulaDTO.getSeccionDTO().getId());
-        if (optionalGradoEntity.isPresent() &&
-                optionalSeccionEntity.isPresent()
-                && this.aulaRepository.findByGradoYSeccion(optionalGradoEntity.get().getId(), optionalSeccionEntity.get().getId(), ConstantsGeneric.CREATED_STATUS).isEmpty()
-                && optionalGradoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)
-                && optionalSeccionEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
-            //Update in database
-            aulaEntity.setCode(Code.generateCode(Code.CLASSROOM_CODE, this.aulaRepository.count() + 1, Code.CLASSROOM_LENGTH));
-            aulaEntity.setGradoEntity(optionalGradoEntity.get());
-            aulaEntity.setSeccionEntity(optionalSeccionEntity.get());
-            aulaEntity.setUniqueIdentifier(UUID.randomUUID().toString());
-            aulaEntity.setStatus(ConstantsGeneric.CREATED_STATUS);
-            aulaEntity.setCreateAt(LocalDateTime.now());
-            apiResponse.setSuccessful(true);
-            apiResponse.setMessage("ok");
-            apiResponse.setData(this.aulaRepository.save(aulaEntity).getAulaDTO());
-            return apiResponse;
-
-        } else {
-            log.warn("No se completó el registro");
-
-            if (optionalGradoEntity.isEmpty() || optionalGradoEntity.get().getStatus().equals(ConstantsGeneric.DELETED_STATUS)) {
-                apiResponse.setCode("GRADE_DOES_NOT_EXISTS");
-            }
-            if (optionalSeccionEntity.isEmpty() || optionalSeccionEntity.get().getStatus().equals(ConstantsGeneric.DELETED_STATUS)) {
-                apiResponse.setCode("SECTION_DOES_NOT_EXISTS");
-            }
-            if (optionalGradoEntity.isPresent() && optionalSeccionEntity.isPresent()) {
-                if (this.aulaRepository.findByGradoYSeccion(optionalGradoEntity.get().getId(), optionalSeccionEntity.get().getId(), ConstantsGeneric.CREATED_STATUS).isPresent()) {
-                    apiResponse.setCode("CLASSROOM_EXISTS");
-                }
-            }
-
-            apiResponse.setMessage("No se pudo registrar la sección en el grado");
-        }
+        GradoEntity gradoEntity = this.gradoRepository.findByUniqueIdentifier(aulaDTO.getGradoDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Grado no existe"));
+        SeccionEntity seccionEntity = this.seccionRepository.findByUniqueIdentifier(aulaDTO.getSeccionDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Sección no existe"));
+        //Update in database
+        aulaEntity.setCode(Code.generateCode(Code.CLASSROOM_CODE, this.aulaRepository.count() + 1, Code.CLASSROOM_LENGTH));
+        aulaEntity.setGradoEntity(gradoEntity);
+        aulaEntity.setSeccionEntity(seccionEntity);
+        aulaEntity.setUniqueIdentifier(UUID.randomUUID().toString());
+        aulaEntity.setStatus(ConstantsGeneric.CREATED_STATUS);
+        aulaEntity.setCreateAt(LocalDateTime.now());
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(this.aulaRepository.save(aulaEntity).getAulaDTO());
         return apiResponse;
     }
     //Función para agregar un aula- END
 
     //Función para actualizar un aula-START
-    public ApiResponse<AulaDTO> update(AulaDTO aulaDTO) {
+    public ApiResponse<AulaDTO> update(AulaDTO aulaDTO) throws AttributeException, ResourceNotFoundException {
+        //Excepciones
+        if(aulaDTO.getId().isBlank())
+            throw new ResourceNotFoundException("El aula no existe");
+        if(aulaRepository.existsByGradoYSeccion(aulaDTO.getGradoDTO().getId(), aulaDTO.getSeccionDTO().getId(), ConstantsGeneric.CREATED_STATUS,aulaDTO.getId()))
+            throw new AttributeException("El aula ya existe");
         ApiResponse<AulaDTO> apiResponse = new ApiResponse<>();
-        if (!aulaDTO.getId().isEmpty()) {
-            Optional<AulaEntity> optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(aulaDTO.getId());
-            //Verifica que el id y el status sean válidos
-            if (optionalAulaEntity.isPresent()
-                    && optionalAulaEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
-                Optional<GradoEntity> optionalGradoEntity = Optional.empty();
-                Optional<SeccionEntity> optionalSeccionEntity = Optional.empty();
-                if (aulaDTO.getGradoDTO().getId() != null) {
-                    optionalGradoEntity = this.gradoRepository.findByUniqueIdentifier(aulaDTO.getGradoDTO().getId(), ConstantsGeneric.CREATED_STATUS);
-                }
-                if (aulaDTO.getSeccionDTO().getId() != null) {
-                    optionalSeccionEntity = this.seccionRepository.findByUniqueIdentifier(aulaDTO.getSeccionDTO().getId());
-                }
-                //Set update data
-                if (optionalGradoEntity.isPresent() && optionalGradoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
-                    optionalAulaEntity.get().setGradoEntity(optionalGradoEntity.get());
-                } else {
-                    log.warn("No se actualizó el registro");
-                    apiResponse.setSuccessful(false);
-                    apiResponse.setMessage("Grado no existente, no se puede actualizar");
-                    apiResponse.setCode("GRADE_DOES_NOT_EXISTS");
-                    return apiResponse;
-                }
-                if (optionalSeccionEntity.isPresent() && optionalSeccionEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
-                    optionalAulaEntity.get().setSeccionEntity(optionalSeccionEntity.get());
-                } else {
-                    log.warn("No se actualizó el registro");
-                    apiResponse.setSuccessful(false);
-                    apiResponse.setMessage("Sección no existente, no se puede actualizar");
-                    apiResponse.setCode("SECTION_DOES_NOT_EXISTS");
-                    return apiResponse;
-                }
-                if (this.aulaRepository.findByGradoYSeccion(optionalAulaEntity.get().getGradoEntity().getId(), optionalAulaEntity.get().getSeccionEntity().getId(), ConstantsGeneric.CREATED_STATUS).isPresent()
-                        && this.aulaRepository.findByGradoYSeccion(optionalAulaEntity.get().getGradoEntity().getId(), optionalAulaEntity.get().getSeccionEntity().getId(), ConstantsGeneric.CREATED_STATUS).get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
-                    log.warn("No se actualizó el registro");
-                    apiResponse.setSuccessful(false);
-                    apiResponse.setMessage("Aula ya existente, no se puede actualizar");
-                    apiResponse.setCode("CLASSROOM_EXISTS");
-                    return apiResponse;
-                }
-                optionalAulaEntity.get().setUpdateAt(LocalDateTime.now());
-                //Update in database
-                apiResponse.setSuccessful(true);
-                apiResponse.setMessage("ok");
-                apiResponse.setData(this.aulaRepository.save(optionalAulaEntity.get()).getAulaDTO());
-            } else {
-                log.warn("No se actualizó el registro");
-                apiResponse.setSuccessful(false);
-                apiResponse.setMessage("No existe el aula para poder actualizar");
-                apiResponse.setCode("CLASSROOM_DOES_NOT_EXISTS");
-            }
-            return apiResponse;
-        }
-        log.warn("No se actualizó el registro");
-        apiResponse.setSuccessful(false);
-        apiResponse.setMessage("No existe el aula para poder actualizar");
-        apiResponse.setCode("CLASSROOM_DOES_NOT_EXISTS");
-        return apiResponse;
+        AulaEntity aulaEntity = this.aulaRepository.findByUniqueIdentifier(aulaDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("El aula no existe"));
+        GradoEntity gradoEntity = this.gradoRepository.findByUniqueIdentifier(aulaDTO.getGradoDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Grado no existe"));
+        SeccionEntity seccionEntity = this.seccionRepository.findByUniqueIdentifier(aulaDTO.getSeccionDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Sección no existe"));
+        //Set update data
+        aulaEntity.setGradoEntity(gradoEntity);
+        aulaEntity.setSeccionEntity(seccionEntity);
+        aulaEntity.setUpdateAt(LocalDateTime.now());
+        //Update in database
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(this.aulaRepository.save(aulaEntity).getAulaDTO());
+         return apiResponse;
     }
     //Función para actualizar un aula-END
 
     //Función para cambiar estado a eliminado- START
     //id dto=uniqueIdentifier Entity
-    public ApiResponse<AulaDTO> delete(String id) {
+    public ApiResponse<AulaDTO> delete(String id) throws ResourceNotFoundException {
         ApiResponse<AulaDTO> apiResponse = new ApiResponse<>();
         //Verifica que el id y el status sean válidos
-        Optional<AulaEntity> optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(id);
-        if (optionalAulaEntity.isPresent() && optionalAulaEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
-            AulaEntity aulaEntity = optionalAulaEntity.get();
-            aulaEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
-            aulaEntity.setDeleteAt(LocalDateTime.now());
+        AulaEntity aulaEntity = this.aulaRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Aula no existe para eliminar"));
+        aulaEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
+        aulaEntity.setDeleteAt(LocalDateTime.now());
 
-            //Eliminar lista de matriculas del aula
-            Optional<List<MatriculaEntity>> optionalMatriculaEntities = this.matriculaRepository.findByAula(aulaEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
-            for (int i = 0; i < optionalMatriculaEntities.get().size(); i++) {
-                optionalMatriculaEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-                optionalMatriculaEntities.get().get(i).setDeleteAt(aulaEntity.getDeleteAt());
-                this.matriculaService.delete(optionalMatriculaEntities.get().get(i).getCode());
-            }
-
-            Optional<List<DocentexCursoEntity>> optionalDocentexCursoEntities = this.docentexCursoRepository.findByAula(aulaEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
-            for (int i = 0; i < optionalDocentexCursoEntities.get().size(); i++) {
-                optionalDocentexCursoEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-                optionalDocentexCursoEntities.get().get(i).setDeleteAt(aulaEntity.getDeleteAt());
-                this.docentexCursoService.delete(optionalDocentexCursoEntities.get().get(i).getCode());
-            }
-
-            apiResponse.setSuccessful(true);
-            apiResponse.setMessage("ok");
-            apiResponse.setData(this.aulaRepository.save(aulaEntity).getAulaDTO());
-        } else {
-            log.warn("No se eliminó el registro");
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("CLASSROOM_DOES_NOT_EXISTS");
-            apiResponse.setMessage("No existe el aula para poder eliminar");
+        //Eliminar lista de matriculas del aula
+        Optional<List<MatriculaEntity>> optionalMatriculaEntities = this.matriculaRepository.findByAula(aulaEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
+        for (int i = 0; i < optionalMatriculaEntities.get().size(); i++) {
+            optionalMatriculaEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+            optionalMatriculaEntities.get().get(i).setDeleteAt(aulaEntity.getDeleteAt());
+            this.matriculaService.delete(optionalMatriculaEntities.get().get(i).getUniqueIdentifier());
         }
+        Optional<List<DocentexCursoEntity>> optionalDocentexCursoEntities = this.docentexCursoRepository.findByAula(aulaEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
+        System.out.println("1");
+
+        for (int i = 0; i < optionalDocentexCursoEntities.get().size(); i++) {
+            System.out.println("2");
+
+            optionalDocentexCursoEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+            optionalDocentexCursoEntities.get().get(i).setDeleteAt(aulaEntity.getDeleteAt());
+            this.docentexCursoService.delete(optionalDocentexCursoEntities.get().get(i).getUniqueIdentifier());
+        }
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(this.aulaRepository.save(aulaEntity).getAulaDTO());
         return apiResponse;
     }
 
     @NotNull
-    public ResponseEntity<Resource> exportListApoderados(String id_aula, String id_aniolectivo) {
+    public ResponseEntity<Resource> exportListApoderados(String id_aula, String id_aniolectivo) throws ResourceNotFoundException {
         log.info("id_aula {}", id_aula);
-        Optional<AulaEntity> optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(id_aula);
-        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(id_aniolectivo);
-        if (optionalAulaEntity.isPresent() && (optionalAulaEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) &&
-                optionalAnioLectivoEntity.isPresent() && optionalAulaEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) {
-            try {
-                final AulaEntity aulaEntity = optionalAulaEntity.get();
-                final File file = ResourceUtils.getFile("classpath:reportes/lista_apoderados.jasper"); //la ruta del reporte
-                final File imgLogo = ResourceUtils.getFile("classpath:images/logoC.jpg"); //Ruta de la imagen
-                final JasperReport report = (JasperReport) JRLoader.loadObject(file);
-                //Se consultan los datos para el reporte de apoderados DTO
-                Optional<List<AlumnoEntity>> optionalAlumnoDTOS = this.aulaRepository.findAlumnosxAula(id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
-                Optional<List<ApoderadoEntity>> optionalApoderadoDTOS = this.aulaRepository.findApoderadosxAula(id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
-                //Se agregan los datos para ReporteApoderadosDTO
-                List<ReporteApoderadosDTO> reporteApoderadosDTOList= new ArrayList<>();
-                for (int i = 0; i < optionalAlumnoDTOS.get().size(); i++) {
-                    ReporteApoderadosDTO reporteApoderadosDTO = new ReporteApoderadosDTO();
-                    reporteApoderadosDTO.setAlumnoDTO(optionalAlumnoDTOS.get().get(i).getAlumnoDTO());
-                    reporteApoderadosDTO.setApoderadoDTO(optionalApoderadoDTOS.get().get(i).getApoderadoDTO());
-                    reporteApoderadosDTOList.add(reporteApoderadosDTO);
-                }
+        AulaEntity aulaEntity = this.aulaRepository.findByUniqueIdentifier(id_aula, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Aula no existe"));
+        AnioLectivoEntity anioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Aula no existe"));
+        try {
+            final File file = ResourceUtils.getFile("classpath:reportes/lista_apoderados.jasper"); //la ruta del reporte
+            final File imgLogo = ResourceUtils.getFile("classpath:images/logoC.jpg"); //Ruta de la imagen
+            final JasperReport report = (JasperReport) JRLoader.loadObject(file);
+            //Se consultan los datos para el reporte de apoderados DTO
+            List<AlumnoEntity> alumnoEntities = this.aulaRepository.findAlumnosxAula(id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("No contiene alumnos"));
 
-                //Se llenan los parámetros del reporte
-                final HashMap<String, Object> parameters = new HashMap<>();
-                parameters.put("logoEmpresa", new FileInputStream(imgLogo));
-                parameters.put("grado", aulaEntity.getAulaDTO().getGradoDTO().getName().toString());
-                parameters.put("seccion", aulaEntity.getAulaDTO().getSeccionDTO().getName().toString());
-                parameters.put("año", optionalAnioLectivoEntity.get().getName());
-                parameters.put("dsLA", new JRBeanArrayDataSource(reporteApoderadosDTOList.toArray()));
-
-                //Se imprime el reporte
-                JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
-                byte [] reporte = JasperExportManager.exportReportToPdf(jasperPrint);
-                String sdf = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
-                StringBuilder stringBuilder = new StringBuilder().append("ApoderadosPDF:");
-                ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
-                        .filename(stringBuilder
-                                .append(aulaEntity.getCode())
-                                .append("generateDate:").append(sdf)
-                                .append(".pdf").toString())
-                        .build();
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentDisposition(contentDisposition);
-                return ResponseEntity.ok().contentLength((long) reporte.length)
-                        .contentType(MediaType.APPLICATION_PDF)
-                        .headers(headers).body(new ByteArrayResource(reporte));
-            } catch (Exception e) {
-                e.printStackTrace();
+            //Se agregan los datos para ReporteApoderadosDTO
+            List<ReporteApoderadosDTO> reporteApoderadosDTOList= new ArrayList<>();
+            for (int i = 0; i < alumnoEntities.size(); i++) {
+                ReporteApoderadosDTO reporteApoderadosDTO = new ReporteApoderadosDTO();
+                reporteApoderadosDTO.setAlumnoDTO(alumnoEntities.get(i).getAlumnoDTO());
+                reporteApoderadosDTO.setApoderadoDTO(alumnoEntities.get(i).getApoderadoEntity().getApoderadoDTO());
+                reporteApoderadosDTOList.add(reporteApoderadosDTO);
             }
-        }else{
-            return ResponseEntity.noContent().build();//Reporte no encontrado
+
+            //Se llenan los parámetros del reporte
+            final HashMap<String, Object> parameters = new HashMap<>();
+            parameters.put("logoEmpresa", new FileInputStream(imgLogo));
+            parameters.put("grado", aulaEntity.getAulaDTO().getGradoDTO().getName().toString());
+            parameters.put("seccion", aulaEntity.getAulaDTO().getSeccionDTO().getName().toString());
+            parameters.put("año", anioLectivoEntity.getName());
+            parameters.put("dsLA", new JRBeanArrayDataSource(reporteApoderadosDTOList.toArray()));
+
+            //Se imprime el reporte
+            JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
+            byte [] reporte = JasperExportManager.exportReportToPdf(jasperPrint);
+            String sdf = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
+            StringBuilder stringBuilder = new StringBuilder().append("ApoderadosPDF:");
+            ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
+                    .filename(stringBuilder
+                            .append(aulaEntity.getCode())
+                            .append("generateDate:").append(sdf)
+                            .append(".pdf").toString())
+                    .build();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentDisposition(contentDisposition);
+            return ResponseEntity.ok().contentLength((long) reporte.length)
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .headers(headers).body(new ByteArrayResource(reporte));
+        } catch (Exception e) {
+            new ResourceNotFoundException("Lista no encontrada");
         }
         return null;
     }

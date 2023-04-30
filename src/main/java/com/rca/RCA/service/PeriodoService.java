@@ -13,6 +13,9 @@ import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.PeriodoDTO;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
+import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -62,121 +65,91 @@ public class PeriodoService {
     }
     //Función para listar periodos con paginación-END
 
-    //Función para agregar periodo-START
-    public ApiResponse<PeriodoDTO> add(PeriodoDTO periodoDTO){
+    //Función para obtener un periodo con id-START
+    public ApiResponse<PeriodoDTO> one(String id) throws ResourceNotFoundException {
+        PeriodoEntity periodoEntity=this.periodoRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Periodo no existe"));
         ApiResponse<PeriodoDTO> apiResponse = new ApiResponse<>();
-        Optional<AnioLectivoEntity> optionalAnioLectivoEntity= this.anioLectivoRepository.findByUniqueIdentifier(periodoDTO.getAnio_lectivoDTO().getId());
-        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByName(periodoDTO.getAnio_lectivoDTO().getId(),periodoDTO.getName(), ConstantsGeneric.CREATED_STATUS);
-        if (optionalPeriodoEntity.isEmpty() && optionalAnioLectivoEntity.isPresent()) {
-            periodoDTO.setId(UUID.randomUUID().toString());
-            periodoDTO.setCode(Code.generateCode(Code.PERIOD_CODE, this.periodoRepository.count() + 1, Code.PERIOD_LENGTH));
-            periodoDTO.setAnio_lectivoDTO(optionalAnioLectivoEntity.get().getAnioLectivoDTO());
-            periodoDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
-            periodoDTO.setCreateAt(LocalDateTime.now());
-
-            //change DTO to entity
-            PeriodoEntity periodoEntity =new PeriodoEntity();
-            periodoEntity.setPeriodoDTO(periodoDTO);
-            periodoEntity.setAnio_lectivoEntity(optionalAnioLectivoEntity.get());
-            apiResponse.setData(this.periodoRepository.save(periodoEntity).getPeriodoDTO());
-            apiResponse.setSuccessful(true);
-            apiResponse.setMessage("ok");
-            log.info("Registro exitoso");
-            return apiResponse;
-        }
-        if(optionalPeriodoEntity.isPresent()){
-            apiResponse.setCode("PERIOD_EXISTS");
-            apiResponse.setMessage("No se registró, el periodo existe");
-        }
-        if(optionalAnioLectivoEntity.isEmpty()){
-            apiResponse.setCode("SCHOOL_YEAR_DOES_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el año lectivo no existe");
-        }
-        log.warn("No se agregó el registro");
-        apiResponse.setSuccessful(false);
+        apiResponse.setData(periodoEntity.getPeriodoDTO());
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
         return apiResponse;
+    }
+    //Función para obtener un periodo con id-END
 
+    //Función para agregar periodo-START
+    public ApiResponse<PeriodoDTO> add(PeriodoDTO periodoDTO) throws ResourceNotFoundException, AttributeException {
+        //Excepciones
+        if(periodoRepository.existsByName("", periodoDTO.getAnio_lectivoDTO().getId(), periodoDTO.getName(), ConstantsGeneric.CREATED_STATUS))
+            throw new AttributeException("El periodo ya existe");
+        ApiResponse<PeriodoDTO> apiResponse = new ApiResponse<>();
+        AnioLectivoEntity anioLectivoEntity= this.anioLectivoRepository.findByUniqueIdentifier(periodoDTO.getAnio_lectivoDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(() -> new ResourceNotFoundException("Año lectivo no existe"));
+
+        PeriodoEntity periodoEntity = new PeriodoEntity();
+        periodoDTO.setId(UUID.randomUUID().toString());
+        periodoDTO.setCode(Code.generateCode(Code.PERIOD_CODE, this.periodoRepository.count() + 1, Code.PERIOD_LENGTH));
+        periodoDTO.setAnio_lectivoDTO(anioLectivoEntity.getAnioLectivoDTO());
+        periodoDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
+        periodoDTO.setCreateAt(LocalDateTime.now());
+        //change DTO to entity
+        periodoEntity.setPeriodoDTO(periodoDTO);
+        periodoEntity.setAnio_lectivoEntity(anioLectivoEntity);
+        apiResponse.setData(this.periodoRepository.save(periodoEntity).getPeriodoDTO());
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
     }
     //Función para agregar periodo-END
 
     //Función para actualizar periodo-START
-    public ApiResponse<PeriodoDTO> update(PeriodoDTO periodoDTO){
+    public ApiResponse<PeriodoDTO> update(PeriodoDTO periodoDTO) throws ResourceNotFoundException, AttributeException {
+        //Excepciones
+        if(periodoDTO.getId().isBlank())
+            throw new ResourceNotFoundException("Periodo no existe");
+        if(periodoRepository.existsByName(periodoDTO.getId(), periodoDTO.getAnio_lectivoDTO().getId(), periodoDTO.getName(), ConstantsGeneric.CREATED_STATUS))
+            throw new AttributeException("Periodo ya existe");
+
         ApiResponse<PeriodoDTO> apiResponse = new ApiResponse<>();
-        Optional<PeriodoEntity> optionalPeriodoEntity=this.periodoRepository.findByName(periodoDTO.getAnio_lectivoDTO().getId(),periodoDTO.getName(), ConstantsGeneric.CREATED_STATUS);
-        //Verifica que el nombre no exista
-        if(optionalPeriodoEntity.isEmpty()) {
-            optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(periodoDTO.getId());
-            //Verifica que el id y el status sean válidos
-            if (optionalPeriodoEntity.isPresent() && optionalPeriodoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
-                periodoDTO.setUpdateAt(LocalDateTime.now());
-                PeriodoEntity periodoEntity = optionalPeriodoEntity.get();
-                //Set update data
-                if (periodoDTO.getCode() != null) {
-                    periodoEntity.setCode(periodoDTO.getCode());
-                }
-                if (periodoDTO.getName() != null) {
-                    periodoEntity.setName(periodoDTO.getName());
-                }
-                if (periodoDTO.getDate_start() != null) {
-                    periodoEntity.setDate_start(periodoDTO.getDate_start());
-                }
-                if (periodoDTO.getDate_end() != null) {
-                    periodoEntity.setDate_end(periodoDTO.getDate_end());
-                }
-                periodoEntity.setUpdateAt(periodoDTO.getUpdateAt());
-                //Update in database
-                apiResponse.setSuccessful(true);
-                apiResponse.setMessage("ok");
-                apiResponse.setData(this.periodoRepository.save(periodoEntity).getPeriodoDTO());
-                return apiResponse;
-            } else{
-                apiResponse.setMessage("No existe el periodo para poder actualizar");
-                apiResponse.setCode("PERIOD_DOES_NOT_EXISTS");
-            }
-        } else{
-            apiResponse.setMessage("No se puedo actualizar, periodo existente");
-            apiResponse.setCode("PERIOD_EXISTS");
-        }
-        log.warn("No se actualizó el registro");
-        apiResponse.setSuccessful(false);
+        PeriodoEntity periodoEntity = this.periodoRepository.findByUniqueIdentifier(periodoDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Periodo no existe"));
+        periodoDTO.setUpdateAt(LocalDateTime.now());
+        //Set update data
+        periodoEntity.setName(periodoDTO.getName());
+        periodoEntity.setDate_start(periodoDTO.getDate_start());
+        periodoEntity.setDate_end(periodoDTO.getDate_end());
+        periodoEntity.setUpdateAt(periodoDTO.getUpdateAt());
+        //Update in database
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(this.periodoRepository.save(periodoEntity).getPeriodoDTO());
         return apiResponse;
     }
     //Función para actualizar periodo-END
 
     //Función para cambiar estado a eliminado- START
     //id dto=uniqueIdentifier Entity
-    public ApiResponse<PeriodoDTO> delete(String id){
+    @Transactional
+    public ApiResponse<PeriodoDTO> delete(String id) throws ResourceNotFoundException {
+        PeriodoEntity periodoEntity=this.periodoRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Periodo no existe"));
         ApiResponse<PeriodoDTO> apiResponse = new ApiResponse<>();
         //Verifica que el id y el status sean válidos
-        Optional<PeriodoEntity> optionalPeriodoEntity=this.periodoRepository.findByUniqueIdentifier(id);
-        if(optionalPeriodoEntity.isPresent()){
-            PeriodoEntity periodoEntity =optionalPeriodoEntity.get();
-            periodoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
-            periodoEntity.setDeleteAt(LocalDateTime.now());
-            //eliminar lista de clases
-            Optional<List<ClaseEntity>> optionalClaseEntities= this.claseRepository.findById_Periodo(periodoEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
-            for(int i=0; i<optionalClaseEntities.get().size(); i++){
-                optionalClaseEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-                optionalClaseEntities.get().get(i).setDeleteAt(periodoEntity.getDeleteAt());
-                this.claseService.delete(optionalClaseEntities.get().get(i).getCode());
-            }
-            //eliminar lista de evaluaciones
-            Optional<List<EvaluacionEntity>> optionalEvaluacionEntities= this.evaluacionRepository.findById_Periodo(periodoEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
-            for(int i=0; i<optionalEvaluacionEntities.get().size(); i++){
-                optionalEvaluacionEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-                optionalEvaluacionEntities.get().get(i).setDeleteAt(periodoEntity.getDeleteAt());
-                this.claseService.delete(optionalEvaluacionEntities.get().get(i).getCode());
-            }
-
-            apiResponse.setSuccessful(true);
-            apiResponse.setMessage("ok");
-            apiResponse.setData(this.periodoRepository.save(periodoEntity).getPeriodoDTO());
-        } else{
-            log.warn("No se eliminó el registro");
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("PERIOD_DOES_NOT_EXISTS");
-            apiResponse.setMessage("No existe el periodo para poder eliminar");
+        periodoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
+        periodoEntity.setDeleteAt(LocalDateTime.now());
+        //eliminar lista de clases
+        Optional<List<ClaseEntity>> optionalClaseEntities= this.claseRepository.findById_Periodo(periodoEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
+        for(int i=0; i<optionalClaseEntities.get().size(); i++){
+            optionalClaseEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+            optionalClaseEntities.get().get(i).setDeleteAt(periodoEntity.getDeleteAt());
+            this.claseService.delete(optionalClaseEntities.get().get(i).getCode());
         }
+        //eliminar lista de evaluaciones
+        Optional<List<EvaluacionEntity>> optionalEvaluacionEntities= this.evaluacionRepository.findById_Periodo(periodoEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
+        for(int i=0; i<optionalEvaluacionEntities.get().size(); i++){
+            optionalEvaluacionEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+            optionalEvaluacionEntities.get().get(i).setDeleteAt(periodoEntity.getDeleteAt());
+            this.claseService.delete(optionalEvaluacionEntities.get().get(i).getCode());
+        }
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(this.periodoRepository.save(periodoEntity).getPeriodoDTO());
         return apiResponse;
     }
     //Función para cambiar estado a eliminado- END

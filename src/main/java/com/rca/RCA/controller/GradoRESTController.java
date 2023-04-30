@@ -29,19 +29,22 @@ public class GradoRESTController {
             @RequestParam(defaultValue = "10") int size){
         return this.gradoService.getList(filter, page, size);
     }
-
+    @GetMapping("{id}")
+    public ApiResponse<GradoDTO> one(@PathVariable String id) throws ResourceNotFoundException {
+        return this.gradoService.one(id);
+    }
     @PostMapping
-    public ApiResponse<GradoDTO> add(@RequestBody GradoDTO gradoDTO){
+    public ApiResponse<GradoDTO> add(@RequestBody GradoDTO gradoDTO) throws AttributeException {
         return this.gradoService.add(gradoDTO);
     }
 
     @PutMapping
-    public ApiResponse<GradoDTO> update(@RequestBody GradoDTO gradoDTO){
+    public ApiResponse<GradoDTO> update(@RequestBody GradoDTO gradoDTO) throws ResourceNotFoundException, AttributeException {
         return this.gradoService.update(gradoDTO);
     }
 
     @DeleteMapping("{id}")
-    public ApiResponse<GradoDTO> delete(@PathVariable String id) throws ResourceNotFoundException, AttributeException {
+    public ApiResponse<GradoDTO> delete(@PathVariable String id) throws ResourceNotFoundException {
         return this.gradoService.delete(id);
     }
 }

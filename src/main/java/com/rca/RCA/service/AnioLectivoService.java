@@ -11,6 +11,8 @@ import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
+import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -57,25 +59,29 @@ public class AnioLectivoService {
         return apiResponse;
     }
     //Función para listar con paginación de seccion-END
+    //Función para obtener un año lectivo con id -START
+    public ApiResponse<AnioLectivoDTO> one(String id) throws ResourceNotFoundException {
+        AnioLectivoEntity anioLectivoEntity =this.anioLectivoRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Año lectivo no existe"));
+        ApiResponse<AnioLectivoDTO> apiResponse = new ApiResponse<>();
+        apiResponse.setData(anioLectivoEntity.getAnioLectivoDTO());
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+    //Función para obtener un año lectivo con id -END
 
-    public ApiResponse<AnioLectivoDTO> add(AnioLectivoDTO anioLectivoDTO){
+    public ApiResponse<AnioLectivoDTO> add(AnioLectivoDTO anioLectivoDTO) throws ResourceNotFoundException, AttributeException {
+        //Excepciones
+        if(anioLectivoRepository.existsByName(anioLectivoDTO.getName(), ConstantsGeneric.CREATED_STATUS, ""))
+            throw new AttributeException("Año lectivo ya existe");
         ApiResponse<AnioLectivoDTO> apiResponse = new ApiResponse<>();
         anioLectivoDTO.setId(UUID.randomUUID().toString());
         anioLectivoDTO.setCode(Code.generateCode(Code.SCHOOL_YEAR_CODE, this.anioLectivoRepository.count() + 1, Code.SCHOOL_YEAR_LENGTH));
         anioLectivoDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         anioLectivoDTO.setCreateAt(LocalDateTime.now());
 
-        Optional<AnioLectivoEntity> optionalSeccionEntity = this.anioLectivoRepository.findByName(anioLectivoDTO.getName());
-        if (optionalSeccionEntity.isPresent()) {
-            log.warn("No se agregó el registro");
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("SCHOOL_YEAR_EXISTS");
-            apiResponse.setMessage("No se resgistró, el año lectivo existe");
-            return apiResponse;
-        }
-
         //change DTO to entity
-        AnioLectivoEntity anioLectivoEntity =new AnioLectivoEntity();
+        AnioLectivoEntity anioLectivoEntity = new AnioLectivoEntity();
         anioLectivoEntity.setAnioLectivoDTO(anioLectivoDTO);
         apiResponse.setData(this.anioLectivoRepository.save(anioLectivoEntity).getAnioLectivoDTO());
         apiResponse.setSuccessful(true);
@@ -83,75 +89,52 @@ public class AnioLectivoService {
         return apiResponse;
     }
 
-    public ApiResponse<AnioLectivoDTO> update(AnioLectivoDTO anioLectivoDTO){
+    public ApiResponse<AnioLectivoDTO> update(AnioLectivoDTO anioLectivoDTO) throws ResourceNotFoundException, AttributeException {
+        //Excepciones
+        if(anioLectivoDTO.getId().isBlank())
+            throw new ResourceNotFoundException("Año lectivo no existe");
+        if(anioLectivoRepository.existsByName(anioLectivoDTO.getName(), ConstantsGeneric.CREATED_STATUS, anioLectivoDTO.getId()))
+            throw new AttributeException("Año lectivo ya existe");
         ApiResponse<AnioLectivoDTO> apiResponse = new ApiResponse<>();
-        Optional<AnioLectivoEntity> optionalAnioLectivoEntity=this.anioLectivoRepository.findByName(anioLectivoDTO.getName());
-        //Verifica que el nombre no exista
-        if(optionalAnioLectivoEntity.isEmpty()) {
-            optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(anioLectivoDTO.getId());
-            //Verifica que el id y el status sean válidos
-            if (optionalAnioLectivoEntity.isPresent()&& optionalAnioLectivoEntity.get().getStatus().equals(ConstantsGeneric.CREATED_STATUS)) {
-                anioLectivoDTO.setUpdateAt(LocalDateTime.now());
-                AnioLectivoEntity anioLectivoEntity = optionalAnioLectivoEntity.get();
-                //Set update data
-                if (anioLectivoDTO.getCode() != null) {
-                    anioLectivoEntity.setCode(anioLectivoDTO.getCode());
-                }
-                if (anioLectivoDTO.getName() != null) {
-                    anioLectivoEntity.setName(anioLectivoDTO.getName());
-                }
-                anioLectivoEntity.setUpdateAt(anioLectivoDTO.getUpdateAt());
-                //Update in database
-                apiResponse.setSuccessful(true);
-                apiResponse.setMessage("ok");
-                apiResponse.setData(this.anioLectivoRepository.save(anioLectivoEntity).getAnioLectivoDTO());
-                return apiResponse;
-            } else{
-                apiResponse.setMessage("No existe el año lectivo para poder actualizar");
-                apiResponse.setCode("SCHOOL_YEAR_DOES_NOT_EXISTS");
-            }
-        } else{
-            apiResponse.setMessage("No se pudo actualizar, año lectivo existente");
-            apiResponse.setCode("SCHOOL_YEAR_EXISTS");
-        }
-        log.warn("No se actualizó el registro");
-        apiResponse.setSuccessful(false);
+        AnioLectivoEntity anioLectivoEntity=this.anioLectivoRepository.findByUniqueIdentifier(anioLectivoDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Año lectivo no existe"));
+        anioLectivoDTO.setUpdateAt(LocalDateTime.now());
+        //Set update data
+        anioLectivoEntity.setCode(anioLectivoDTO.getCode());
+        anioLectivoEntity.setName(anioLectivoDTO.getName());
+        anioLectivoEntity.setUpdateAt(anioLectivoDTO.getUpdateAt());
+        //Update in database
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(this.anioLectivoRepository.save(anioLectivoEntity).getAnioLectivoDTO());
         return apiResponse;
     }
 
     //Función para cambiar estado a eliminado- START
     //id dto=uniqueIdentifier Entity
-    public ApiResponse<AnioLectivoDTO> delete(String id){
-        ApiResponse<AnioLectivoDTO> apiResponse = new ApiResponse<>();
+    public ApiResponse<AnioLectivoDTO> delete(String id) throws ResourceNotFoundException {
         //Verifica que el id y el status sean válidos
-        Optional<AnioLectivoEntity> optionalSeccionEntity=this.anioLectivoRepository.findByUniqueIdentifier(id);
-        if(optionalSeccionEntity.isPresent()){
-            AnioLectivoEntity anioLectivoEntity =optionalSeccionEntity.get();
-            anioLectivoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
-            anioLectivoEntity.setDeleteAt(LocalDateTime.now());
+        AnioLectivoEntity anioLectivoEntity =this.anioLectivoRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Año lectivo no existe"));
 
-            Optional<List<PeriodoEntity>> optionalAnioLectivoEntities= this.periodoRepository.findById_AnioLectivo(anioLectivoEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
-            for(int i=0; i<optionalAnioLectivoEntities.get().size(); i++){
-                optionalAnioLectivoEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-                optionalAnioLectivoEntities.get().get(i).setDeleteAt(anioLectivoEntity.getDeleteAt());
-                this.periodoService.delete(optionalAnioLectivoEntities.get().get(i).getCode());
-            }
-            Optional<List<MatriculaEntity>> optionalMatriculaEntities= this.matriculaRepository.findByAnioLectivo(anioLectivoEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
-            for(int i=0; i<optionalMatriculaEntities.get().size(); i++){
-                optionalMatriculaEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-                optionalMatriculaEntities.get().get(i).setDeleteAt(anioLectivoEntity.getDeleteAt());
-                this.matriculaService.delete(optionalMatriculaEntities.get().get(i).getCode());
-            }
-
-            apiResponse.setSuccessful(true);
-            apiResponse.setMessage("ok");
-            apiResponse.setData(this.anioLectivoRepository.save(anioLectivoEntity).getAnioLectivoDTO());
-        } else{
-            log.warn("No se eliminó el registro");
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("SCHOOL_YEAR_DOES_NOT_EXISTS");
-            apiResponse.setMessage("No existe el año lectivo para poder eliminar");
+        ApiResponse<AnioLectivoDTO> apiResponse = new ApiResponse<>();
+        anioLectivoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
+        anioLectivoEntity.setDeleteAt(LocalDateTime.now());
+        //Elimina los periodos del año lectivo
+        Optional<List<PeriodoEntity>> optionalAnioLectivoEntities= this.periodoRepository.findById_AnioLectivo(anioLectivoEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
+        for(int i=0; i<optionalAnioLectivoEntities.get().size(); i++){
+            optionalAnioLectivoEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+            optionalAnioLectivoEntities.get().get(i).setDeleteAt(anioLectivoEntity.getDeleteAt());
+            this.periodoService.delete(optionalAnioLectivoEntities.get().get(i).getCode());
         }
+        //Elimina las matriculas del año lectivo
+        Optional<List<MatriculaEntity>> optionalMatriculaEntities= this.matriculaRepository.findByAnioLectivo(anioLectivoEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
+        for(int i=0; i<optionalMatriculaEntities.get().size(); i++){
+            optionalMatriculaEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+            optionalMatriculaEntities.get().get(i).setDeleteAt(anioLectivoEntity.getDeleteAt());
+            this.matriculaService.delete(optionalMatriculaEntities.get().get(i).getCode());
+        }
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(this.anioLectivoRepository.save(anioLectivoEntity).getAnioLectivoDTO());
         return apiResponse;
     }
     //Función para cambiar estado a eliminado- END
