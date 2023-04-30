@@ -6,6 +6,8 @@ import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.ImagenFileDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.ImagenDTO;
+import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +44,7 @@ public class ImagenRESTController {
     }*/
 
     @PostMapping
-    public ApiResponse<ImagenDTO> add(@RequestBody @Valid ImagenFileDTO imagenFileDTO) {
+    public ApiResponse<ImagenDTO> add(@RequestBody @Valid ImagenFileDTO imagenFileDTO) throws AttributeException, ResourceNotFoundException {
          return imagenService.add(imagenFileDTO);
     }
 
@@ -52,7 +54,7 @@ public class ImagenRESTController {
     }
 
     @DeleteMapping("{id}")
-    public ApiResponse<ImagenDTO> delete(@PathVariable String id) {
+    public ApiResponse<ImagenDTO> delete(@PathVariable String id) throws ResourceNotFoundException {
         return this.imagenService.delete(id);
     }
 }
