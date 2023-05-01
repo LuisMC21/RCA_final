@@ -51,4 +51,10 @@ public interface ApoderadoRepository extends JpaRepository<ApoderadoEntity, Inte
             "where a.user_id = u.id " +
             "and a.tx_unique_identifier = :uniqueIdentifier", nativeQuery = true)
     void eliminarUsuario(@Param("uniqueIdentifier") String uniqueIdentifier, @Param("fecha")LocalDateTime fecha);
+
+    @Query(value = "select count(a)>0 from ApoderadoEntity a " +
+            "where a.status = :status " +
+            "and a.email = :email " +
+            "and a.uniqueIdentifier != :id ")
+    boolean existsByEmail(String status, String email, String id);
 }

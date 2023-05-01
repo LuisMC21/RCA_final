@@ -2,6 +2,8 @@ package com.rca.RCA.controller;
 
 import com.rca.RCA.service.AlumnoService;
 import com.rca.RCA.type.*;
+import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -9,9 +11,11 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
+import javax.management.AttributeNotFoundException;
+
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
-@RequestMapping("alumno")
+@RequestMapping("/alumno")
 public class AlumnoRESTController {
 
     @Autowired
@@ -31,12 +35,12 @@ public class AlumnoRESTController {
     }
 
     @PostMapping
-    public ApiResponse<AlumnoDTO> add(@RequestBody @Valid    AlumnoDTO AlumnoDTO) {
+    public ApiResponse<AlumnoDTO> add(@RequestBody @Valid  AlumnoDTO AlumnoDTO) throws ResourceNotFoundException, AttributeException {
         return this.alumnoService.add(AlumnoDTO);
     }
 
     @PutMapping
-    public ApiResponse<AlumnoDTO> update(@RequestBody AlumnoDTO alumnoDTO) {
+    public ApiResponse<AlumnoDTO> update(@RequestBody AlumnoDTO alumnoDTO) throws ResourceNotFoundException{
         return this.alumnoService.update(alumnoDTO);
     }
 

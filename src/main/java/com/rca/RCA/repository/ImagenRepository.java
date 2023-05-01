@@ -23,13 +23,24 @@ public interface ImagenRepository extends JpaRepository<ImagenEntity, Integer> {
             "and (u.code like concat('%', :filter, '%') or u.uniqueIdentifier like concat('%', :filter, '%'))")
     Long findCountEntities(String status, String filter);
 
-    //Función para obtener una imagen según su identificador
-    Optional<ImagenEntity> findByUniqueIdentifier(String uniqueIdentifier);
 
     //Función para obtener una imagen según su nombre
     Optional<ImagenEntity> findByName(String name);
 
+    //Función para obtener una imagen según su identificador
+    Optional<ImagenEntity> findByUniqueIdentifier(String uniqueIdentifier);
+
     @Query(value = "select i from ImagenEntity i " +
             "where i.name = :name and i.uniqueIdentifier <> :uniqueIdentifier ")
     Optional<ImagenEntity> findByName(String name, String uniqueIdentifier);
+
+    //Función para obtener una imagen según su identificador
+
+
+    //Función para verificar si exixte una imagen con el mismo nombre
+    @Query(value = "SELECT count(i)>0 FROM ImagenEntity i " +
+            "WHERE i.uniqueIdentifier != :id " +
+            "AND i.status = :status " +
+            "AND i.name = :name")
+    boolean existsByName(String id, String status, String name);
 }

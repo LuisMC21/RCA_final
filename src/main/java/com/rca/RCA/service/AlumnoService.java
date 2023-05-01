@@ -1,5 +1,9 @@
 package com.rca.RCA.service;
 
+import com.rca.RCA.auth.entity.Rol;
+import com.rca.RCA.auth.enums.RolNombre;
+import com.rca.RCA.auth.repository.RolRepository;
+import com.rca.RCA.auth.service.LoginService;
 import com.rca.RCA.entity.AlumnoEntity;
 import com.rca.RCA.entity.ApoderadoEntity;
 import com.rca.RCA.entity.UsuarioEntity;
@@ -7,8 +11,11 @@ import com.rca.RCA.repository.*;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.AlumnoDTO;
 import com.rca.RCA.type.Pagination;
+import com.rca.RCA.type.UsuarioDTO;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
+import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -49,14 +56,24 @@ public class AlumnoService {
     @Autowired
     private EvaluacionRepository evaluacionRepository;
 
+    @Autowired
+    private RolRepository rolRepository;
+
+    @Autowired
+    private LoginService loginService;
+
+    @Autowired
+    private UsuarioService usuarioService;
+
     public AlumnoService(AlumnoRepository alumnoRepository, UsuarioRepository usuarioRepository,
                          ApoderadoRepository apoderadoRepository, AsistenciaRepository asistenciaRepository,
-                         EvaluacionRepository evaluacionRepository){
+                         EvaluacionRepository evaluacionRepository, RolRepository rolRepository){
         this.alumnoRepository = alumnoRepository;
         this.usuarioRepository = usuarioRepository;
         this.apoderadoRepository = apoderadoRepository;
         this.asistenciaRepository = asistenciaRepository;
         this.evaluacionRepository = evaluacionRepository;
+        this.rolRepository = rolRepository;
     }
 
     public ApiResponse<Pagination<AlumnoDTO>> getList(String filter, int page, int size) {
@@ -77,67 +94,54 @@ public class AlumnoService {
     }
 
     //Agregar Alumno
-    public ApiResponse<AlumnoDTO> add(AlumnoDTO AlumnoDTO) {
+    public ApiResponse<AlumnoDTO> add(AlumnoDTO AlumnoDTO) throws AttributeException, ResourceNotFoundException {
         ApiResponse<AlumnoDTO> apiResponse = new ApiResponse<>();
-        System.out.println(AlumnoDTO.toString());
+
+        //Verifica que el rol sea docente
+        if (!AlumnoDTO.getUsuarioDTO().getRol().equalsIgnoreCase("STUDENT"))
+            throw new AttributeException("El rol es inválido");
+
+        Rol optionalRolEntity= this.rolRepository.findByRolNombre(RolNombre.ROLE_TEACHER).orElseThrow(()-> new ResourceNotFoundException("Rol Inválido"));
+
+        ApiResponse<UsuarioDTO> apiResponseU= this.loginService.add(AlumnoDTO.getUsuarioDTO());
+        if (!apiResponseU.isSuccessful()) {
+            log.warn("No se agregó el registro");
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("ALUMNO_EXISTS");
+            apiResponse.setMessage(apiResponseU.getMessage());
+            return apiResponse;
+        }
+
+        //AlumnoDTO add data
         AlumnoDTO.setId(UUID.randomUUID().toString());
         AlumnoDTO.setCode(Code.generateCode(Code.ALU_CODE, this.alumnoRepository.count() + 1, Code.ALU_LENGTH));
         AlumnoDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         AlumnoDTO.setCreateAt(LocalDateTime.now());
-        System.out.println(AlumnoDTO.toString());
 
         //change dto to entity
         AlumnoEntity AlumnoEntity = new AlumnoEntity();
         AlumnoEntity.setAlumnoDTO(AlumnoDTO);
 
-        if (AlumnoDTO.getUsuarioDTO().getId() != "" || AlumnoDTO.getApoderadoDTO().getId() != ""){
-            //set usaurio
-            Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(AlumnoDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS);
-            if (optionalUsuarioEntity.isEmpty()) {
-                apiResponse.setSuccessful(false);
-                apiResponse.setCode("USUARIO_NOT_EXISTS");
-                apiResponse.setMessage("No se registró, el usaurio asociado al Alumno no existe");
-                return apiResponse;
-            }
+        AlumnoEntity.setUsuarioEntity(this.usuarioRepository.findByUniqueIdentifier(AlumnoDTO.getId(), ConstantsGeneric.CREATED_STATUS).get());
+        AlumnoEntity.setApoderadoEntity(this.apoderadoRepository.findByUniqueIdentifier(AlumnoDTO.getId()).get());
 
-            //set Apoderado
-            Optional<ApoderadoEntity> optionalApoderadoEntity = this.apoderadoRepository.findByUniqueIdentifier(AlumnoDTO.getApoderadoDTO().getId());
-            if (optionalApoderadoEntity.isEmpty()) {
-                apiResponse.setSuccessful(false);
-                apiResponse.setCode("APODERADO_NOT_EXISTS");
-                apiResponse.setMessage("No se registró, el apoderado asociado al Alumno no existe");
-                return apiResponse;
-            }
+        apiResponse.setData(this.alumnoRepository.save(AlumnoEntity).getAlumnoDTO());
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
 
-            AlumnoEntity.setUsuarioEntity(optionalUsuarioEntity.get());
-            AlumnoEntity.setApoderadoEntity(optionalApoderadoEntity.get());
-            apiResponse.setData(this.alumnoRepository.save(AlumnoEntity).getAlumnoDTO());
-            apiResponse.setSuccessful(true);
-            apiResponse.setMessage("ok");
-            return apiResponse;
-
-        }else{
-            apiResponse.setCode("User_or_apoderado_is_empty");
-            apiResponse.setMessage("No se registró, el usuario o apoderado no existe");
-            return apiResponse;
-        }
+        return apiResponse;
     }
 
     //Modificar Alumno
-    public ApiResponse<AlumnoDTO> update(AlumnoDTO AlumnoDTO) {
-        ApiResponse<AlumnoDTO> apiResponse = new ApiResponse<>();
-        System.out.println(AlumnoDTO.toString());
+    public ApiResponse<AlumnoDTO> update(AlumnoDTO AlumnoDTO) throws ResourceNotFoundException {
+        if(AlumnoDTO.getId().isBlank())
+            throw new ResourceNotFoundException("Alumno no encontrado");
 
-        Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(AlumnoDTO.getId());
-        if (optionalAlumnoEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("Alumno_NOT_EXISTS");
-            apiResponse.setMessage("No se encontro la Alumno");
-            return apiResponse;
-        }
+        ApiResponse<AlumnoDTO> apiResponse = new ApiResponse<>();
+
+        AlumnoEntity AlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(AlumnoDTO.getId()).orElseThrow(()->new ResourceNotFoundException("Alumno no existe"));
 
         //change dto to entity
-        AlumnoEntity AlumnoEntity = optionalAlumnoEntity.get();
         AlumnoEntity.setDiseases(AlumnoDTO.getDiseases());
         AlumnoEntity.setUpdateAt(LocalDateTime.now());
         AlumnoEntity.setNamecon_pri(AlumnoDTO.getNamecon_pri());
@@ -147,30 +151,22 @@ public class AlumnoService {
         AlumnoEntity.setVaccine(AlumnoDTO.getVaccine());
         AlumnoEntity.setType_insurance(AlumnoDTO.getType_insurance());
 
-        //set usuario
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(AlumnoDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS);
-        if (optionalUsuarioEntity.isEmpty()) {
+        AlumnoEntity.setUsuarioEntity(this.usuarioRepository.findByUniqueIdentifier(AlumnoDTO.getId(), ConstantsGeneric.CREATED_STATUS).get());
+        AlumnoEntity.setApoderadoEntity(this.apoderadoRepository.findByUniqueIdentifier(AlumnoDTO.getId()).get());
+
+        //Update in database to usuario
+        ApiResponse<UsuarioDTO> apiResponseU = this.usuarioService.update(AlumnoEntity.getUsuarioEntity().getUsuarioDTO());
+        if (apiResponseU.isSuccessful()) {
+            //Update in database to docente
+            apiResponse.setSuccessful(true);
+            apiResponse.setMessage("ok");
+            apiResponse.setData(this.alumnoRepository.save(AlumnoEntity).getAlumnoDTO());
+            return apiResponse;
+        } else {
             apiResponse.setSuccessful(false);
-            apiResponse.setCode("USUARIO_NOT_EXISTS");
-            apiResponse.setMessage("No se registro, el usuario asociada a la Alumno no existe");
+            apiResponse.setMessage(apiResponseU.getMessage());
             return apiResponse;
         }
-
-        //set Apoderado
-        Optional<ApoderadoEntity> optionalApoderadoEntity = this.apoderadoRepository.findByUniqueIdentifier(AlumnoDTO.getApoderadoDTO().getId());
-        if (optionalUsuarioEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("APODERADO_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el apoderado asociado al Alumno no existe");
-            return apiResponse;
-        }
-
-        AlumnoEntity.setUsuarioEntity(optionalUsuarioEntity.get());
-        AlumnoEntity.setApoderadoEntity(optionalApoderadoEntity.get());
-        apiResponse.setData(this.alumnoRepository.save(AlumnoEntity).getAlumnoDTO());
-        apiResponse.setSuccessful(true);
-        apiResponse.setMessage("ok");
-        return apiResponse;
     }
 
     //Borrar Alumno

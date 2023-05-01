@@ -8,17 +8,26 @@ import com.rca.RCA.type.*;
 import com.rca.RCA.type.ImagenDTO;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
+import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.*;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -30,6 +39,9 @@ public class ImagenService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     public ImagenService(ImagenRepository imagenRepository, UsuarioRepository usuarioRepository){
         this.imagenRepository = imagenRepository;
@@ -55,36 +67,70 @@ public class ImagenService {
     }
 
     //Agregar imagen
-    public ApiResponse<ImagenDTO> add(ImagenDTO ImagenDTO) {
+    public ApiResponse<ImagenDTO> add(ImagenFileDTO ImagenFileDTO) throws AttributeException, ResourceNotFoundException {
+
+        //Validamos que eno exista una imagen con el mismo nombre
+        if(imagenRepository.existsByName("",ConstantsGeneric.CREATED_STATUS, ImagenFileDTO.getName()))
+            throw new AttributeException("Imagen ya existe");
+
         ApiResponse<ImagenDTO> apiResponse = new ApiResponse<>();
-        System.out.println(ImagenDTO.toString());
+        ImagenDTO ImagenDTO = new ImagenDTO();
         ImagenDTO.setId(UUID.randomUUID().toString());
-        ImagenDTO.setCode(Code.generateCode(Code.IMAGEN_CODE, this.imagenRepository.count() + 1, Code.IMAGEN_LENGTH));
+        String code = Code.generateCode(Code.IMAGEN_CODE, this.imagenRepository.count() + 1, Code.IMAGEN_LENGTH);
         ImagenDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         ImagenDTO.setCreateAt(LocalDateTime.now());
-        System.out.println(ImagenDTO.toString());
-        //validamos
-        Optional<ImagenEntity> optionalImagenEntity = this.imagenRepository.findByName(ImagenDTO.getName());
-        if (optionalImagenEntity.isPresent()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("Imagen_EXISTS");
-            apiResponse.setMessage("No se registró, la imagen existe");
-            return apiResponse;
+
+        //setUsuario
+        ImagenDTO.setUsuarioDTO(ImagenFileDTO.getUsuarioDTO());
+        //set name
+        ImagenDTO.setName(ImagenFileDTO.getName());
+
+        //Verificar que exixte el usuario
+        UsuarioEntity usuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ImagenDTO.getId(), ConstantsGeneric.CREATED_STATUS
+        ).orElseThrow(()-> new ResourceNotFoundException("Usuario no exixte"));
+
+        //Decodificar la imagen base64
+        String base64 = ImagenFileDTO.getImagenBase64();
+        byte[] imageBytes = Base64.getMimeDecoder().decode(base64);
+
+        // Obtener la ruta de la carpeta donde se guardarán las imágenes
+        String rutaCarpeta = "src/main/resources/images";
+        Path rutaCompleta = Paths.get(rutaCarpeta);
+        System.out.println(rutaCompleta);
+
+        // Verificar si la carpeta existe, y crearla en caso contrario
+        if (!Files.exists(rutaCompleta)) {
+            try {
+                Files.createDirectories(rutaCompleta);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
+
+        // Construir la ruta completa del archivo de imagen
+        String nombreArchivo = code + ImagenDTO.getName()+".jpg"; // el nombre del archivo
+        Path rutaArchivo = rutaCompleta.resolve(nombreArchivo);
+
+        // Guardar la imagen en el archivo
+        try {
+            Files.write(rutaArchivo, imageBytes);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        //set route
+        String route = rutaCarpeta + "/" + nombreArchivo;
+        ImagenDTO.setRoute(route);
+
+
         //change dto to entity
         ImagenEntity ImagenEntity = new ImagenEntity();
         ImagenEntity.setImagenDTO(ImagenDTO);
+        ImagenEntity.setCode(code);
 
-        //set usaurio
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ImagenDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS);
-        if (optionalUsuarioEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("ROL_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el usaurio asociado a la imagen no existe");
-            return apiResponse;
-        }
 
-        ImagenEntity.setUsuarioEntity(optionalUsuarioEntity.get());
+
+        ImagenEntity.setUsuarioEntity(usuarioEntity);
         apiResponse.setData(this.imagenRepository.save(ImagenEntity).getImagenDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
@@ -138,21 +184,24 @@ public class ImagenService {
     }
 
     //Borrar Imagen
-    public ApiResponse<ImagenDTO> delete(String id) {
-        ApiResponse<ImagenDTO> apiResponse = new ApiResponse<>();
-        Optional<ImagenEntity> optionalImagenEntity = this.imagenRepository.findByUniqueIdentifier(id);
-        if (optionalImagenEntity.isPresent()) {
-            ImagenEntity ImagenEntity = optionalImagenEntity.get();
-            ImagenEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
-            ImagenEntity.setDeleteAt(LocalDateTime.now());
+    public ApiResponse<ImagenDTO> delete(String id) throws  ResourceNotFoundException{
 
-            apiResponse.setSuccessful(true);
-            apiResponse.setMessage("ok");
-            apiResponse.setData(this.imagenRepository.save(ImagenEntity).getImagenDTO());
+        ImagenEntity  imagenEntity = this.imagenRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Imagen no exixte"));
+        ApiResponse<ImagenDTO> apiResponse = new ApiResponse<>();
+        imagenEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
+        imagenEntity.setDeleteAt(LocalDateTime.now());
+
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(this.imagenRepository.save(imagenEntity).getImagenDTO());
+
+        //borrar imagen
+        String rutaArchivo = imagenEntity.getRoute();
+        File archivo = new File(rutaArchivo);
+        if (archivo.delete()) {
+            System.out.println("Archivo eliminado correctamente.");
         } else {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("IMAGEN_DOES_NOT_EXISTS");
-            apiResponse.setMessage("No existe la imagen para poder eliminar");;
+            System.out.println("No se pudo eliminar el archivo.");
         }
 
         return apiResponse;

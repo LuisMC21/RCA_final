@@ -31,4 +31,12 @@ public interface NoticiaRepository extends JpaRepository<NoticiaEntity, Integer>
     @Query(value = "select n from NoticiaEntity n " +
             "where n.title = :title and n.uniqueIdentifier <> :uniqueIdentifier ")
     Optional<NoticiaEntity> findByTitle(String title, String uniqueIdentifier);
+
+    //Función para verificar si exixte una noticia con el mismo nombre
+    @Query(value = "SELECT count(n)>0 FROM NoticiaEntity n " +
+            "WHERE n.uniqueIdentifier != :id " +
+            "AND n.status = :status " +
+            "AND n.title = :title")
+    boolean existsByTitle(String id, String status, String title);
+
 }

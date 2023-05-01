@@ -26,9 +26,9 @@ public class NoticiaEntity extends AuditoryEntity{
     @Column(name = "descrip")
     @NotBlank
     private String descrip;
-    @Column(name = "image")
+    @Column(name = "route")
     @NotBlank
-    private String image;
+    private String route;
     @Column(name = "date")
     @NotBlank
     private String date;
@@ -45,7 +45,7 @@ public class NoticiaEntity extends AuditoryEntity{
         NoticiaDTO.setTitle(this.title);
         NoticiaDTO.setSommelier(this.sommelier);
         NoticiaDTO.setDescrip(this.descrip);
-        NoticiaDTO.setImage(this.image);
+        NoticiaDTO.setRoute(this.route);
         NoticiaDTO.setDate(this.date);
         NoticiaDTO.setUsuarioDTO(this.usuarioEntity.getUsuarioDTO());
         NoticiaDTO.setStatus(this.getStatus());
@@ -61,7 +61,7 @@ public class NoticiaEntity extends AuditoryEntity{
         this.title = NoticiaDTO.getTitle();
         this.sommelier = NoticiaDTO.getSommelier();
         this.descrip = NoticiaDTO.getDescrip();
-        this.image = NoticiaDTO.getImage();
+        this.route = NoticiaDTO.getRoute();
         this.date = NoticiaDTO.getDate();
         this.setStatus(NoticiaDTO.getStatus());
         this.setCreateAt(NoticiaDTO.getCreateAt());

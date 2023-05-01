@@ -1,17 +1,16 @@
 package com.rca.RCA.controller;
 
 import com.rca.RCA.service.NoticiaService;
-import com.rca.RCA.type.ApiResponse;
-import com.rca.RCA.type.ImagenDTO;
-import com.rca.RCA.type.Pagination;
-import com.rca.RCA.type.NoticiaDTO;
+import com.rca.RCA.type.*;
+import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
-@RequestMapping("noticia")
+@RequestMapping("/noticia")
 public class NoticiaRESTController {
 
     @Autowired
@@ -31,8 +30,8 @@ public class NoticiaRESTController {
     }
 
     @PostMapping
-    public ApiResponse<NoticiaDTO> add(@RequestBody @Valid NoticiaDTO NoticiaDTO) {
-        return this.noticiaService.add(NoticiaDTO);
+    public ApiResponse<NoticiaDTO> add(@RequestBody @Valid NoticiaFileDTO noticiaFileDTO) throws AttributeException, ResourceNotFoundException {
+        return this.noticiaService.add(noticiaFileDTO);
     }
 
     @PutMapping
@@ -41,7 +40,7 @@ public class NoticiaRESTController {
     }
 
     @DeleteMapping("{id}")
-    public ApiResponse<NoticiaDTO> delete(@PathVariable String id) {
+    public ApiResponse<NoticiaDTO> delete(@PathVariable String id) throws ResourceNotFoundException {
         return this.noticiaService.delete(id);
     }
 }
