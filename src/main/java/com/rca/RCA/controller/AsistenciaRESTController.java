@@ -4,6 +4,7 @@ import com.rca.RCA.service.AsistenciaService;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.AsistenciaDTO;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -33,12 +34,12 @@ public class AsistenciaRESTController {
     }
 
     @PostMapping
-    public ApiResponse<AsistenciaDTO> add(@RequestBody @Valid AsistenciaDTO AsistenciaDTO) {
+    public ApiResponse<AsistenciaDTO> add(@RequestBody @Valid AsistenciaDTO AsistenciaDTO) throws ResourceNotFoundException {
         return this.asistenciaService.add(AsistenciaDTO);
     }
 
     @PutMapping
-    public ApiResponse<AsistenciaDTO> update(@RequestBody AsistenciaDTO asistenciaDTO) {
+    public ApiResponse<AsistenciaDTO> update(@RequestBody AsistenciaDTO asistenciaDTO) throws ResourceNotFoundException {
         return this.asistenciaService.update(asistenciaDTO);
     }
 

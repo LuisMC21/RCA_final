@@ -9,6 +9,8 @@ import com.rca.RCA.type.ApoderadoDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
+import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -54,36 +56,27 @@ public class ApoderadoService {
     }
 
     //Agregar Apoderado
-    public ApiResponse<ApoderadoDTO> add(ApoderadoDTO ApoderadoDTO) {
+    public ApiResponse<ApoderadoDTO> add(ApoderadoDTO ApoderadoDTO) throws AttributeException, ResourceNotFoundException {
         ApiResponse<ApoderadoDTO> apiResponse = new ApiResponse<>();
-        System.out.println(ApoderadoDTO.toString());
+
+        //Excepciones
+        if(apoderadoRepository.existsByEmail(ConstantsGeneric.CREATED_STATUS, ApoderadoDTO.getEmail(), ApoderadoDTO.getId()))
+            throw new AttributeException("El email ya existe");
+
+        //Add data DTO
         ApoderadoDTO.setId(UUID.randomUUID().toString());
         ApoderadoDTO.setCode(Code.generateCode(Code.APO_CODE, this.usuarioRepository.count() + 1, Code.APO_LENGTH));
         ApoderadoDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         ApoderadoDTO.setCreateAt(LocalDateTime.now());
-        System.out.println(ApoderadoDTO.toString());
-        //validamos
-        Optional<ApoderadoEntity> optionalApoderadoEntity = this.apoderadoRepository.findByEmail(ApoderadoDTO.getEmail());
-        if (optionalApoderadoEntity.isPresent()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("Apoderado_EXISTS");
-            apiResponse.setMessage("No se registró, el apoderado existe");
-            return apiResponse;
-        }
+
         //change dto to entity
         ApoderadoEntity ApoderadoEntity = new ApoderadoEntity();
         ApoderadoEntity.setApoderadoDTO(ApoderadoDTO);
 
-        //set usaurio
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ApoderadoDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS);
-        if (optionalUsuarioEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("ROL_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el usaurio asociado a la Apoderado no existe");
-            return apiResponse;
-        }
+        //Validar usuario
+        UsuarioEntity optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ApoderadoDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no existe"));
 
-        ApoderadoEntity.setUsuarioEntity(optionalUsuarioEntity.get());
+        ApoderadoEntity.setUsuarioEntity(optionalUsuarioEntity);
         apiResponse.setData(this.apoderadoRepository.save(ApoderadoEntity).getApoderadoDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
@@ -91,41 +84,27 @@ public class ApoderadoService {
     }
 
     //Modificar Apoderado
-    public ApiResponse<ApoderadoDTO> update(ApoderadoDTO ApoderadoDTO) {
+    public ApiResponse<ApoderadoDTO> update(ApoderadoDTO ApoderadoDTO) throws ResourceNotFoundException, AttributeException {
+
+        //Excepciones
+        if(ApoderadoDTO.getId().isBlank())
+            throw new ResourceNotFoundException("Periodo no existe");
+        if(apoderadoRepository.existsByEmail(ConstantsGeneric.CREATED_STATUS, ApoderadoDTO.getEmail(), ApoderadoDTO.getId()))
+            throw new AttributeException("Email ya existe");
+
         ApiResponse<ApoderadoDTO> apiResponse = new ApiResponse<>();
-        System.out.println(ApoderadoDTO.toString());
 
-        Optional<ApoderadoEntity> optionalApoderadoEntity = this.apoderadoRepository.findByUniqueIdentifier(ApoderadoDTO.getId());
-        if (optionalApoderadoEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("Apoderado_NOT_EXISTS");
-            apiResponse.setMessage("No se encontro la Apoderado");
-            return apiResponse;
-        }
-
-        //validamos
-        Optional<ApoderadoEntity> optionalApoderadoEntityValidation = this.apoderadoRepository.findByEmail(ApoderadoDTO.getEmail(), ApoderadoDTO.getId());
-        if (optionalApoderadoEntityValidation.isPresent()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("Apoderado_EXISTS");
-            apiResponse.setMessage("No se actualizó, la Apoderado existe");
-            return apiResponse;
-        }
+        ApoderadoEntity apoderadoEntity = this.apoderadoRepository.findByUniqueIdentifier(ApoderadoDTO.getId()).orElseThrow(()-> new ResourceNotFoundException("Apoderado no existe"));
 
         //change dto to entity
-        ApoderadoEntity ApoderadoEntity = optionalApoderadoEntity.get();
+        ApoderadoEntity ApoderadoEntity = apoderadoEntity;
         ApoderadoEntity.setEmail(ApoderadoDTO.getEmail());
         ApoderadoEntity.setUpdateAt(LocalDateTime.now());
 
-        //set rol
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ApoderadoDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS);
-        if (optionalUsuarioEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("USUARIO_NOT_EXISTS");
-            apiResponse.setMessage("No se registro, el usuario asociada a la Apoderado no existe");
-            return apiResponse;
-        }
-        ApoderadoEntity.setUsuarioEntity(optionalUsuarioEntity.get());
+        //Validar usuario
+        UsuarioEntity usuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ApoderadoDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no existe"));
+        ApoderadoEntity.setUsuarioEntity(usuarioEntity);
+
         apiResponse.setData(this.apoderadoRepository.save(ApoderadoEntity).getApoderadoDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");

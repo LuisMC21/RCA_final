@@ -7,6 +7,7 @@ import com.rca.RCA.type.*;
 import com.rca.RCA.type.AsistenciaDTO;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanArrayDataSource;
@@ -73,9 +74,10 @@ public class AsistenciaService {
     }
 
     //Agregar Asistencia
-    public ApiResponse<AsistenciaDTO> add(AsistenciaDTO AsistenciaDTO) {
+    public ApiResponse<AsistenciaDTO> add(AsistenciaDTO AsistenciaDTO) throws ResourceNotFoundException {
         ApiResponse<AsistenciaDTO> apiResponse = new ApiResponse<>();
-        System.out.println(AsistenciaDTO.toString());
+
+        //Add data Asistencia DTO
         AsistenciaDTO.setId(UUID.randomUUID().toString());
         AsistenciaDTO.setCode(Code.generateCode(Code.ASIS_CODE, this.asistenciaRepository.count() + 1, Code.ASIS_LENGTH));
         AsistenciaDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
@@ -86,26 +88,14 @@ public class AsistenciaService {
         AsistenciaEntity AsistenciaEntity = new AsistenciaEntity();
         AsistenciaEntity.setAsistenciaDTO(AsistenciaDTO);
 
-        //set usuario
-        Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(AsistenciaDTO.getAlumnoDTO().getId());
-        if (optionalAlumnoEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("alumno_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el alumno asociado a la Asistencia no existe");
-            return apiResponse;
-        }
+        //Validar alumno
+        AlumnoEntity alumnoEntity = this.alumnoRepository.findByUniqueIdentifier(AsistenciaDTO.getAlumnoDTO().getId()).orElseThrow(()-> new ResourceNotFoundException("Alumno no encontrado"));
 
-        //set clase
-        Optional<ClaseEntity> optionalClaseEntity = this.claseRepository.findByUniqueIdentifier(AsistenciaDTO.getClaseDTO().getId());
-        if (optionalClaseEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("CLASE_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, la clase asociada a la Asistencia no existe");
-            return apiResponse;
-        }
+        //Validar clase
+        ClaseEntity claseEntity = this.claseRepository.findByUniqueIdentifier(AsistenciaDTO.getClaseDTO().getId()).orElseThrow(()-> new ResourceNotFoundException("Clase no encontrada"));
 
-        AsistenciaEntity.setAlumnoEntity(optionalAlumnoEntity.get());
-        AsistenciaEntity.setClaseEntity(optionalClaseEntity.get());
+        AsistenciaEntity.setAlumnoEntity(alumnoEntity);
+        AsistenciaEntity.setClaseEntity(claseEntity);
         apiResponse.setData(this.asistenciaRepository.save(AsistenciaEntity).getAsistenciaDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
@@ -113,43 +103,24 @@ public class AsistenciaService {
     }
 
     //Modificar Asistencia
-    public ApiResponse<AsistenciaDTO> update(AsistenciaDTO AsistenciaDTO) {
+    public ApiResponse<AsistenciaDTO> update(AsistenciaDTO AsistenciaDTO) throws ResourceNotFoundException {
         ApiResponse<AsistenciaDTO> apiResponse = new ApiResponse<>();
-        System.out.println(AsistenciaDTO.toString());
 
-        Optional<AsistenciaEntity> optionalAsistenciaEntity = this.asistenciaRepository.findByUniqueIdentifier(AsistenciaDTO.getId());
-        if (optionalAsistenciaEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("Asistencia_NOT_EXISTS");
-            apiResponse.setMessage("No se encontro la Asistencia");
-            return apiResponse;
-        }
+        //Validar asistencia
+        AsistenciaEntity asistenciaEntity = this.asistenciaRepository.findByUniqueIdentifier(AsistenciaDTO.getId()).orElseThrow(()->new ResourceNotFoundException("Asistencia no encontrada"));
 
-        //change dto to entity
-        AsistenciaEntity AsistenciaEntity = optionalAsistenciaEntity.get();
-        AsistenciaEntity.setState(AsistenciaDTO.getState());
+        //set data
+        asistenciaEntity.setState(AsistenciaDTO.getState());
 
-        //set alumno
-        Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(AsistenciaDTO.getAlumnoDTO().getId());
-        if (optionalAlumnoEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("Alumno_NOT_EXISTS");
-            apiResponse.setMessage("No se registro, el alumno asociada a la Asistencia no existe");
-            return apiResponse;
-        }
+        //Validar alumno
+        AlumnoEntity alumnoEntity = this.alumnoRepository.findByUniqueIdentifier(AsistenciaDTO.getAlumnoDTO().getId()).orElseThrow(()-> new ResourceNotFoundException("Alumno no encontrado"));
 
-        //set Clase
-        Optional<ClaseEntity> optionalClaseEntity = this.claseRepository.findByUniqueIdentifier(AsistenciaDTO.getClaseDTO().getId());
-        if (optionalClaseEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("CLASE_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el apoderado asociado al Asistencia no existe");
-            return apiResponse;
-        }
+        //Validar clase
+        ClaseEntity claseEntity = this.claseRepository.findByUniqueIdentifier(AsistenciaDTO.getClaseDTO().getId()).orElseThrow(()-> new ResourceNotFoundException("Clase no encontrada"));
 
-        AsistenciaEntity.setAlumnoEntity(optionalAlumnoEntity.get());
-        AsistenciaEntity.setClaseEntity(optionalClaseEntity.get());
-        apiResponse.setData(this.asistenciaRepository.save(AsistenciaEntity).getAsistenciaDTO());
+        asistenciaEntity.setAlumnoEntity(alumnoEntity);
+        asistenciaEntity.setClaseEntity(claseEntity);
+        apiResponse.setData(this.asistenciaRepository.save(asistenciaEntity).getAsistenciaDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
         return apiResponse;

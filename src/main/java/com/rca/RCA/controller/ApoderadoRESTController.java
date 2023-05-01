@@ -4,6 +4,8 @@ import com.rca.RCA.service.ApoderadoService;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.ApoderadoDTO;
+import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,12 +33,12 @@ public class ApoderadoRESTController {
     }
 
     @PostMapping
-    public ApiResponse<ApoderadoDTO> add(@RequestBody @Valid ApoderadoDTO ApoderadoDTO) {
+    public ApiResponse<ApoderadoDTO> add(@RequestBody @Valid ApoderadoDTO ApoderadoDTO) throws AttributeException, ResourceNotFoundException {
         return this.apoderadoService.add(ApoderadoDTO);
     }
 
     @PutMapping
-    public ApiResponse<ApoderadoDTO> update(@RequestBody ApoderadoDTO apoderadoDTO) {
+    public ApiResponse<ApoderadoDTO> update(@RequestBody ApoderadoDTO apoderadoDTO) throws ResourceNotFoundException, AttributeException {
         return this.apoderadoService.update(apoderadoDTO);
     }
 

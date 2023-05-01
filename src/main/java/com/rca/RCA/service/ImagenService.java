@@ -86,7 +86,8 @@ public class ImagenService {
         ImagenDTO.setName(ImagenFileDTO.getName());
 
         //Verificar que exixte el usuario
-        UsuarioEntity usuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ImagenDTO.getId()).orElseThrow(()-> new ResourceNotFoundException("Usuario no exixte"));
+        UsuarioEntity usuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ImagenDTO.getId(), ConstantsGeneric.CREATED_STATUS
+        ).orElseThrow(()-> new ResourceNotFoundException("Usuario no exixte"));
 
         //Decodificar la imagen base64
         String base64 = ImagenFileDTO.getImagenBase64();

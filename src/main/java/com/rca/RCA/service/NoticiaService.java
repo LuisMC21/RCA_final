@@ -81,8 +81,8 @@ public class NoticiaService {
         NoticiaDTO.setDescrip(NoticiaFileDTO.getDescrip());
         NoticiaDTO.setUsuarioDTO(NoticiaFileDTO.getUsuarioDTO());
 
-        //set usaurio
-        UsuarioEntity usuarioEntity = this.usuarioRepository.findByUniqueIdentifier(NoticiaDTO.getId()).orElseThrow(()-> new ResourceNotFoundException("Usuario no exixte"));
+        //verificar usuario
+        UsuarioEntity usuarioEntity = this.usuarioRepository.findByUniqueIdentifier(NoticiaDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no exixte"));
 
         //Decodificar la imagen base64
         String base64 = NoticiaFileDTO.getImagenBase64();
