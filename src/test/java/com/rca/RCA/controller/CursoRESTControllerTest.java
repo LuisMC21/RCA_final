@@ -1,8 +1,10 @@
 package com.rca.RCA.controller;
 
+import com.rca.RCA.entity.CursoEntity;
 import com.rca.RCA.entity.SeccionEntity;
-import com.rca.RCA.service.SeccionService;
+import com.rca.RCA.service.CursoService;
 import com.rca.RCA.type.ApiResponse;
+import com.rca.RCA.type.CursoDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.SeccionDTO;
 import com.rca.RCA.util.exceptions.AttributeException;
@@ -26,26 +28,27 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class SeccionRESTControllerTest {
+class CursoRESTControllerTest {
 
     @Mock
-    private SeccionService seccionService;
+    private CursoService cursoService;
 
     @InjectMocks
-    private SeccionRESTController seccionRESTController;
+    private CursoRESTController cursoRESTController;
 
-    private SeccionEntity seccionEntity;
+    private CursoEntity cursoEntity;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        seccionEntity= new SeccionEntity();
-        seccionEntity.setName('A');
-        seccionEntity.setCode("SEC001");
-        seccionEntity.setUniqueIdentifier(UUID.randomUUID().toString());
-        seccionEntity.setCreateAt(LocalDateTime.now());
+        cursoEntity= new CursoEntity();
+        cursoEntity.setName("MATEMÁTICAS");
+        cursoEntity.setCode("CUR001");
+        cursoEntity.setUniqueIdentifier(UUID.randomUUID().toString());
+        cursoEntity.setCreateAt(LocalDateTime.now());
     }
-    @DisplayName("Test para listar las secciones")
+
+    @DisplayName("Test para listar los cursos")
     @Test
     void list() {
         // Given
@@ -53,49 +56,49 @@ class SeccionRESTControllerTest {
         int page = 1;
         int size = 10;
 
-        Pagination<SeccionDTO> pagination = new Pagination<>();
+        Pagination<CursoDTO> pagination = new Pagination<>();
         pagination.setCountFilter(2);
         pagination.setTotalPages(pagination.processAndGetTotalPages(size));
-        List<SeccionEntity> seccionEntities = new ArrayList<>();
-        seccionEntities.add(seccionEntity);
-        SeccionEntity seccionEntity2 = new SeccionEntity();
-        seccionEntity2.setName('B');
-        seccionEntities.add(seccionEntity2);
-        pagination.setList(seccionEntities.stream().map(SeccionEntity::getSeccionDTO).collect(Collectors.toList()));
+        List<CursoEntity> cursoEntities = new ArrayList<>();
+        cursoEntities.add(cursoEntity);
+        CursoEntity cursoEntity2 = new CursoEntity();
+        cursoEntity2.setName("COMUNICACIÓN");
+        cursoEntities.add(cursoEntity2);
+        pagination.setList(cursoEntities.stream().map(CursoEntity::getCursoDTO).collect(Collectors.toList()));
 
-        ApiResponse<Pagination<SeccionDTO>> expectedApiResponse = new ApiResponse<>();
+        ApiResponse<Pagination<CursoDTO>> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
         expectedApiResponse.setMessage("ok");
         expectedApiResponse.setData(pagination);
 
-        when(seccionService.getList(filter, page, size)).thenReturn(expectedApiResponse);
+        when(cursoService.getList(filter, page, size)).thenReturn(expectedApiResponse);
 
         // When
-        ApiResponse<Pagination<SeccionDTO>> actualApiResponse = seccionRESTController.list(filter, page, size);
+        ApiResponse<Pagination<CursoDTO>> actualApiResponse = cursoRESTController.list(filter, page, size);
 
         // Then
         assertTrue(actualApiResponse.isSuccessful());
         assertEquals(expectedApiResponse, actualApiResponse);
-        assertEquals(pagination.getCountFilter(), actualApiResponse.getData().getCountFilter());
+        assertEquals(expectedApiResponse.getData().getCountFilter(), actualApiResponse.getData().getCountFilter());
         assertThat(actualApiResponse.getMessage()).isEqualTo(expectedApiResponse.getMessage());
         assertThat(actualApiResponse.getData()).isEqualTo(expectedApiResponse.getData());
 
-        verify(seccionService).getList(filter, page, size);
+        verify(cursoService).getList(filter, page, size);
     }
 
-    @DisplayName("Test para obtener una sección por id")
+    @DisplayName("Test para obtener un curso por id")
     @Test
     void one() throws ResourceNotFoundException {
         //given
-        ApiResponse<SeccionDTO> expectedApiResponse = new ApiResponse<>();
+        ApiResponse<CursoDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
         expectedApiResponse.setMessage("ok");
-        expectedApiResponse.setData(seccionEntity.getSeccionDTO());
+        expectedApiResponse.setData(cursoEntity.getCursoDTO());
 
-        when(seccionService.one(seccionEntity.getUniqueIdentifier())).thenReturn(expectedApiResponse);
+        when(cursoService.one(cursoEntity.getUniqueIdentifier())).thenReturn(expectedApiResponse);
 
         // When
-        ApiResponse<SeccionDTO> actualApiResponse = seccionRESTController.one(seccionEntity.getUniqueIdentifier());
+        ApiResponse<CursoDTO> actualApiResponse = cursoRESTController.one(cursoEntity.getUniqueIdentifier());
 
         // Then
         assertTrue(actualApiResponse.isSuccessful());
@@ -104,21 +107,21 @@ class SeccionRESTControllerTest {
         assertThat(actualApiResponse.getData().getName()).isEqualTo(expectedApiResponse.getData().getName());
         assertThat(actualApiResponse.getData().getCode()).isEqualTo(expectedApiResponse.getData().getCode());
 
-        verify(seccionService, times(1)).one(seccionEntity.getUniqueIdentifier());
+        verify(cursoService, times(1)).one(cursoEntity.getUniqueIdentifier());
     }
 
-    @DisplayName("Test para agregar una sección")
+    @DisplayName("Test para agregar un curso")
     @Test
     void add() throws AttributeException {
         // given
-        ApiResponse<SeccionDTO> expectedApiResponse = new ApiResponse<>();
+        ApiResponse<CursoDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
         expectedApiResponse.setMessage("ok");
-        expectedApiResponse.setData(seccionEntity.getSeccionDTO());
-        when(seccionService.add(seccionEntity.getSeccionDTO())).thenReturn(expectedApiResponse);
+        expectedApiResponse.setData(cursoEntity.getCursoDTO());
+        when(cursoService.add(cursoEntity.getCursoDTO())).thenReturn(expectedApiResponse);
 
         //when
-        ApiResponse<SeccionDTO> actualApiResponse = seccionRESTController.add(seccionEntity.getSeccionDTO());
+        ApiResponse<CursoDTO> actualApiResponse = cursoRESTController.add(cursoEntity.getCursoDTO());
 
         // then
         assertThat(actualApiResponse).isNotNull();
@@ -128,28 +131,28 @@ class SeccionRESTControllerTest {
         assertThat(actualApiResponse.getData().getName()).isEqualTo(expectedApiResponse.getData().getName());
         assertThat(actualApiResponse.getData().getCode()).isEqualTo(expectedApiResponse.getData().getCode());
 
-        verify(seccionService).add(this.seccionEntity.getSeccionDTO());
+        verify(cursoService).add(this.cursoEntity.getCursoDTO());
     }
 
-    @DisplayName("Test para actualizar una sección")
+    @DisplayName("Test para actualizar un curso")
     @Test
     void update() throws ResourceNotFoundException, AttributeException {
         //given
-        SeccionDTO seccionDTO2 = new SeccionDTO();
-        seccionDTO2.setName('B');
-        seccionDTO2.setCode("GR001");
-        seccionDTO2.setUpdateAt(LocalDateTime.now());
+        CursoDTO cursoDTO2 = new CursoDTO();
+        cursoDTO2.setName("COMUNICACION");
+        cursoDTO2.setCode("CUR001");
+        cursoDTO2.setUpdateAt(LocalDateTime.now());
 
-        ApiResponse<SeccionDTO> expectedApiResponse = new ApiResponse<>();
+        ApiResponse<CursoDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
         expectedApiResponse.setMessage("ok");
-        expectedApiResponse.setData(seccionDTO2);
+        expectedApiResponse.setData(cursoDTO2);
 
-        when(seccionService.one(seccionEntity.getUniqueIdentifier())).thenReturn(expectedApiResponse);
-        when(seccionService.update(seccionDTO2)).thenReturn(expectedApiResponse);
+        when(cursoService.one(cursoEntity.getUniqueIdentifier())).thenReturn(expectedApiResponse);
+        when(cursoService.update(cursoDTO2)).thenReturn(expectedApiResponse);
 
         // When
-        ApiResponse<SeccionDTO> actualApiResponse = seccionRESTController.update(seccionDTO2);
+        ApiResponse<CursoDTO> actualApiResponse = cursoRESTController.update(cursoDTO2);
 
         // Then
         assertTrue(actualApiResponse.isSuccessful());
@@ -158,22 +161,22 @@ class SeccionRESTControllerTest {
         assertThat(actualApiResponse.getData().getCode()).isEqualTo(expectedApiResponse.getData().getCode());
         assertThat(actualApiResponse.getData().getUpdateAt()).isEqualTo(expectedApiResponse.getData().getUpdateAt());
 
-        verify(seccionService).update(seccionDTO2);
+        verify(cursoService).update(cursoDTO2);
     }
 
-    @DisplayName("Test para eliminar una sección")
+    @DisplayName("Test para eliminar un curso")
     @Test
     void delete() throws ResourceNotFoundException {
         // given
-        ApiResponse<SeccionDTO> expectedApiResponse = new ApiResponse<>();
+        ApiResponse<CursoDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
         expectedApiResponse.setMessage("ok");
-        expectedApiResponse.setData(seccionEntity.getSeccionDTO());
+        expectedApiResponse.setData(cursoEntity.getCursoDTO());
 
-        when(seccionService.delete(seccionEntity.getUniqueIdentifier())).thenReturn(expectedApiResponse);
+        when(cursoService.delete(cursoEntity.getUniqueIdentifier())).thenReturn(expectedApiResponse);
 
         // when
-        ApiResponse<SeccionDTO> actualApiResponse = seccionRESTController.delete(seccionEntity.getUniqueIdentifier());
+        ApiResponse<CursoDTO> actualApiResponse = cursoRESTController.delete(cursoEntity.getUniqueIdentifier());
 
         // then
         assertTrue(actualApiResponse.isSuccessful());
@@ -181,6 +184,6 @@ class SeccionRESTControllerTest {
         assertThat(actualApiResponse.getData().getName()).isEqualTo(expectedApiResponse.getData().getName());
         assertThat(actualApiResponse.getData().getId()).isEqualTo(expectedApiResponse.getData().getId());
 
-        verify(seccionService, times(1)).delete(seccionEntity.getUniqueIdentifier());
+        verify(cursoService, times(1)).delete(cursoEntity.getUniqueIdentifier());
     }
 }
