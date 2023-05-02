@@ -1,9 +1,11 @@
 package com.rca.RCA.controller;
 
-import com.rca.RCA.entity.SeccionEntity;
-import com.rca.RCA.service.SeccionService;
+import com.rca.RCA.entity.AnioLectivoEntity;
+import com.rca.RCA.entity.PeriodoEntity;
+import com.rca.RCA.service.PeriodoService;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
+import com.rca.RCA.type.PeriodoDTO;
 import com.rca.RCA.type.SeccionDTO;
 import com.rca.RCA.util.exceptions.AttributeException;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
@@ -26,26 +28,36 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class SeccionRESTControllerTest {
-
+class PeriodoRESTControllerTest {
     @Mock
-    private SeccionService seccionService;
+    private PeriodoService periodoService;
 
     @InjectMocks
-    private SeccionRESTController seccionRESTController;
+    private PeriodoRESTController periodoRESTController;
 
-    private SeccionEntity seccionEntity;
+    private PeriodoEntity periodoEntity;
+
+    private AnioLectivoEntity anioLectivoEntity;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        seccionEntity= new SeccionEntity();
-        seccionEntity.setName('A');
-        seccionEntity.setCode("SEC001");
-        seccionEntity.setUniqueIdentifier(UUID.randomUUID().toString());
-        seccionEntity.setCreateAt(LocalDateTime.now());
+        periodoEntity= new PeriodoEntity();
+        periodoEntity.setName("I");
+        periodoEntity.setCode("PER001");
+        periodoEntity.setUniqueIdentifier(UUID.randomUUID().toString());
+        periodoEntity.setCreateAt(LocalDateTime.now());
+
+        anioLectivoEntity= new AnioLectivoEntity();
+        anioLectivoEntity.setName("2020");
+        anioLectivoEntity.setCode("ANIO001");
+        anioLectivoEntity.setUniqueIdentifier(UUID.randomUUID().toString());
+        anioLectivoEntity.setCreateAt(LocalDateTime.now());
+
+        periodoEntity.setAnio_lectivoEntity(anioLectivoEntity);
     }
-    @DisplayName("Test para listar las secciones")
+
+    @DisplayName("Test para listar los periodos")
     @Test
     void list() {
         // Given
@@ -53,25 +65,29 @@ class SeccionRESTControllerTest {
         int page = 1;
         int size = 10;
 
-        Pagination<SeccionDTO> pagination = new Pagination<>();
+        Pagination<PeriodoDTO> pagination = new Pagination<>();
         pagination.setCountFilter(2);
         pagination.setTotalPages(pagination.processAndGetTotalPages(size));
-        List<SeccionEntity> seccionEntities = new ArrayList<>();
-        seccionEntities.add(seccionEntity);
-        SeccionEntity seccionEntity2 = new SeccionEntity();
-        seccionEntity2.setName('B');
-        seccionEntities.add(seccionEntity2);
-        pagination.setList(seccionEntities.stream().map(SeccionEntity::getSeccionDTO).collect(Collectors.toList()));
+        List<PeriodoEntity> periodoEntities = new ArrayList<>();
+        periodoEntities.add(periodoEntity);
+        PeriodoEntity periodoEntity2 = new PeriodoEntity();
+        periodoEntity2.setName("II");
+        periodoEntity2.setCode("PER002");
+        periodoEntity2.setUniqueIdentifier(UUID.randomUUID().toString());
+        periodoEntity2.setCreateAt(LocalDateTime.now());
+        periodoEntity2.setAnio_lectivoEntity(anioLectivoEntity);
+        periodoEntities.add(periodoEntity2);
+        pagination.setList(periodoEntities.stream().map(PeriodoEntity::getPeriodoDTO).collect(Collectors.toList()));
 
-        ApiResponse<Pagination<SeccionDTO>> expectedApiResponse = new ApiResponse<>();
+        ApiResponse<Pagination<PeriodoDTO>> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
         expectedApiResponse.setMessage("ok");
         expectedApiResponse.setData(pagination);
 
-        when(seccionService.getList(filter, page, size)).thenReturn(expectedApiResponse);
+        when(periodoService.getList(filter, page, size)).thenReturn(expectedApiResponse);
 
         // When
-        ApiResponse<Pagination<SeccionDTO>> actualApiResponse = seccionRESTController.list(filter, page, size);
+        ApiResponse<Pagination<PeriodoDTO>> actualApiResponse = periodoRESTController.list(filter, page, size);
 
         // Then
         assertTrue(actualApiResponse.isSuccessful());
@@ -80,22 +96,22 @@ class SeccionRESTControllerTest {
         assertThat(actualApiResponse.getMessage()).isEqualTo(expectedApiResponse.getMessage());
         assertThat(actualApiResponse.getData()).isEqualTo(expectedApiResponse.getData());
 
-        verify(seccionService).getList(filter, page, size);
+        verify(periodoService).getList(filter, page, size);
     }
 
-    @DisplayName("Test para obtener una sección por id")
+    @DisplayName("Test para obtener un periodo por id")
     @Test
     void one() throws ResourceNotFoundException {
         //given
-        ApiResponse<SeccionDTO> expectedApiResponse = new ApiResponse<>();
+        ApiResponse<PeriodoDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
         expectedApiResponse.setMessage("ok");
-        expectedApiResponse.setData(seccionEntity.getSeccionDTO());
+        expectedApiResponse.setData(periodoEntity.getPeriodoDTO());
 
-        when(seccionService.one(seccionEntity.getUniqueIdentifier())).thenReturn(expectedApiResponse);
+        when(periodoService.one(periodoEntity.getUniqueIdentifier())).thenReturn(expectedApiResponse);
 
         // When
-        ApiResponse<SeccionDTO> actualApiResponse = seccionRESTController.one(seccionEntity.getUniqueIdentifier());
+        ApiResponse<PeriodoDTO> actualApiResponse = periodoRESTController.one(periodoEntity.getUniqueIdentifier());
 
         // Then
         assertTrue(actualApiResponse.isSuccessful());
@@ -104,21 +120,22 @@ class SeccionRESTControllerTest {
         assertThat(actualApiResponse.getData().getName()).isEqualTo(expectedApiResponse.getData().getName());
         assertThat(actualApiResponse.getData().getCode()).isEqualTo(expectedApiResponse.getData().getCode());
 
-        verify(seccionService, times(1)).one(seccionEntity.getUniqueIdentifier());
+        verify(periodoService, times(1)).one(periodoEntity.getUniqueIdentifier());
     }
 
-    @DisplayName("Test para agregar una sección")
+
+    @DisplayName("Test para agregar un periodo")
     @Test
-    void add() throws AttributeException {
+    void add() throws AttributeException, ResourceNotFoundException {
         // given
-        ApiResponse<SeccionDTO> expectedApiResponse = new ApiResponse<>();
+        ApiResponse<PeriodoDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
         expectedApiResponse.setMessage("ok");
-        expectedApiResponse.setData(seccionEntity.getSeccionDTO());
-        when(seccionService.add(seccionEntity.getSeccionDTO())).thenReturn(expectedApiResponse);
+        expectedApiResponse.setData(periodoEntity.getPeriodoDTO());
+        when(periodoService.add(periodoEntity.getPeriodoDTO())).thenReturn(expectedApiResponse);
 
         //when
-        ApiResponse<SeccionDTO> actualApiResponse = seccionRESTController.add(seccionEntity.getSeccionDTO());
+        ApiResponse<PeriodoDTO> actualApiResponse = periodoRESTController.add(periodoEntity.getPeriodoDTO());
 
         // then
         assertThat(actualApiResponse).isNotNull();
@@ -128,28 +145,29 @@ class SeccionRESTControllerTest {
         assertThat(actualApiResponse.getData().getName()).isEqualTo(expectedApiResponse.getData().getName());
         assertThat(actualApiResponse.getData().getCode()).isEqualTo(expectedApiResponse.getData().getCode());
 
-        verify(seccionService).add(this.seccionEntity.getSeccionDTO());
+        verify(periodoService).add(this.periodoEntity.getPeriodoDTO());
     }
 
-    @DisplayName("Test para actualizar una sección")
+
+    @DisplayName("Test para actualizar un periodo")
     @Test
     void update() throws ResourceNotFoundException, AttributeException {
         //given
-        SeccionDTO seccionDTO2 = new SeccionDTO();
-        seccionDTO2.setName('B');
-        seccionDTO2.setCode("GR001");
-        seccionDTO2.setUpdateAt(LocalDateTime.now());
+        PeriodoDTO periodoDTO2 = new PeriodoDTO();
+        periodoDTO2.setName("II");
+        periodoDTO2.setCode("PER001");
+        periodoDTO2.setUpdateAt(LocalDateTime.now());
 
-        ApiResponse<SeccionDTO> expectedApiResponse = new ApiResponse<>();
+        ApiResponse<PeriodoDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
         expectedApiResponse.setMessage("ok");
-        expectedApiResponse.setData(seccionDTO2);
+        expectedApiResponse.setData(periodoDTO2);
 
-        when(seccionService.one(seccionEntity.getUniqueIdentifier())).thenReturn(expectedApiResponse);
-        when(seccionService.update(seccionDTO2)).thenReturn(expectedApiResponse);
+        when(periodoService.one(periodoEntity.getUniqueIdentifier())).thenReturn(expectedApiResponse);
+        when(periodoService.update(periodoDTO2)).thenReturn(expectedApiResponse);
 
         // When
-        ApiResponse<SeccionDTO> actualApiResponse = seccionRESTController.update(seccionDTO2);
+        ApiResponse<PeriodoDTO> actualApiResponse = periodoRESTController.update(periodoDTO2);
 
         // Then
         assertTrue(actualApiResponse.isSuccessful());
@@ -158,22 +176,23 @@ class SeccionRESTControllerTest {
         assertThat(actualApiResponse.getData().getCode()).isEqualTo(expectedApiResponse.getData().getCode());
         assertThat(actualApiResponse.getData().getUpdateAt()).isEqualTo(expectedApiResponse.getData().getUpdateAt());
 
-        verify(seccionService).update(seccionDTO2);
+        verify(periodoService).update(periodoDTO2);
     }
 
-    @DisplayName("Test para eliminar una sección")
+
+    @DisplayName("Test para eliminar un periodo")
     @Test
     void delete() throws ResourceNotFoundException {
         // given
-        ApiResponse<SeccionDTO> expectedApiResponse = new ApiResponse<>();
+        ApiResponse<PeriodoDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
         expectedApiResponse.setMessage("ok");
-        expectedApiResponse.setData(seccionEntity.getSeccionDTO());
+        expectedApiResponse.setData(periodoEntity.getPeriodoDTO());
 
-        when(seccionService.delete(seccionEntity.getUniqueIdentifier())).thenReturn(expectedApiResponse);
+        when(periodoService.delete(periodoEntity.getUniqueIdentifier())).thenReturn(expectedApiResponse);
 
         // when
-        ApiResponse<SeccionDTO> actualApiResponse = seccionRESTController.delete(seccionEntity.getUniqueIdentifier());
+        ApiResponse<PeriodoDTO> actualApiResponse = periodoRESTController.delete(periodoEntity.getUniqueIdentifier());
 
         // then
         assertTrue(actualApiResponse.isSuccessful());
@@ -181,6 +200,6 @@ class SeccionRESTControllerTest {
         assertThat(actualApiResponse.getData().getName()).isEqualTo(expectedApiResponse.getData().getName());
         assertThat(actualApiResponse.getData().getId()).isEqualTo(expectedApiResponse.getData().getId());
 
-        verify(seccionService, times(1)).delete(seccionEntity.getUniqueIdentifier());
+        verify(periodoService, times(1)).delete(periodoEntity.getUniqueIdentifier());
     }
 }
