@@ -125,7 +125,6 @@ class AulaRESTControllerTest {
         ApiResponse<AulaDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
         expectedApiResponse.setMessage("ok");
-        aulaEntity.setDeleteAt(LocalDateTime.now());
         expectedApiResponse.setData(aulaEntity.getAulaDTO());
 
         when(aulaService.one(aulaEntity.getUniqueIdentifier())).thenReturn(expectedApiResponse);
@@ -137,7 +136,6 @@ class AulaRESTControllerTest {
         assertTrue(actualApiResponse.isSuccessful());
         assertEquals(expectedApiResponse, actualApiResponse);
         assertThat(actualApiResponse.getData().getId()).isEqualTo(expectedApiResponse.getData().getId());
-        assertThat(actualApiResponse.getData().getDeleteAt()).isEqualTo(expectedApiResponse.getData().getDeleteAt());
 
         verify(aulaService, times(1)).one(aulaEntity.getUniqueIdentifier());
 

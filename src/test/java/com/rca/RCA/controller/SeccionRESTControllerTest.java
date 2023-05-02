@@ -75,10 +75,12 @@ class SeccionRESTControllerTest {
 
         // Then
         assertTrue(actualApiResponse.isSuccessful());
-        assertEquals("ok", actualApiResponse.getMessage());
+        assertEquals(expectedApiResponse, actualApiResponse);
         assertEquals(pagination.getCountFilter(), actualApiResponse.getData().getCountFilter());
         assertThat(actualApiResponse.getMessage()).isEqualTo(expectedApiResponse.getMessage());
         assertThat(actualApiResponse.getData()).isEqualTo(expectedApiResponse.getData());
+
+        verify(seccionService).getList(filter, page, size);
     }
 
     @DisplayName("Test para obtener una sección por id")
@@ -88,7 +90,6 @@ class SeccionRESTControllerTest {
         ApiResponse<SeccionDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
         expectedApiResponse.setMessage("ok");
-        seccionEntity.setDeleteAt(LocalDateTime.now());
         expectedApiResponse.setData(seccionEntity.getSeccionDTO());
 
         when(seccionService.one(seccionEntity.getUniqueIdentifier())).thenReturn(expectedApiResponse);
@@ -98,11 +99,10 @@ class SeccionRESTControllerTest {
 
         // Then
         assertTrue(actualApiResponse.isSuccessful());
-        assertEquals("ok", actualApiResponse.getMessage());
-        assertThat(actualApiResponse.getData().getId()).isEqualTo(seccionEntity.getUniqueIdentifier());
-        assertThat(actualApiResponse.getData().getName()).isEqualTo(seccionEntity.getName());
-        assertThat(actualApiResponse.getData().getCode()).isEqualTo(seccionEntity.getCode());
-        assertThat(actualApiResponse.getData().getDeleteAt()).isEqualTo(expectedApiResponse.getData().getDeleteAt());
+        assertEquals(expectedApiResponse, actualApiResponse);
+        assertThat(actualApiResponse.getData().getId()).isEqualTo(expectedApiResponse.getData().getId());
+        assertThat(actualApiResponse.getData().getName()).isEqualTo(expectedApiResponse.getData().getName());
+        assertThat(actualApiResponse.getData().getCode()).isEqualTo(expectedApiResponse.getData().getCode());
 
         verify(seccionService, times(1)).one(seccionEntity.getUniqueIdentifier());
     }
@@ -123,11 +123,12 @@ class SeccionRESTControllerTest {
         // then
         assertThat(actualApiResponse).isNotNull();
         assertTrue(actualApiResponse.isSuccessful());
-        assertEquals("ok", actualApiResponse.getMessage());
-        assertThat(actualApiResponse.getData().getName()).isEqualTo(seccionEntity.getName());
-        assertThat(actualApiResponse.getData().getCode()).isEqualTo(seccionEntity.getCode());
-        assertThat(actualApiResponse.getData().getId()).isEqualTo(seccionEntity.getUniqueIdentifier());
-        assertThat(actualApiResponse.getData().getCreateAt()).isEqualTo(seccionEntity.getCreateAt());
+        assertEquals(expectedApiResponse, actualApiResponse);
+        assertThat(actualApiResponse.getData().getId()).isEqualTo(expectedApiResponse.getData().getId());
+        assertThat(actualApiResponse.getData().getName()).isEqualTo(expectedApiResponse.getData().getName());
+        assertThat(actualApiResponse.getData().getCode()).isEqualTo(expectedApiResponse.getData().getCode());
+
+        verify(seccionService).add(this.seccionEntity.getSeccionDTO());
     }
 
     @DisplayName("Test para actualizar una sección")
@@ -152,11 +153,12 @@ class SeccionRESTControllerTest {
 
         // Then
         assertTrue(actualApiResponse.isSuccessful());
-        assertEquals("ok", actualApiResponse.getMessage());
+        assertEquals(expectedApiResponse, actualApiResponse);
         assertThat(actualApiResponse.getData().getName()).isEqualTo(expectedApiResponse.getData().getName());
         assertThat(actualApiResponse.getData().getCode()).isEqualTo(expectedApiResponse.getData().getCode());
         assertThat(actualApiResponse.getData().getUpdateAt()).isEqualTo(seccionDTO2.getUpdateAt());
 
+        verify(seccionService).update(seccionDTO2);
     }
 
     @DisplayName("Test para eliminar una sección")
@@ -175,9 +177,9 @@ class SeccionRESTControllerTest {
 
         // then
         assertTrue(actualApiResponse.isSuccessful());
-        assertEquals("ok", actualApiResponse.getMessage());
-        assertThat(actualApiResponse.getData().getName()).isEqualTo(seccionEntity.getName());
-        assertThat(actualApiResponse.getData().getId()).isEqualTo(seccionEntity.getUniqueIdentifier());
+        assertEquals(expectedApiResponse, actualApiResponse);
+        assertThat(actualApiResponse.getData().getName()).isEqualTo(expectedApiResponse.getData().getName());
+        assertThat(actualApiResponse.getData().getId()).isEqualTo(expectedApiResponse.getData().getId());
 
         verify(seccionService, times(1)).delete(seccionEntity.getUniqueIdentifier());
     }
