@@ -157,7 +157,6 @@ class SeccionRESTControllerTest {
         assertThat(actualApiResponse.getData().getCode()).isEqualTo(expectedApiResponse.getData().getCode());
         assertThat(actualApiResponse.getData().getUpdateAt()).isEqualTo(seccionDTO2.getUpdateAt());
 
-        System.out.println(actualApiResponse.getData().getCode());
     }
 
     @DisplayName("Test para eliminar una sección")
