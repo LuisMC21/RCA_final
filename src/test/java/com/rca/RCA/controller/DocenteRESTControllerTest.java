@@ -161,9 +161,9 @@ class DocenteRESTControllerTest {
         assertTrue(actualApiResponse.isSuccessful());
         assertEquals("ok", actualApiResponse.getMessage());
         assertEquals(expectedApiResponse, actualApiResponse);
-        assertThat(actualApiResponse.getData().getCode()).isEqualTo(docenteDTO.getCode());
-        assertThat(actualApiResponse.getData().getCreateAt()).isEqualTo(docenteDTO.getCreateAt());
-        assertThat(actualApiResponse.getData().getId()).isEqualTo(docenteDTO.getId());
+        assertThat(actualApiResponse.getData().getCode()).isEqualTo(expectedApiResponse.getData().getCode());
+        assertThat(actualApiResponse.getData().getCreateAt()).isEqualTo(expectedApiResponse.getData().getCreateAt());
+        assertThat(actualApiResponse.getData().getId()).isEqualTo(expectedApiResponse.getData().getId());
         verify(docenteService).add(this.docenteDTO);
     }
 
@@ -172,7 +172,6 @@ class DocenteRESTControllerTest {
     void update() throws ResourceNotFoundException {
         //given
         DocenteDTO docenteDTO2 = new DocenteDTO();
-        docenteDTO2 = new DocenteDTO();
         docenteDTO2.setSpecialty("CIENCIAS");
         docenteDTO2.setDose('2');
         docenteDTO2.setCode("DOC001");

@@ -203,52 +203,6 @@ public class AlumnoService {
         return apiResponse;
     }
 
-    public ResponseEntity<Resource> exportReporte(int idApo) {
-     System.out.println("ID: " + idApo);
-     Optional<List<AlumnoEntity>> optionalAlumnoEntity = this.alumnoRepository.findByApoderado(idApo);
-     Optional<ApoderadoEntity> apoderadoEntity = this.apoderadoRepository.findById(idApo);
-
-     if (optionalAlumnoEntity.isPresent()){
-
-         try{
-             final ApoderadoEntity apoderadoEntity1 = apoderadoEntity.get();
-             final File file = ResourceUtils.getFile("classpath:reportes/alumnos.jasper");
-             final File imgLogo = ResourceUtils.getFile("classpath:images/logo.png");
-             final JasperReport report = (JasperReport) JRLoader.loadObject(file);
-
-             final HashMap<String, Object> parameters = new HashMap<>();
-             parameters.put("nombreCompleto", apoderadoEntity1.getUsuarioEntity().getName());
-             parameters.put("Logo", new FileInputStream(imgLogo));
-             parameters.put("email", apoderadoEntity1.getEmail());
-             parameters.put("ds", new JRBeanCollectionDataSource((Collection<?>) this.alumnoRepository.findByApoderadoI(idApo)));
-
-             JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
-             byte[] reporte = JasperExportManager.exportReportToPdf(jasperPrint);
-             String sdf = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
-             StringBuilder stringBuilder = new StringBuilder().append("InvoicePDF:");
-             ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
-                     .filename(stringBuilder.append(apoderadoEntity1.getId())
-                             .append("generateDate:")
-                             .append(sdf)
-                             .append(".pdf")
-                             .toString())
-                     .build();
-             HttpHeaders httpHeaders = new HttpHeaders();
-             httpHeaders.setContentDisposition(contentDisposition);
-
-             return ResponseEntity.ok().contentLength((long) reporte.length)
-                     .contentType(MediaType.APPLICATION_PDF)
-                     .headers(httpHeaders).body(new ByteArrayResource(reporte));
-         }catch (Exception e){
-            e.printStackTrace();
-         }
-
-     }else{
-         return  ResponseEntity.noContent().build();
-     }
-        return null;
-    }
-
     public ResponseEntity<Resource> datosPersonales(String uniqueIdentifier) {
         Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(uniqueIdentifier);
 
