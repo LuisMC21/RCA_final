@@ -95,41 +95,40 @@ public class AlumnoService {
 
     //Agregar Alumno
     public ApiResponse<AlumnoDTO> add(AlumnoDTO AlumnoDTO) throws AttributeException, ResourceNotFoundException {
-        ApiResponse<AlumnoDTO> apiResponse = new ApiResponse<>();
 
         //Verifica que el rol sea docente
         if (!AlumnoDTO.getUsuarioDTO().getRol().equalsIgnoreCase("STUDENT"))
             throw new AttributeException("El rol es inválido");
 
-        Rol optionalRolEntity= this.rolRepository.findByRolNombre(RolNombre.ROLE_TEACHER).orElseThrow(()-> new ResourceNotFoundException("Rol Inválido"));
-
-        ApiResponse<UsuarioDTO> apiResponseU= this.loginService.add(AlumnoDTO.getUsuarioDTO());
-        if (!apiResponseU.isSuccessful()) {
-            log.warn("No se agregó el registro");
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("ALUMNO_EXISTS");
-            apiResponse.setMessage(apiResponseU.getMessage());
-            return apiResponse;
-        }
+        ApiResponse<UsuarioDTO> apiResponseU = this.loginService.add(AlumnoDTO.getUsuarioDTO());
+        ApiResponse<AlumnoDTO> apiResponse = new ApiResponse<>();
+        if (apiResponseU.isSuccessful()) {
 
         //AlumnoDTO add data
         AlumnoDTO.setId(UUID.randomUUID().toString());
         AlumnoDTO.setCode(Code.generateCode(Code.ALU_CODE, this.alumnoRepository.count() + 1, Code.ALU_LENGTH));
         AlumnoDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         AlumnoDTO.setCreateAt(LocalDateTime.now());
-
         //change dto to entity
         AlumnoEntity AlumnoEntity = new AlumnoEntity();
         AlumnoEntity.setAlumnoDTO(AlumnoDTO);
 
-        AlumnoEntity.setUsuarioEntity(this.usuarioRepository.findByUniqueIdentifier(AlumnoDTO.getId(), ConstantsGeneric.CREATED_STATUS).get());
-        AlumnoEntity.setApoderadoEntity(this.apoderadoRepository.findByUniqueIdentifier(AlumnoDTO.getId()).get());
+        AlumnoEntity.setUsuarioEntity(this.usuarioRepository.findByUniqueIdentifier(apiResponseU.getData().getId(), ConstantsGeneric.CREATED_STATUS).get());
+        AlumnoEntity.setApoderadoEntity(this.apoderadoRepository.findByUniqueIdentifier(AlumnoDTO.getApoderadoDTO().getId()).get());
 
         apiResponse.setData(this.alumnoRepository.save(AlumnoEntity).getAlumnoDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
 
         return apiResponse;
+    }else {
+            log.warn("No se agregó el registro");
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("ALUMNO_EXISTS");
+            apiResponse.setMessage(apiResponseU.getMessage());
+            return apiResponse;
+
+        }
     }
 
     //Modificar Alumno
