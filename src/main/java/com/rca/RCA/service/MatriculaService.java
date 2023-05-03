@@ -23,10 +23,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
@@ -208,52 +205,44 @@ public class MatriculaService {
     //Función para cambiar estado a eliminado- END
 
     //Función para generar pdf
-    public ResponseEntity<Resource> exportListaAlumnos(String uniqueIdentifierAula, String uniqueIdentifierPeriodo) {
+    public ResponseEntity<Resource> exportListaAlumnos(String uniqueIdentifierAula, String uniqueIdentifierAnio) throws ResourceNotFoundException {
 
-        Optional<List<AlumnoEntity>> optionalAlumnoEntity = this.alumnoRepository.findByAulaPeriodo(uniqueIdentifierAula, uniqueIdentifierPeriodo);
-        Optional<AulaEntity> optionalAulaEntity = this.aulaRepository.findByUniqueIdentifier(uniqueIdentifierAula, ConstantsGeneric.CREATED_STATUS);
-        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(uniqueIdentifierPeriodo, ConstantsGeneric.CREATED_STATUS);
+        try{
+            List<AlumnoEntity> alumnoEntities = this.alumnoRepository.findByAulaPeriodo(uniqueIdentifierAula, uniqueIdentifierAnio).orElseThrow(()->new ResourceNotFoundException("Alumnos no encontrados"));
+            AulaEntity aulaEntity = this.aulaRepository.findByUniqueIdentifier(uniqueIdentifierAula, ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Aula no encontrada"));
+            AnioLectivoEntity anioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(uniqueIdentifierAnio, ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Año lectivo no encontrado"));
+            final File file = ResourceUtils.getFile("classpath:reportes/alumnosAula.jasper");
+            final File imgLogo = ResourceUtils.getFile("classpath:images/logo.png");
+            final JasperReport report = (JasperReport) JRLoader.loadObject(file);
 
-        if (optionalAlumnoEntity.isPresent() && optionalAlumnoEntity.isPresent() && optionalAnioLectivoEntity.isPresent()){
+            final HashMap<String, Object> parameters = new HashMap<>();
+            parameters.put("logoEmpresa", new FileInputStream(imgLogo));
+            parameters.put("Grado", String.valueOf(aulaEntity.getAulaDTO().getGradoDTO().getName()));
+            parameters.put("Seccion", String.valueOf(aulaEntity.getAulaDTO().getSeccionDTO().getName()));
+            parameters.put("Anio", anioLectivoEntity.getAnioLectivoDTO().getName());
+            parameters.put("dsAlumnosAula", new JRBeanCollectionDataSource((Collection<?>) this.alumnoRepository.findByAulaPeriodoI(uniqueIdentifierAula, uniqueIdentifierAnio)));
 
-            try{
-                final AnioLectivoEntity anioLectivoEntity = optionalAnioLectivoEntity.get();
-                final AulaEntity aulaEntity = optionalAulaEntity.get();
-                final File file = ResourceUtils.getFile("classpath:reportes/alumnosAula.jasper");
-                final File imgLogo = ResourceUtils.getFile("classpath:images/logo.png");
-                final JasperReport report = (JasperReport) JRLoader.loadObject(file);
+            JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
+            byte[] reporte = JasperExportManager.exportReportToPdf(jasperPrint);
+            String sdf = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
+            StringBuilder stringBuilder = new StringBuilder().append("InvoicePDF:");
+            ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
+                    .filename(stringBuilder.append("1")
+                            .append("generateDate:")
+                            .append(sdf)
+                            .append(".pdf")
+                            .toString())
+                    .build();
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.setContentDisposition(contentDisposition);
 
-                final HashMap<String, Object> parameters = new HashMap<>();
-                parameters.put("logoEmpresa", new FileInputStream(imgLogo));
-                parameters.put("Grado", String.valueOf(aulaEntity.getAulaDTO().getGradoDTO().getName()));
-                parameters.put("Seccion", String.valueOf(aulaEntity.getAulaDTO().getSeccionDTO().getName()));
-                parameters.put("Anio", anioLectivoEntity.getAnioLectivoDTO().getName());
-                parameters.put("dsAlumnosAula", new JRBeanCollectionDataSource((Collection<?>) this.alumnoRepository.findByAulaPeriodoI(uniqueIdentifierAula, uniqueIdentifierPeriodo)));
-
-                JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
-                byte[] reporte = JasperExportManager.exportReportToPdf(jasperPrint);
-                String sdf = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
-                StringBuilder stringBuilder = new StringBuilder().append("InvoicePDF:");
-                ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
-                        .filename(stringBuilder.append("1")
-                                .append("generateDate:")
-                                .append(sdf)
-                                .append(".pdf")
-                                .toString())
-                        .build();
-                HttpHeaders httpHeaders = new HttpHeaders();
-                httpHeaders.setContentDisposition(contentDisposition);
-
-                return ResponseEntity.ok().contentLength((long) reporte.length)
-                        .contentType(MediaType.APPLICATION_PDF)
-                        .headers(httpHeaders).body(new ByteArrayResource(reporte));
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-
-        }else{
-            return  ResponseEntity.noContent().build();
+            return ResponseEntity.ok().contentLength((long) reporte.length)
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .headers(httpHeaders).body(new ByteArrayResource(reporte));
+        }catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ByteArrayResource("Error al generar el reporte PDF".getBytes()));
         }
-        return null;
     }
 }

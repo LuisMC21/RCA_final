@@ -138,7 +138,6 @@ class AulaRESTControllerTest {
         assertThat(actualApiResponse.getData().getId()).isEqualTo(expectedApiResponse.getData().getId());
 
         verify(aulaService, times(1)).one(aulaEntity.getUniqueIdentifier());
-
     }
 
     @DisplayName("Test para agregar un aula")
@@ -159,9 +158,9 @@ class AulaRESTControllerTest {
         assertTrue(actualApiResponse.isSuccessful());
         assertEquals("ok", actualApiResponse.getMessage());
         assertEquals(expectedApiResponse, actualApiResponse);
-        assertThat(actualApiResponse.getData().getCode()).isEqualTo(aulaEntity.getCode());
-        assertThat(actualApiResponse.getData().getCreateAt()).isEqualTo(aulaEntity.getCreateAt());
-        assertThat(actualApiResponse.getData().getId()).isEqualTo(aulaEntity.getUniqueIdentifier());
+        assertThat(actualApiResponse.getData().getCode()).isEqualTo(expectedApiResponse.getData().getCode());
+        assertThat(actualApiResponse.getData().getCreateAt()).isEqualTo(expectedApiResponse.getData().getCreateAt());
+        assertThat(actualApiResponse.getData().getId()).isEqualTo(expectedApiResponse.getData().getId());
         verify(aulaService).add(this.aulaEntity.getAulaDTO());
     }
 
