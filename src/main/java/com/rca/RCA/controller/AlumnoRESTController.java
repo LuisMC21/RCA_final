@@ -54,11 +54,6 @@ public class AlumnoRESTController {
          return this.alumnoService.delete(id);
     }
 
-    @GetMapping("exportReporte")
-    public ResponseEntity<Resource> exportReporte(@RequestParam int idApo){
-        return this.alumnoService.exportReporte(idApo);
-    }
-
     @GetMapping("datosPersonales")
     public ResponseEntity<Resource> datosPersonales(@RequestParam String uniqueIdentifier){
         return this.alumnoService.datosPersonales(uniqueIdentifier);

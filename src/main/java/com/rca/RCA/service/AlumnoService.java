@@ -102,41 +102,40 @@ public class AlumnoService {
 
     //Agregar Alumno
     public ApiResponse<AlumnoDTO> add(AlumnoDTO AlumnoDTO) throws AttributeException, ResourceNotFoundException {
-        ApiResponse<AlumnoDTO> apiResponse = new ApiResponse<>();
 
         //Verifica que el rol sea docente
         if (!AlumnoDTO.getUsuarioDTO().getRol().equalsIgnoreCase("STUDENT"))
             throw new AttributeException("El rol es inválido");
 
-        Rol optionalRolEntity= this.rolRepository.findByRolNombre(RolNombre.ROLE_TEACHER).orElseThrow(()-> new ResourceNotFoundException("Rol Inválido"));
-
-        ApiResponse<UsuarioDTO> apiResponseU= this.loginService.add(AlumnoDTO.getUsuarioDTO());
-        if (!apiResponseU.isSuccessful()) {
-            log.warn("No se agregó el registro");
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("ALUMNO_EXISTS");
-            apiResponse.setMessage(apiResponseU.getMessage());
-            return apiResponse;
-        }
+        ApiResponse<UsuarioDTO> apiResponseU = this.loginService.add(AlumnoDTO.getUsuarioDTO());
+        ApiResponse<AlumnoDTO> apiResponse = new ApiResponse<>();
+        if (apiResponseU.isSuccessful()) {
 
         //AlumnoDTO add data
         AlumnoDTO.setId(UUID.randomUUID().toString());
         AlumnoDTO.setCode(Code.generateCode(Code.ALU_CODE, this.alumnoRepository.count() + 1, Code.ALU_LENGTH));
         AlumnoDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         AlumnoDTO.setCreateAt(LocalDateTime.now());
-
         //change dto to entity
         AlumnoEntity AlumnoEntity = new AlumnoEntity();
         AlumnoEntity.setAlumnoDTO(AlumnoDTO);
 
-        AlumnoEntity.setUsuarioEntity(this.usuarioRepository.findByUniqueIdentifier(AlumnoDTO.getId(), ConstantsGeneric.CREATED_STATUS).get());
-        AlumnoEntity.setApoderadoEntity(this.apoderadoRepository.findByUniqueIdentifier(AlumnoDTO.getId()).get());
+        AlumnoEntity.setUsuarioEntity(this.usuarioRepository.findByUniqueIdentifier(apiResponseU.getData().getId(), ConstantsGeneric.CREATED_STATUS).get());
+        AlumnoEntity.setApoderadoEntity(this.apoderadoRepository.findByUniqueIdentifier(AlumnoDTO.getApoderadoDTO().getId()).get());
 
         apiResponse.setData(this.alumnoRepository.save(AlumnoEntity).getAlumnoDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
 
         return apiResponse;
+    }else {
+            log.warn("No se agregó el registro");
+            apiResponse.setSuccessful(false);
+            apiResponse.setCode("ALUMNO_EXISTS");
+            apiResponse.setMessage(apiResponseU.getMessage());
+            return apiResponse;
+
+        }
     }
 
     //Modificar Alumno
@@ -209,52 +208,6 @@ public class AlumnoService {
         }
 
         return apiResponse;
-    }
-
-    public ResponseEntity<Resource> exportReporte(int idApo) {
-     System.out.println("ID: " + idApo);
-     Optional<List<AlumnoEntity>> optionalAlumnoEntity = this.alumnoRepository.findByApoderado(idApo);
-     Optional<ApoderadoEntity> apoderadoEntity = this.apoderadoRepository.findById(idApo);
-
-     if (optionalAlumnoEntity.isPresent()){
-
-         try{
-             final ApoderadoEntity apoderadoEntity1 = apoderadoEntity.get();
-             final File file = ResourceUtils.getFile("classpath:reportes/alumnos.jasper");
-             final File imgLogo = ResourceUtils.getFile("classpath:images/logo.png");
-             final JasperReport report = (JasperReport) JRLoader.loadObject(file);
-
-             final HashMap<String, Object> parameters = new HashMap<>();
-             parameters.put("nombreCompleto", apoderadoEntity1.getUsuarioEntity().getName());
-             parameters.put("Logo", new FileInputStream(imgLogo));
-             parameters.put("email", apoderadoEntity1.getEmail());
-             parameters.put("ds", new JRBeanCollectionDataSource((Collection<?>) this.alumnoRepository.findByApoderadoI(idApo)));
-
-             JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
-             byte[] reporte = JasperExportManager.exportReportToPdf(jasperPrint);
-             String sdf = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
-             StringBuilder stringBuilder = new StringBuilder().append("InvoicePDF:");
-             ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
-                     .filename(stringBuilder.append(apoderadoEntity1.getId())
-                             .append("generateDate:")
-                             .append(sdf)
-                             .append(".pdf")
-                             .toString())
-                     .build();
-             HttpHeaders httpHeaders = new HttpHeaders();
-             httpHeaders.setContentDisposition(contentDisposition);
-
-             return ResponseEntity.ok().contentLength((long) reporte.length)
-                     .contentType(MediaType.APPLICATION_PDF)
-                     .headers(httpHeaders).body(new ByteArrayResource(reporte));
-         }catch (Exception e){
-            e.printStackTrace();
-         }
-
-     }else{
-         return  ResponseEntity.noContent().build();
-     }
-        return null;
     }
 
     public ResponseEntity<Resource> datosPersonales(String uniqueIdentifier) {

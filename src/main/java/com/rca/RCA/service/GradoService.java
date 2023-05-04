@@ -112,11 +112,9 @@ public class GradoService {
         gradoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
         gradoEntity.setDeleteAt(LocalDateTime.now());
         //Eliminar lista de aulas del grado
-        List<AulaEntity> aulaEntities= this.aulaRepository.findById_Grado(gradoEntity.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Grado: No encontrado"));
-        for (int i = 0; i < aulaEntities.size(); i++) {
-            aulaEntities.get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-            aulaEntities.get(i).setDeleteAt(gradoEntity.getDeleteAt());
-            this.aulaService.delete(aulaEntities.get(i).getCode());
+        Optional<List<AulaEntity>> optionalAulaEntities= this.aulaRepository.findById_Grado(gradoEntity.getId(), ConstantsGeneric.CREATED_STATUS);
+        for (int i = 0; i < optionalAulaEntities.get().size(); i++) {
+            this.aulaService.delete(optionalAulaEntities.get().get(i).getCode());
         }
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");

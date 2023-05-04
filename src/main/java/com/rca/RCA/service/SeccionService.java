@@ -116,8 +116,6 @@ public class SeccionService {
         seccionEntity.setDeleteAt(LocalDateTime.now());
         Optional<List<AulaEntity>> optionalAulaEntities= this.aulaRepository.findById_Seccion(seccionEntity.getId(), ConstantsGeneric.CREATED_STATUS);
         for(int i=0; i<optionalAulaEntities.get().size(); i++){
-            optionalAulaEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-            optionalAulaEntities.get().get(i).setDeleteAt(seccionEntity.getDeleteAt());
             this.aulaService.delete(optionalAulaEntities.get().get(i).getCode());
         }
         apiResponse.setSuccessful(true);

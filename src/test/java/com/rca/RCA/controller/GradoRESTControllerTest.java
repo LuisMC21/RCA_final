@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -60,10 +61,13 @@ class GradoRESTControllerTest {
         // then
         assertThat(actualApiResponse).isNotNull();
         assertTrue(actualApiResponse.isSuccessful());
-        assertEquals("ok", actualApiResponse.getMessage());
+        assertEquals(expectedApiResponse, actualApiResponse);
         assertThat(actualApiResponse.getData().getName()).isEqualTo(gradoEntity.getName());
         assertThat(actualApiResponse.getData().getCode()).isEqualTo(gradoEntity.getCode());
+        assertThat(actualApiResponse.getData().getCreateAt()).isEqualTo(gradoEntity.getCreateAt());
         assertThat(actualApiResponse.getData().getId()).isEqualTo(gradoEntity.getUniqueIdentifier());
+        verify(gradoService).add(this.gradoEntity.getGradoDTO());
+
     }
     @DisplayName("Test para listar los grados")
     @Test
@@ -108,6 +112,7 @@ class GradoRESTControllerTest {
         GradoDTO gradoDTO2 = new GradoDTO();
         gradoDTO2.setName('2');
         gradoDTO2.setCode("GR001");
+        gradoDTO2.setUpdateAt(LocalDateTime.now());
 
         ApiResponse<GradoDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
@@ -123,8 +128,9 @@ class GradoRESTControllerTest {
         // Then
         assertTrue(actualApiResponse.isSuccessful());
         assertEquals("ok", actualApiResponse.getMessage());
-        assertThat(actualApiResponse.getData().getName()).isEqualTo(gradoDTO2.getName());
-        assertThat(actualApiResponse.getData().getCode()).isEqualTo(gradoDTO2.getCode());
+        assertThat(actualApiResponse.getData().getName()).isEqualTo(expectedApiResponse.getData().getName());
+        assertThat(actualApiResponse.getData().getCode()).isEqualTo(expectedApiResponse.getData().getCode());
+        assertThat(actualApiResponse.getData().getUpdateAt()).isEqualTo(expectedApiResponse.getData().getUpdateAt());
     }
 
     @DisplayName("Test para eliminar un grado")
@@ -134,6 +140,7 @@ class GradoRESTControllerTest {
         ApiResponse<GradoDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
         expectedApiResponse.setMessage("ok");
+        gradoEntity.setDeleteAt(LocalDateTime.now());
         expectedApiResponse.setData(gradoEntity.getGradoDTO());
 
         when(gradoService.delete(gradoEntity.getUniqueIdentifier())).thenReturn(expectedApiResponse);
@@ -144,8 +151,9 @@ class GradoRESTControllerTest {
         // then
         assertTrue(actualApiResponse.isSuccessful());
         assertEquals("ok", actualApiResponse.getMessage());
-        assertThat(actualApiResponse.getData().getName()).isEqualTo(gradoEntity.getName());
-        assertThat(actualApiResponse.getData().getId()).isEqualTo(gradoEntity.getUniqueIdentifier());
+        assertThat(actualApiResponse.getData().getName()).isEqualTo(expectedApiResponse.getData().getName());
+        assertThat(actualApiResponse.getData().getId()).isEqualTo(expectedApiResponse.getData().getId());
+        assertThat(actualApiResponse.getData().getDeleteAt()).isEqualTo(expectedApiResponse.getData().getDeleteAt());
 
         verify(gradoService, times(1)).delete(gradoEntity.getUniqueIdentifier());
     }
