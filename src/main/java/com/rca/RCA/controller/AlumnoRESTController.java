@@ -34,6 +34,11 @@ public class AlumnoRESTController {
         return this.alumnoService.getList(filter, page, size);
     }
 
+    @GetMapping("{id}")
+    public ApiResponse<AlumnoDTO> one(@PathVariable String id) throws ResourceNotFoundException {
+        return this.alumnoService.one(id);
+    }
+
     @PostMapping
     public ApiResponse<AlumnoDTO> add(@RequestBody @Valid  AlumnoDTO AlumnoDTO) throws ResourceNotFoundException, AttributeException {
         return this.alumnoService.add(AlumnoDTO);

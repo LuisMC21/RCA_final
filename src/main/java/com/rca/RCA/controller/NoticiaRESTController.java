@@ -29,6 +29,11 @@ public class NoticiaRESTController {
         return this.noticiaService.getList(filter, page, size);
     }
 
+    @GetMapping("{id}")
+    public ApiResponse<NoticiaDTO> one(@PathVariable String id) throws ResourceNotFoundException {
+        return this.noticiaService.one(id);
+    }
+
     @PostMapping
     public ApiResponse<NoticiaDTO> add(@RequestBody @Valid NoticiaFileDTO noticiaFileDTO) throws AttributeException, ResourceNotFoundException {
         return this.noticiaService.add(noticiaFileDTO);

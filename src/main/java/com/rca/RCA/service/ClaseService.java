@@ -4,10 +4,12 @@ package com.rca.RCA.service;
 import com.rca.RCA.entity.*;
 import com.rca.RCA.repository.*;
 import com.rca.RCA.type.ApiResponse;
+import com.rca.RCA.type.GradoDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.ClaseDTO;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -67,10 +69,19 @@ public class ClaseService {
         return apiResponse;
     }
 
-    //Agregar Clase
-    public ApiResponse<ClaseDTO> add(ClaseDTO ClaseDTO) {
+    public ApiResponse<ClaseDTO> one(String id) throws ResourceNotFoundException {
+        ClaseEntity claseEntity=this.claseRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Clase no encontrada"));
         ApiResponse<ClaseDTO> apiResponse = new ApiResponse<>();
-        System.out.println(ClaseDTO.toString());
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(claseEntity.getClaseDTO());
+        return apiResponse;
+    }
+
+    //Agregar Clase
+    public ApiResponse<ClaseDTO> add(ClaseDTO ClaseDTO) throws ResourceNotFoundException {
+        ApiResponse<ClaseDTO> apiResponse = new ApiResponse<>();
+
         ClaseDTO.setId(UUID.randomUUID().toString());
         ClaseDTO.setCode(Code.generateCode(Code.CLASS_CODE, this.claseRepository.count() + 1, Code.CLASS_LENGTH));
         ClaseDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
@@ -81,25 +92,14 @@ public class ClaseService {
         ClaseEntity.setClaseDTO(ClaseDTO);
 
         //set Periodo
-        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(ClaseDTO.getPeriodoDTO().getId(), ConstantsGeneric.CREATED_STATUS);
-        if (optionalPeriodoEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("PERIODO_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el periodo asociado a la clase no existe");
-            return apiResponse;
-        }
+        PeriodoEntity PeriodoEntity = this.periodoRepository.findByUniqueIdentifier(ClaseDTO.getPeriodoDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Periodo no encontrado"));
 
         //Set docentexcurso
-        Optional<DocentexCursoEntity> optionalDocentexCursoEntity = this.docentexCursoRepository.findByUniqueIdentifier(ClaseDTO.getDocentexCursoDTO().getId());
-        if (optionalDocentexCursoEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("DocentexCurso_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el docentexCurso asociada a la clase no existe");
-            return apiResponse;
-        }
+        DocentexCursoEntity docentexCursoEntity = this.docentexCursoRepository.findByUniqueIdentifier(ClaseDTO.getDocentexCursoDTO().getId()).orElseThrow(()-> new ResourceNotFoundException("Docentexcurso no encontrado"));
 
-        ClaseEntity.setPeriodoEntity(optionalPeriodoEntity.get());
-        ClaseEntity.setDocentexCursoEntity(optionalDocentexCursoEntity.get());
+
+        ClaseEntity.setPeriodoEntity(PeriodoEntity);
+        ClaseEntity.setDocentexCursoEntity(docentexCursoEntity);
         apiResponse.setData(this.claseRepository.save(ClaseEntity).getClaseDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
@@ -107,44 +107,27 @@ public class ClaseService {
     }
 
     //Modificar Clase
-    public ApiResponse<ClaseDTO> update(ClaseDTO ClaseDTO) {
+    public ApiResponse<ClaseDTO> update(ClaseDTO ClaseDTO) throws ResourceNotFoundException {
 
         ApiResponse<ClaseDTO> apiResponse = new ApiResponse<>();
         System.out.println(ClaseDTO.toString());
 
-        Optional<ClaseEntity> optionalClaseEntity = this.claseRepository.findByUniqueIdentifier(ClaseDTO.getId());
-        if (optionalClaseEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("clase_NOT_EXISTS");
-            apiResponse.setMessage("No se encontro el Usuario");
-            return apiResponse;
-        }
+        ClaseEntity claseEntity = this.claseRepository.findByUniqueIdentifier(ClaseDTO.getId()).orElseThrow(()-> new ResourceNotFoundException("Clase no encontrada"));
 
         //change dto to entity
-        ClaseEntity ClaseEntity = optionalClaseEntity.get();
+        ClaseEntity ClaseEntity = claseEntity;
         ClaseEntity.setDate(ClaseDTO.getDate());
         ClaseEntity.setUpdateAt(LocalDateTime.now());
 
-        //Set Periodo
-        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(ClaseDTO.getPeriodoDTO().getId(), ConstantsGeneric.CREATED_STATUS);
-        if (optionalPeriodoEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("PERIODO_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el periodo asociado a la clase no existe");
-            return apiResponse;
-        }
+        //set Periodo
+        PeriodoEntity PeriodoEntity = this.periodoRepository.findByUniqueIdentifier(ClaseDTO.getPeriodoDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Periodo no encontrado"));
 
         //Set docentexcurso
-        Optional<DocentexCursoEntity> optionalDocentexCursoEntity = this.docentexCursoRepository.findByUniqueIdentifier(ClaseDTO.getDocentexCursoDTO().getId());
-        if (optionalDocentexCursoEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("DocentexCurso_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el docentexCurso asociada a la clase no existe");
-            return apiResponse;
-        }
+        DocentexCursoEntity docentexCursoEntity = this.docentexCursoRepository.findByUniqueIdentifier(ClaseDTO.getDocentexCursoDTO().getId()).orElseThrow(()-> new ResourceNotFoundException("Docentexcurso no encontrado"));
 
-        ClaseEntity.setPeriodoEntity(optionalPeriodoEntity.get());
-        ClaseEntity.setDocentexCursoEntity(optionalDocentexCursoEntity.get());
+
+        ClaseEntity.setPeriodoEntity(PeriodoEntity);
+        ClaseEntity.setDocentexCursoEntity(docentexCursoEntity);
         apiResponse.setData(this.claseRepository.save(ClaseEntity).getClaseDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");

@@ -6,12 +6,10 @@ import com.rca.RCA.auth.repository.RolRepository;
 import com.rca.RCA.auth.service.LoginService;
 import com.rca.RCA.entity.AlumnoEntity;
 import com.rca.RCA.entity.ApoderadoEntity;
+import com.rca.RCA.entity.GradoEntity;
 import com.rca.RCA.entity.UsuarioEntity;
 import com.rca.RCA.repository.*;
-import com.rca.RCA.type.ApiResponse;
-import com.rca.RCA.type.AlumnoDTO;
-import com.rca.RCA.type.Pagination;
-import com.rca.RCA.type.UsuarioDTO;
+import com.rca.RCA.type.*;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
 import com.rca.RCA.util.exceptions.AttributeException;
@@ -90,6 +88,15 @@ public class AlumnoService {
         apiResponse.setData(pagination);
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+
+    public ApiResponse<AlumnoDTO> one(String id) throws ResourceNotFoundException {
+        AlumnoEntity alumnoEntity=this.alumnoRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Alumno no encontrado"));
+        ApiResponse<AlumnoDTO> apiResponse = new ApiResponse<>();
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(alumnoEntity.getAlumnoDTO());
         return apiResponse;
     }
 

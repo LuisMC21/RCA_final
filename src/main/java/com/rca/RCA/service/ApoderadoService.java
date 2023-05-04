@@ -1,11 +1,13 @@
 package com.rca.RCA.service;
 
 import com.rca.RCA.entity.ApoderadoEntity;
+import com.rca.RCA.entity.GradoEntity;
 import com.rca.RCA.entity.UsuarioEntity;
 import com.rca.RCA.repository.ApoderadoRepository;
 import com.rca.RCA.repository.UsuarioRepository;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.ApoderadoDTO;
+import com.rca.RCA.type.GradoDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
@@ -52,6 +54,15 @@ public class ApoderadoService {
         apiResponse.setData(pagination);
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+
+    public ApiResponse<ApoderadoDTO> one(String id) throws ResourceNotFoundException {
+        ApoderadoEntity apoderadoEntity=this.apoderadoRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Apoderado no encontrado"));
+        ApiResponse<ApoderadoDTO> apiResponse = new ApiResponse<>();
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(apoderadoEntity.getApoderadoDTO());
         return apiResponse;
     }
 
@@ -110,6 +121,8 @@ public class ApoderadoService {
         apiResponse.setMessage("ok");
         return apiResponse;
     }
+
+
 
     //Borrar Apoderado
     public ApiResponse<ApoderadoDTO> delete(String id) {

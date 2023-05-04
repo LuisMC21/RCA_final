@@ -2,6 +2,7 @@ package com.rca.RCA.controller;
 
 import com.rca.RCA.service.ApoderadoService;
 import com.rca.RCA.type.ApiResponse;
+import com.rca.RCA.type.GradoDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.ApoderadoDTO;
 import com.rca.RCA.util.exceptions.AttributeException;
@@ -30,6 +31,11 @@ public class ApoderadoRESTController {
             @RequestParam(defaultValue = "10") int size
     ) {
         return this.apoderadoService.getList(filter, page, size);
+    }
+
+    @GetMapping("{id}")
+    public ApiResponse<ApoderadoDTO> one(@PathVariable String id) throws ResourceNotFoundException {
+        return this.apoderadoService.one(id);
     }
 
     @PostMapping

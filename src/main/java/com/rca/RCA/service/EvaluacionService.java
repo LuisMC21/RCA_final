@@ -5,6 +5,7 @@ import com.rca.RCA.repository.*;
 import com.rca.RCA.type.*;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -68,6 +69,15 @@ public class EvaluacionService {
         apiResponse.setData(pagination);
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+
+    public ApiResponse<EvaluacionDTO> one(String id) throws ResourceNotFoundException {
+        EvaluacionEntity evaluacionEntity=this.evaluacionRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Evaluacion no encontrado"));
+        ApiResponse<EvaluacionDTO> apiResponse = new ApiResponse<>();
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(evaluacionEntity.getEvaluacionDTO());
         return apiResponse;
     }
 

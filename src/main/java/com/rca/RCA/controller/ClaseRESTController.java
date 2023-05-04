@@ -2,8 +2,10 @@ package com.rca.RCA.controller;
 
 import com.rca.RCA.service.ClaseService;
 import com.rca.RCA.type.ApiResponse;
+import com.rca.RCA.type.GradoDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.ClaseDTO;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,13 +31,18 @@ public class ClaseRESTController {
     ) {
         return this.claseService.getList(filter, page, size);
     }
+
+    @GetMapping("{id}")
+    public ApiResponse<ClaseDTO> one(@PathVariable String id) throws ResourceNotFoundException {
+        return this.claseService.one(id);
+    }
     @PostMapping
-    public ApiResponse<ClaseDTO> add(@RequestBody @Valid ClaseDTO ClaseDTO){
+    public ApiResponse<ClaseDTO> add(@RequestBody @Valid ClaseDTO ClaseDTO) throws ResourceNotFoundException {
         return this.claseService.add(ClaseDTO);
     }
 
     @PutMapping
-    public ApiResponse<ClaseDTO> update(@RequestBody ClaseDTO ClaseDTO) {
+    public ApiResponse<ClaseDTO> update(@RequestBody ClaseDTO ClaseDTO) throws ResourceNotFoundException {
         return this.claseService.update(ClaseDTO);
     }
 

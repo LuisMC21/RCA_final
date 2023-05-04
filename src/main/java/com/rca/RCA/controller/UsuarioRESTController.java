@@ -2,8 +2,10 @@ package com.rca.RCA.controller;
 
 import com.rca.RCA.service.UsuarioService;
 import com.rca.RCA.type.ApiResponse;
+import com.rca.RCA.type.GradoDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.UsuarioDTO;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +28,11 @@ public class UsuarioRESTController {
             @RequestParam(defaultValue = "10") int size
     ) {
         return this.usuarioService.getList(filter, page, size);
+    }
+
+    @GetMapping("{id}")
+    public ApiResponse<UsuarioDTO> one(@PathVariable String id) throws ResourceNotFoundException {
+        return this.usuarioService.one(id);
     }
 
     @PutMapping

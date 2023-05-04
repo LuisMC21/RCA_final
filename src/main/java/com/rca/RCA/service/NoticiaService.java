@@ -1,5 +1,6 @@
 package com.rca.RCA.service;
 
+import com.rca.RCA.entity.GradoEntity;
 import com.rca.RCA.entity.NoticiaEntity;
 import com.rca.RCA.entity.UsuarioEntity;
 import com.rca.RCA.repository.NoticiaRepository;
@@ -55,6 +56,15 @@ public class NoticiaService {
         apiResponse.setData(pagination);
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+
+    public ApiResponse<NoticiaDTO> one(String id) throws ResourceNotFoundException {
+        NoticiaEntity noticiaEntity=this.noticiaRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Noticia no encontrada"));
+        ApiResponse<NoticiaDTO> apiResponse = new ApiResponse<>();
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(noticiaEntity.getNoticiaDTO());
         return apiResponse;
     }
 
