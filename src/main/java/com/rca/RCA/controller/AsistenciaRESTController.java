@@ -2,6 +2,7 @@ package com.rca.RCA.controller;
 
 import com.rca.RCA.service.AsistenciaService;
 import com.rca.RCA.type.ApiResponse;
+import com.rca.RCA.type.GradoDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.AsistenciaDTO;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
@@ -36,6 +37,11 @@ public class AsistenciaRESTController {
     @PostMapping
     public ApiResponse<AsistenciaDTO> add(@RequestBody @Valid AsistenciaDTO AsistenciaDTO) throws ResourceNotFoundException {
         return this.asistenciaService.add(AsistenciaDTO);
+    }
+
+    @GetMapping("{id}")
+    public ApiResponse<AsistenciaDTO> one(@PathVariable String id) throws ResourceNotFoundException {
+        return this.asistenciaService.one(id);
     }
 
     @PutMapping

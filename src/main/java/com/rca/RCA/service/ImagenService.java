@@ -66,6 +66,15 @@ public class ImagenService {
         return apiResponse;
     }
 
+    public ApiResponse<ImagenDTO> one(String id) throws ResourceNotFoundException {
+        ImagenEntity imagenEntity=this.imagenRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Imagen no encontrada"));
+        ApiResponse<ImagenDTO> apiResponse = new ApiResponse<>();
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(imagenEntity.getImagenDTO());
+        return apiResponse;
+    }
+
     //Agregar imagen
     public ApiResponse<ImagenDTO> add(ImagenFileDTO ImagenFileDTO) throws AttributeException, ResourceNotFoundException {
 

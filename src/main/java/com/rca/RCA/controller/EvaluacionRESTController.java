@@ -2,8 +2,10 @@ package com.rca.RCA.controller;
 
 import com.rca.RCA.service.EvaluacionService;
 import com.rca.RCA.type.ApiResponse;
+import com.rca.RCA.type.GradoDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.EvaluacionDTO;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,11 @@ public class EvaluacionRESTController {
             @RequestParam(defaultValue = "10") int size
     ) {
         return this.evaluacionService.getList(filter, page, size);
+    }
+
+    @GetMapping("{id}")
+    public ApiResponse<EvaluacionDTO> one(@PathVariable String id) throws ResourceNotFoundException {
+        return this.evaluacionService.one(id);
     }
 
     @PostMapping

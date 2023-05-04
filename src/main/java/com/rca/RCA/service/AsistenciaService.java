@@ -73,6 +73,15 @@ public class AsistenciaService {
         return apiResponse;
     }
 
+    public ApiResponse<AsistenciaDTO> one(String id) throws ResourceNotFoundException {
+        AsistenciaEntity asistenciaEntity=this.asistenciaRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Asistencia no encontrado"));
+        ApiResponse<AsistenciaDTO> apiResponse = new ApiResponse<>();
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(asistenciaEntity.getAsistenciaDTO());
+        return apiResponse;
+    }
+
     //Agregar Asistencia
     public ApiResponse<AsistenciaDTO> add(AsistenciaDTO AsistenciaDTO) throws ResourceNotFoundException {
         ApiResponse<AsistenciaDTO> apiResponse = new ApiResponse<>();

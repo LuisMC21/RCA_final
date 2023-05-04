@@ -3,16 +3,19 @@ package com.rca.RCA.service;
 import com.rca.RCA.auth.entity.Rol;
 //import com.rca.RCA.entity.RolEntity;
 import com.rca.RCA.auth.enums.RolNombre;
+import com.rca.RCA.entity.GradoEntity;
 import com.rca.RCA.entity.UsuarioEntity;
 import com.rca.RCA.repository.ImagenRepository;
 import com.rca.RCA.repository.NoticiaRepository;
 import com.rca.RCA.auth.repository.RolRepository;
 import com.rca.RCA.repository.UsuarioRepository;
 import com.rca.RCA.type.ApiResponse;
+import com.rca.RCA.type.GradoDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.UsuarioDTO;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -62,6 +65,15 @@ public class UsuarioService {
         apiResponse.setData(pagination);
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+
+    public ApiResponse<UsuarioDTO> one(String id) throws ResourceNotFoundException {
+        UsuarioEntity usuarioEntity=this.usuarioRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no encontrado"));
+        ApiResponse<UsuarioDTO> apiResponse = new ApiResponse<>();
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(usuarioEntity.getUsuarioDTO());
         return apiResponse;
     }
 

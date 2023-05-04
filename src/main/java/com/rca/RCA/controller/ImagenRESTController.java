@@ -2,10 +2,7 @@ package com.rca.RCA.controller;
 
 import com.rca.RCA.entity.ImagenEntity;
 import com.rca.RCA.service.ImagenService;
-import com.rca.RCA.type.ApiResponse;
-import com.rca.RCA.type.ImagenFileDTO;
-import com.rca.RCA.type.Pagination;
-import com.rca.RCA.type.ImagenDTO;
+import com.rca.RCA.type.*;
 import com.rca.RCA.util.exceptions.AttributeException;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +39,10 @@ public class ImagenRESTController {
     public ApiResponse<ImagenDTO> add(@RequestBody @Valid ImagenDTO ImagenDTO) {
         return this.imagenService.add(ImagenDTO);
     }*/
+    @GetMapping("{id}")
+    public ApiResponse<ImagenDTO> one(@PathVariable String id) throws ResourceNotFoundException {
+        return this.imagenService.one(id);
+    }
 
     @PostMapping
     public ApiResponse<ImagenDTO> add(@RequestBody @Valid ImagenFileDTO imagenFileDTO) throws AttributeException, ResourceNotFoundException {
