@@ -37,12 +37,12 @@ public class EvaluacionRESTController {
     }
 
     @PostMapping
-    public ApiResponse<EvaluacionDTO> add(@RequestBody EvaluacionDTO EvaluacionDTO) {
+    public ApiResponse<EvaluacionDTO> add(@RequestBody EvaluacionDTO EvaluacionDTO) throws ResourceNotFoundException {
         return this.evaluacionService.add(EvaluacionDTO);
     }
 
     @PutMapping
-    public ApiResponse<EvaluacionDTO> update(@RequestBody EvaluacionDTO EvaluacionDTO) {
+    public ApiResponse<EvaluacionDTO> update(@RequestBody EvaluacionDTO EvaluacionDTO) throws ResourceNotFoundException {
         return this.evaluacionService.update(EvaluacionDTO);
     }
 

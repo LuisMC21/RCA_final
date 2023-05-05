@@ -50,7 +50,7 @@ public class ImagenRESTController {
     }
 
     @PutMapping
-    public ApiResponse<ImagenDTO> update(@RequestBody ImagenDTO ImagenDTO) {
+    public ApiResponse<ImagenDTO> update(@RequestBody ImagenDTO ImagenDTO) throws ResourceNotFoundException, AttributeException {
         return this.imagenService.update(ImagenDTO);
     }
 

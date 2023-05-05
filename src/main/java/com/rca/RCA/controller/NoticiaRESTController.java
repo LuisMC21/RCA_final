@@ -40,7 +40,7 @@ public class NoticiaRESTController {
     }
 
     @PutMapping
-    public ApiResponse<NoticiaDTO> update(@RequestBody NoticiaDTO NoticiaDTO) {
+    public ApiResponse<NoticiaDTO> update(@RequestBody NoticiaDTO NoticiaDTO) throws ResourceNotFoundException, AttributeException {
         return this.noticiaService.update(NoticiaDTO);
     }
 

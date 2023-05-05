@@ -141,29 +141,19 @@ public class NoticiaService {
     }
 
     //Modificar Noticia
-    public ApiResponse<NoticiaDTO> update(NoticiaDTO noticiaDTO) {
+    public ApiResponse<NoticiaDTO> update(NoticiaDTO noticiaDTO) throws AttributeException, ResourceNotFoundException {
         ApiResponse<NoticiaDTO> apiResponse = new ApiResponse<>();
-        System.out.println(noticiaDTO.toString());
 
-        Optional<NoticiaEntity> optionalNoticiaEntity = this.noticiaRepository.findByUniqueIdentifier(noticiaDTO.getId());
-        if (optionalNoticiaEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("Usuario_NOT_EXISTS");
-            apiResponse.setMessage("No se encontro el Usuario");
-            return apiResponse;
-        }
+        if(noticiaRepository.existsByTitle(noticiaDTO.getId(), ConstantsGeneric.CREATED_STATUS, noticiaDTO.getTitle()))
+            throw new AttributeException("Noticia ya existe");
 
-        //validamos
-        Optional<NoticiaEntity> optionalImagenEntityValidation = this.noticiaRepository.findByTitle(noticiaDTO.getTitle(), noticiaDTO.getId());
-        if (optionalImagenEntityValidation.isPresent()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("NOTICIA_EXISTS");
-            apiResponse.setMessage("No se actualizó, la noticia existe");
-            return apiResponse;
-        }
+        NoticiaEntity noticiaEntity = this.noticiaRepository.findByUniqueIdentifier(noticiaDTO.getId()).orElseThrow(()->new ResourceNotFoundException("Noticia no existe"));
+
+        //set usuario
+        UsuarioEntity usuarioEntity = this.usuarioRepository.findByUniqueIdentifier(noticiaDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Usuario no encontrado"));
 
         //change dto to entity
-        NoticiaEntity NoticiaEntity = optionalNoticiaEntity.get();
+        NoticiaEntity NoticiaEntity = noticiaEntity;
         NoticiaEntity.setTitle(noticiaDTO.getTitle());
         NoticiaEntity.setSommelier(noticiaDTO.getSommelier());
         NoticiaEntity.setDescrip(noticiaDTO.getDescrip());
@@ -171,16 +161,8 @@ public class NoticiaService {
         NoticiaEntity.setRoute(noticiaDTO.getRoute());
         NoticiaEntity.setUpdateAt(LocalDateTime.now());
 
-        //set usuario
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(noticiaDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS);
-        if (optionalUsuarioEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("USUARIO_NOT_EXISTS");
-            apiResponse.setMessage("No se registro, el usuario asociada a la imagen no existe");
-            return apiResponse;
-        }
 
-        NoticiaEntity.setUsuarioEntity(optionalUsuarioEntity.get());
+        NoticiaEntity.setUsuarioEntity(usuarioEntity);
         apiResponse.setData(this.noticiaRepository.save(NoticiaEntity).getNoticiaDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
