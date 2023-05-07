@@ -1,11 +1,14 @@
 package com.rca.RCA.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rca.RCA.type.ClaseDTO;
 import lombok.Data;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,9 +23,10 @@ public class ClaseEntity extends AuditoryEntity{
     private Integer id;
     @Column(name = "code", length = 15)
     private String code;
+    @JsonFormat(pattern = "YYYY-MM-dd")
     @Column(name = "date")
     @NotBlank
-    private String date;
+    private Date date;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "docentexcurso_id")
