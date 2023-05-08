@@ -59,4 +59,12 @@ public class AsistenciaRESTController {
                                                      @RequestParam String id_aniolectivo){
         return this.asistenciaService.exportAsistencia(id_alumno, id_periodo,id_aniolectivo);
     }
+    @GetMapping("exportAsistAula")
+    public ResponseEntity<Resource> exportAsistAula(@RequestParam String id_curso,
+                                                    @RequestParam String id_aula,
+                                                     @RequestParam String id_aniolectivo) throws ResourceNotFoundException {
+        return this.asistenciaService.exportAsistAula(id_curso, id_aula,id_aniolectivo);
+    }
+
+
 }

@@ -88,13 +88,13 @@ public interface AulaRepository extends JpaRepository<AulaEntity, Integer> {
             "JOIN m.anio_lectivoEntity an " +
             "JOIN al.usuarioEntity ua " +
             "WHERE a.uniqueIdentifier= :id_aula " +
-            "AND an.uniqueIdentifier= :idAl " +
+            "AND an.uniqueIdentifier= :id_anio " +
             "AND a.status= :status " +
             "AND m.status= :status " +
             "AND al.status= :status " +
             "AND ua.status= :status " +
             "AND an.status= :status ")
-    Optional<List<AlumnoEntity>> findAlumnosxAula(String id_aula, String idAl, String status);
+    Optional<List<AlumnoEntity>> findAlumnosxAula(String id_aula, String id_anio, String status);
     @Query(value = "SELECT ap " +
             "from AulaEntity a " +
             "JOIN a.matriculaEntities m " +

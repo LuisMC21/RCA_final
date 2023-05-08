@@ -7,6 +7,7 @@ import com.rca.RCA.type.*;
 import com.rca.RCA.type.AsistenciaDTO;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
+import com.rca.RCA.util.exceptions.GlobalException;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import net.sf.jasperreports.engine.*;
@@ -41,6 +42,9 @@ public class AsistenciaService {
     private AlumnoRepository alumnoRepository;
     @Autowired
     private ClaseRepository claseRepository;
+
+    @Autowired
+    private CursoRepository cursoRepository;
     @Autowired
     private AnioLectivoRepository anioLectivoRepository;
 
@@ -48,6 +52,9 @@ public class AsistenciaService {
     private MatriculaRepository matriculaRepository;
     @Autowired
     private PeriodoRepository periodoRepository;
+
+    @Autowired
+    private AulaRepository aulaRepository;
 
     public AsistenciaService(AsistenciaRepository asistenciaRepository, AlumnoRepository alumnoRepository, ClaseRepository claseRepository){
         this.asistenciaRepository = asistenciaRepository;
@@ -217,6 +224,58 @@ public class AsistenciaService {
             }
         }else{
             return ResponseEntity.noContent().build();//Reporte no encontrado
+        }
+        return null;
+    }
+    public ResponseEntity<Resource> exportAsistAula(String id_curso, String id_aula, String id_aniolectivo) throws ResourceNotFoundException {
+        log.info("id_curso id_aula id_aniolectivo {} {} {}", id_curso, id_aula, id_aniolectivo);
+        try {
+                AnioLectivoEntity anioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Año lectivo no existente"));
+                AulaEntity aulaEntity = this.aulaRepository.findByUniqueIdentifier(id_aula, ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Aula no existente"));
+                CursoEntity cursoEntity = this.cursoRepository.findByUniqueIdentifier(id_curso, ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Curso no encontrado"));
+
+                final File file = ResourceUtils.getFile("classpath:reportes/asistencias_aula.jasper"); //la ruta del reporte
+                final File imgLogo = ResourceUtils.getFile("classpath:images/logoC.jpg"); //Ruta de la imagen
+                final JasperReport report = (JasperReport) JRLoader.loadObject(file);
+                //Se consultan los datos para el reporte de asistencias DTO
+                List<AlumnoEntity> alumnoEntities = this.aulaRepository.findAlumnosxAula(id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElse(new ArrayList<>());
+                //Se agregan los datos para Reporte de Asistencias
+                List<ReporteAsistenciaAulaDTO> reporteAsistenciaAulaDTOS= new ArrayList<>();
+                for (AlumnoEntity alumnoEntity : alumnoEntities) {
+                    ReporteAsistenciaAulaDTO reporteAsistenciaAulaDTO = new ReporteAsistenciaAulaDTO();
+                    reporteAsistenciaAulaDTO.setAlumno(alumnoEntity.getNombresCompletosAl());
+                    reporteAsistenciaAulaDTO.setPresente(this.asistenciaRepository.countAsistenciasAulaAño(alumnoEntity.getUniqueIdentifier(), "PRESENTE", id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElse(0));
+                    reporteAsistenciaAulaDTO.setAusente(this.asistenciaRepository.countAsistenciasAulaAño(alumnoEntity.getUniqueIdentifier(), "AUSENTE", id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElse(0));
+                    reporteAsistenciaAulaDTO.setJustificadas(this.asistenciaRepository.countAsistenciasAulaAño(alumnoEntity.getUniqueIdentifier(), "JUSTIFICADA", id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElse(0));
+                    reporteAsistenciaAulaDTOS.add(reporteAsistenciaAulaDTO);
+                }
+                //Se llenan los parámetros del reporte
+                final HashMap<String, Object> parameters = new HashMap<>();
+                parameters.put("logoEmpresa", new FileInputStream(imgLogo));
+                    parameters.put("curso", cursoEntity.getName());
+                parameters.put("grado", aulaEntity.getGradoEntity().getName().toString());
+                parameters.put("seccion", aulaEntity.getSeccionEntity().getName().toString());
+                parameters.put("año", anioLectivoEntity.getName());
+                parameters.put("dsAsistAula", new JRBeanArrayDataSource(reporteAsistenciaAulaDTOS.toArray()));
+
+                //Se imprime el reporte
+                JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
+                byte [] reporte = JasperExportManager.exportReportToPdf(jasperPrint);
+                String sdf = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
+                StringBuilder stringBuilder = new StringBuilder().append("MatriculaPDF:");
+                ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
+                        .filename(stringBuilder
+                                .append(aulaEntity.getCode())
+                                .append("generateDate:").append(sdf)
+                                .append(".pdf").toString())
+                        .build();
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentDisposition(contentDisposition);
+                return ResponseEntity.ok().contentLength((long) reporte.length)
+                        .contentType(MediaType.APPLICATION_PDF)
+                        .headers(headers).body(new ByteArrayResource(reporte));
+            } catch (Exception e) {
+                new Exception("Ha ocurrido un error");
         }
         return null;
     }

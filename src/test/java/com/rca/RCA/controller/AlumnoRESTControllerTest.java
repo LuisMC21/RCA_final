@@ -139,12 +139,26 @@ class AlumnoRESTControllerTest {
         verify(alumnoService).getList(filter, page, size);
     }
 
-    //======================================
-    //Realizar cuando exista el método one
-    //======================================
     @DisplayName("Test para obtener un alumno con id")
     @Test
-    void one(){
+    void one() throws ResourceNotFoundException {
+        //given
+        ApiResponse<AlumnoDTO> expectedApiResponse = new ApiResponse<>();
+        expectedApiResponse.setSuccessful(true);
+        expectedApiResponse.setMessage("ok");
+        expectedApiResponse.setData(alumnoDTO);
+
+        when(alumnoService.one(alumnoDTO.getId())).thenReturn(expectedApiResponse);
+
+        // When
+        ApiResponse<AlumnoDTO> actualApiResponse = alumnoRESTController.one(alumnoDTO.getId());
+
+        // Then
+        assertTrue(actualApiResponse.isSuccessful());
+        assertEquals(expectedApiResponse, actualApiResponse);
+        assertThat(actualApiResponse.getData().getId()).isEqualTo(expectedApiResponse.getData().getId());
+
+        verify(alumnoService, times(1)).one(alumnoDTO.getId());
     }
 
     @DisplayName("Test para agregar un alumno")
@@ -194,10 +208,7 @@ class AlumnoRESTControllerTest {
         expectedApiResponse.setSuccessful(true);
         expectedApiResponse.setMessage("ok");
         expectedApiResponse.setData(alumnoDTO2);
-        //======================================
-        //Descomentar cuando el método one exista
-        //when(alumnoService.one(alumnoDTO2.getId())).thenReturn(expectedApiResponse);
-        //======================================
+        when(alumnoService.one(alumnoDTO2.getId())).thenReturn(expectedApiResponse);
         when(alumnoService.update(alumnoDTO2)).thenReturn(expectedApiResponse);
 
         // When
