@@ -121,7 +121,7 @@ public class AlumnoService {
         AlumnoEntity.setAlumnoDTO(AlumnoDTO);
 
         AlumnoEntity.setUsuarioEntity(this.usuarioRepository.findByUniqueIdentifier(apiResponseU.getData().getId(), ConstantsGeneric.CREATED_STATUS).get());
-        AlumnoEntity.setApoderadoEntity(this.apoderadoRepository.findByUniqueIdentifier(AlumnoDTO.getApoderadoDTO().getId()).get());
+        AlumnoEntity.setApoderadoEntity(this.apoderadoRepository.findByUniqueIdentifier(AlumnoDTO.getApoderadoDTO().getId(), ConstantsGeneric.CREATED_STATUS).get());
 
         apiResponse.setData(this.alumnoRepository.save(AlumnoEntity).getAlumnoDTO());
         apiResponse.setSuccessful(true);
@@ -139,34 +139,34 @@ public class AlumnoService {
     }
 
     //Modificar Alumno
-    public ApiResponse<AlumnoDTO> update(AlumnoDTO AlumnoDTO) throws ResourceNotFoundException {
-        if(AlumnoDTO.getId().isBlank())
+    public ApiResponse<AlumnoDTO> update(AlumnoDTO alumnoDTO) throws ResourceNotFoundException {
+        if(alumnoDTO.getId().isBlank())
             throw new ResourceNotFoundException("Alumno no encontrado");
 
         ApiResponse<AlumnoDTO> apiResponse = new ApiResponse<>();
 
-        AlumnoEntity AlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(AlumnoDTO.getId()).orElseThrow(()->new ResourceNotFoundException("Alumno no existe"));
+        AlumnoEntity alumnoEntity = this.alumnoRepository.findByUniqueIdentifier(alumnoDTO.getId()).orElseThrow(()->new ResourceNotFoundException("Alumno no existe"));
 
         //change dto to entity
-        AlumnoEntity.setDiseases(AlumnoDTO.getDiseases());
-        AlumnoEntity.setUpdateAt(LocalDateTime.now());
-        AlumnoEntity.setNamecon_pri(AlumnoDTO.getNamecon_pri());
-        AlumnoEntity.setTelcon_pri(AlumnoDTO.getTelcon_pri());
-        AlumnoEntity.setNamecon_sec(AlumnoDTO.getNamecon_sec());
-        AlumnoEntity.setTelcon_sec(AlumnoDTO.getTelcon_sec());
-        AlumnoEntity.setVaccine(AlumnoDTO.getVaccine());
-        AlumnoEntity.setType_insurance(AlumnoDTO.getType_insurance());
+        alumnoEntity.setDiseases(alumnoDTO.getDiseases());
+        alumnoEntity.setUpdateAt(LocalDateTime.now());
+        alumnoEntity.setNamecon_pri(alumnoDTO.getNamecon_pri());
+        alumnoEntity.setTelcon_pri(alumnoDTO.getTelcon_pri());
+        alumnoEntity.setNamecon_sec(alumnoDTO.getNamecon_sec());
+        alumnoEntity.setTelcon_sec(alumnoDTO.getTelcon_sec());
+        alumnoEntity.setVaccine(alumnoDTO.getVaccine());
+        alumnoEntity.setType_insurance(alumnoDTO.getType_insurance());
 
-        AlumnoEntity.setUsuarioEntity(this.usuarioRepository.findByUniqueIdentifier(AlumnoDTO.getId(), ConstantsGeneric.CREATED_STATUS).get());
-        AlumnoEntity.setApoderadoEntity(this.apoderadoRepository.findByUniqueIdentifier(AlumnoDTO.getId()).get());
+        alumnoEntity.setUsuarioEntity(this.usuarioRepository.findByUniqueIdentifier(alumnoDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Usuario no existe")));
+        alumnoEntity.setApoderadoEntity(this.apoderadoRepository.findByUniqueIdentifier(alumnoDTO.getId(),ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Apoderado no existe")));
 
         //Update in database to usuario
-        ApiResponse<UsuarioDTO> apiResponseU = this.usuarioService.update(AlumnoEntity.getUsuarioEntity().getUsuarioDTO());
+        ApiResponse<UsuarioDTO> apiResponseU = this.usuarioService.update(alumnoEntity.getUsuarioEntity().getUsuarioDTO());
         if (apiResponseU.isSuccessful()) {
             //Update in database to docente
             apiResponse.setSuccessful(true);
             apiResponse.setMessage("ok");
-            apiResponse.setData(this.alumnoRepository.save(AlumnoEntity).getAlumnoDTO());
+            apiResponse.setData(this.alumnoRepository.save(alumnoEntity).getAlumnoDTO());
             return apiResponse;
         } else {
             apiResponse.setSuccessful(false);
@@ -241,11 +241,11 @@ public class AlumnoService {
                 parameters.put("nombreCon2", alumnoEntity.getNamecon_sec());
                 parameters.put("telCon1", alumnoEntity.getTelcon_pri());
                 parameters.put("telCon2", alumnoEntity.getTelcon_sec());
-                parameters.put("nombreApo",apoderadoEntity.getUsuarioEntity().getNameCompleto());
-                parameters.put("correoApo",apoderadoEntity.getUsuarioEntity().getEmail());
-                parameters.put("typeDocApo",apoderadoEntity.getUsuarioEntity().getType_doc());
-                parameters.put("numDocApo",apoderadoEntity.getUsuarioEntity().getNumdoc());
-                parameters.put("telApo",apoderadoEntity.getUsuarioEntity().getTel());
+                parameters.put("nombreApo",apoderadoEntity.getNameCompleto());
+                parameters.put("correoApo",apoderadoEntity.getEmail());
+                parameters.put("typeDocApo",apoderadoEntity.getType_doc());
+                parameters.put("numDocApo",apoderadoEntity.getNumdoc());
+                parameters.put("telApo",apoderadoEntity.getTel());
                 parameters.put("correoPerApo",apoderadoEntity.getEmail());
 
 

@@ -40,4 +40,29 @@ public interface DocenteRepository extends JpaRepository<DocenteEntity, Integer>
             "WHERE d.uniqueIdentifier = :id " +
             "AND d.status = :status ")
     Optional<DocenteEntity> findByUniqueIdentifier(String id, String status);
+
+
+    @Query(value = "SELECT d FROM DocenteEntity d " +
+            "JOIN d.docentexCursoEntities dxc " +
+            "JOIN dxc.aulaEntity au " +
+            "JOIN dxc.cursoEntity c " +
+            "JOIN au.matriculaEntities m " +
+            "JOIN m.anio_lectivoEntity an " +
+            "WHERE d.status = :status " +
+            "AND c.uniqueIdentifier = :id_curso " +
+            "AND au.uniqueIdentifier = :id_aula " +
+            "AND an.uniqueIdentifier = :id_anio ")
+    Optional<DocenteEntity> findAulaAnio(String id_aula, String id_curso, String id_anio, String status);
+@Query(value = "SELECT d FROM DocenteEntity d " +
+            "JOIN d.docentexCursoEntities dxc " +
+            "JOIN dxc.aulaEntity au " +
+            "JOIN dxc.cursoEntity c " +
+            "JOIN au.matriculaEntities m " +
+            "JOIN m.anio_lectivoEntity an " +
+            "WHERE d.status = :status " +
+            "AND c.uniqueIdentifier = :id_curso " +
+            "AND au.uniqueIdentifier = :id_aula " +
+            "AND an.uniqueIdentifier = :id_anio ")
+    Optional<List<DocenteEntity>> findOneAulaAnio(String id_aula, String id_curso, String id_anio, String status);
+
 }

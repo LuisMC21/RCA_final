@@ -95,25 +95,4 @@ public interface AulaRepository extends JpaRepository<AulaEntity, Integer> {
             "AND ua.status= :status " +
             "AND an.status= :status ")
     Optional<List<AlumnoEntity>> findAlumnosxAula(String id_aula, String id_anio, String status);
-    @Query(value = "SELECT ap " +
-            "from AulaEntity a " +
-            "JOIN a.matriculaEntities m " +
-            "JOIN m.alumnoEntity al " +
-            "JOIN m.anio_lectivoEntity an " +
-            "JOIN al.apoderadoEntity ap " +
-            "JOIN ap.usuarioEntity ua " +
-            "WHERE a=m.aulaEntity " +
-            "AND al= m.alumnoEntity " +
-            "AND ap= al.apoderadoEntity " +
-            "AND ua= ap.usuarioEntity " +
-            "AND an= m.anio_lectivoEntity " +
-            "AND a.uniqueIdentifier= :id_aula " +
-            "AND an.uniqueIdentifier= :anio_lectivo " +
-            "AND a.status= :status " +
-            "AND m.status= :status " +
-            "AND al.status= :status " +
-            "AND ap.status= :status " +
-            "AND ua.status= :status " +
-            "AND an.status= :status ")
-    Optional<List<ApoderadoEntity>> findApoderadosxAula(String id_aula, String anio_lectivo, String status);
-}
+    }

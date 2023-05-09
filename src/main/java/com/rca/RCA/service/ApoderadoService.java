@@ -32,12 +32,9 @@ public class ApoderadoService {
 
     @Autowired
     private ApoderadoRepository apoderadoRepository;
-    @Autowired
-    private UsuarioRepository usuarioRepository;
 
     public ApoderadoService(ApoderadoRepository apoderadoRepository, UsuarioRepository usuarioRepository){
         this.apoderadoRepository = apoderadoRepository;
-        this.usuarioRepository = usuarioRepository;
     }
 
     public ApiResponse<Pagination<ApoderadoDTO>> getList(String filter, int page, int size) {
@@ -58,7 +55,7 @@ public class ApoderadoService {
     }
 
     public ApiResponse<ApoderadoDTO> one(String id) throws ResourceNotFoundException {
-        ApoderadoEntity apoderadoEntity=this.apoderadoRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Apoderado no encontrado"));
+        ApoderadoEntity apoderadoEntity=this.apoderadoRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Apoderado no encontrado"));
         ApiResponse<ApoderadoDTO> apiResponse = new ApiResponse<>();
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
@@ -76,18 +73,13 @@ public class ApoderadoService {
 
         //Add data DTO
         ApoderadoDTO.setId(UUID.randomUUID().toString());
-        ApoderadoDTO.setCode(Code.generateCode(Code.APO_CODE, this.usuarioRepository.count() + 1, Code.APO_LENGTH));
+        ApoderadoDTO.setCode(Code.generateCode(Code.APO_CODE, this.apoderadoRepository.count() + 1, Code.APO_LENGTH));
         ApoderadoDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         ApoderadoDTO.setCreateAt(LocalDateTime.now());
 
         //change dto to entity
         ApoderadoEntity ApoderadoEntity = new ApoderadoEntity();
         ApoderadoEntity.setApoderadoDTO(ApoderadoDTO);
-
-        //Validar usuario
-        UsuarioEntity optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ApoderadoDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no existe"));
-
-        ApoderadoEntity.setUsuarioEntity(optionalUsuarioEntity);
         apiResponse.setData(this.apoderadoRepository.save(ApoderadoEntity).getApoderadoDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
@@ -95,28 +87,32 @@ public class ApoderadoService {
     }
 
     //Modificar Apoderado
-    public ApiResponse<ApoderadoDTO> update(ApoderadoDTO ApoderadoDTO) throws ResourceNotFoundException, AttributeException {
+    public ApiResponse<ApoderadoDTO> update(ApoderadoDTO apoderadoDTO) throws ResourceNotFoundException, AttributeException {
 
         //Excepciones
-        if(ApoderadoDTO.getId().isBlank())
+        if(apoderadoDTO.getId().isBlank())
             throw new ResourceNotFoundException("Periodo no existe");
-        if(apoderadoRepository.existsByEmail(ConstantsGeneric.CREATED_STATUS, ApoderadoDTO.getEmail(), ApoderadoDTO.getId()))
+        if(apoderadoRepository.existsByEmail(ConstantsGeneric.CREATED_STATUS, apoderadoDTO.getEmail(), apoderadoDTO.getId()))
             throw new AttributeException("Email ya existe");
+
+
+        ApoderadoEntity apoderadoEntity = this.apoderadoRepository.findByUniqueIdentifier(apoderadoDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Apoderado no existe"));
 
         ApiResponse<ApoderadoDTO> apiResponse = new ApiResponse<>();
 
-        ApoderadoEntity apoderadoEntity = this.apoderadoRepository.findByUniqueIdentifier(ApoderadoDTO.getId()).orElseThrow(()-> new ResourceNotFoundException("Apoderado no existe"));
-
         //change dto to entity
-        ApoderadoEntity ApoderadoEntity = apoderadoEntity;
-        ApoderadoEntity.setEmail(ApoderadoDTO.getEmail());
-        ApoderadoEntity.setUpdateAt(LocalDateTime.now());
+        apoderadoEntity.setName(apoderadoDTO.getName());
+        apoderadoEntity.setPa_surname(apoderadoDTO.getPa_surname());
+        apoderadoEntity.setMa_surname(apoderadoDTO.getMa_surname());
+        apoderadoEntity.setBirthdate(apoderadoDTO.getBirthdate());
+        apoderadoEntity.setType_doc(apoderadoDTO.getType_doc());
+        apoderadoEntity.setNumdoc(apoderadoDTO.getNumdoc());
+        apoderadoEntity.setEmail(apoderadoDTO.getEmail());
+        apoderadoEntity.setTel(apoderadoDTO.getTel());
+        apoderadoEntity.setUpdateAt(LocalDateTime.now());
 
         //Validar usuario
-        UsuarioEntity usuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ApoderadoDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no existe"));
-        ApoderadoEntity.setUsuarioEntity(usuarioEntity);
-
-        apiResponse.setData(this.apoderadoRepository.save(ApoderadoEntity).getApoderadoDTO());
+        apiResponse.setData(this.apoderadoRepository.save(apoderadoEntity).getApoderadoDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
         return apiResponse;
@@ -125,26 +121,16 @@ public class ApoderadoService {
 
 
     //Borrar Apoderado
-    public ApiResponse<ApoderadoDTO> delete(String id) {
+    public ApiResponse<ApoderadoDTO> delete(String id) throws ResourceNotFoundException {
         ApiResponse<ApoderadoDTO> apiResponse = new ApiResponse<>();
-        Optional<ApoderadoEntity> optionalApoderadoEntity = this.apoderadoRepository.findByUniqueIdentifier(id);
-        if (optionalApoderadoEntity.isPresent()) {
+        ApoderadoEntity apoderadoEntity = this.apoderadoRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Apoderado no existe"));
 
-            this.apoderadoRepository.eliminarUsuario(id, LocalDateTime.now());
+        apoderadoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
+        apoderadoEntity.setDeleteAt(LocalDateTime.now());
 
-            ApoderadoEntity ApoderadoEntity = optionalApoderadoEntity.get();
-            ApoderadoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
-            ApoderadoEntity.setDeleteAt(LocalDateTime.now());
-
-            apiResponse.setSuccessful(true);
-            apiResponse.setMessage("ok");
-            apiResponse.setData(this.apoderadoRepository.save(ApoderadoEntity).getApoderadoDTO());
-        } else {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("APODERADO_DOES_NOT_EXISTS");
-            apiResponse.setMessage("No existe el rol para poder eliminar");;
-        }
-
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        apiResponse.setData(this.apoderadoRepository.save(apoderadoEntity).getApoderadoDTO());
         return apiResponse;
     }
 }

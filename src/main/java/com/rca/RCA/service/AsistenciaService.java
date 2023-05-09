@@ -56,6 +56,9 @@ public class AsistenciaService {
     @Autowired
     private AulaRepository aulaRepository;
 
+    @Autowired
+    private DocenteRepository docenteRepository;
+
     public AsistenciaService(AsistenciaRepository asistenciaRepository, AlumnoRepository alumnoRepository, ClaseRepository claseRepository){
         this.asistenciaRepository = asistenciaRepository;
         this.alumnoRepository = alumnoRepository;
@@ -98,7 +101,6 @@ public class AsistenciaService {
         AsistenciaDTO.setCode(Code.generateCode(Code.ASIS_CODE, this.asistenciaRepository.count() + 1, Code.ASIS_LENGTH));
         AsistenciaDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         AsistenciaDTO.setCreateAt(LocalDateTime.now());
-        System.out.println(AsistenciaDTO.toString());
 
         //change dto to entity
         AsistenciaEntity AsistenciaEntity = new AsistenciaEntity();
@@ -216,7 +218,7 @@ public class AsistenciaService {
                         .build();
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentDisposition(contentDisposition);
-                return ResponseEntity.ok().contentLength((long) reporte.length)
+                return ResponseEntity.ok().contentLength(reporte.length)
                         .contentType(MediaType.APPLICATION_PDF)
                         .headers(headers).body(new ByteArrayResource(reporte));
             } catch (Exception e) {
@@ -227,12 +229,14 @@ public class AsistenciaService {
         }
         return null;
     }
-    public ResponseEntity<Resource> exportAsistAula(String id_curso, String id_aula, String id_aniolectivo) throws ResourceNotFoundException {
+    public ResponseEntity<Resource> exportAsistAula(String id_curso, String id_aula, String id_aniolectivo) {
         log.info("id_curso id_aula id_aniolectivo {} {} {}", id_curso, id_aula, id_aniolectivo);
         try {
                 AnioLectivoEntity anioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Año lectivo no existente"));
                 AulaEntity aulaEntity = this.aulaRepository.findByUniqueIdentifier(id_aula, ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Aula no existente"));
                 CursoEntity cursoEntity = this.cursoRepository.findByUniqueIdentifier(id_curso, ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Curso no encontrado"));
+                DocenteEntity docenteEntity = this.docenteRepository.findAulaAnio(id_aula, id_curso, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElse(new DocenteEntity());
+                List<DocenteEntity> docenteEntities = this.docenteRepository.findOneAulaAnio(id_aula, id_curso, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElse(new ArrayList<>());
 
                 final File file = ResourceUtils.getFile("classpath:reportes/asistencias_aula.jasper"); //la ruta del reporte
                 final File imgLogo = ResourceUtils.getFile("classpath:images/logoC.jpg"); //Ruta de la imagen
@@ -241,29 +245,49 @@ public class AsistenciaService {
                 List<AlumnoEntity> alumnoEntities = this.aulaRepository.findAlumnosxAula(id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElse(new ArrayList<>());
                 //Se agregan los datos para Reporte de Asistencias
                 List<ReporteAsistenciaAulaDTO> reporteAsistenciaAulaDTOS= new ArrayList<>();
+                int tasistencias = 0;
+                int tfaltas = 0;
+                int tjustificadas = 0;
+
                 for (AlumnoEntity alumnoEntity : alumnoEntities) {
                     ReporteAsistenciaAulaDTO reporteAsistenciaAulaDTO = new ReporteAsistenciaAulaDTO();
                     reporteAsistenciaAulaDTO.setAlumno(alumnoEntity.getNombresCompletosAl());
-                    reporteAsistenciaAulaDTO.setPresente(this.asistenciaRepository.countAsistenciasAulaAño(alumnoEntity.getUniqueIdentifier(), "PRESENTE", id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElse(0));
-                    reporteAsistenciaAulaDTO.setAusente(this.asistenciaRepository.countAsistenciasAulaAño(alumnoEntity.getUniqueIdentifier(), "AUSENTE", id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElse(0));
-                    reporteAsistenciaAulaDTO.setJustificadas(this.asistenciaRepository.countAsistenciasAulaAño(alumnoEntity.getUniqueIdentifier(), "JUSTIFICADA", id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElse(0));
+                    reporteAsistenciaAulaDTO.setAsistencias(this.asistenciaRepository.countAsistenciasAulaAño(alumnoEntity.getUniqueIdentifier(), "PRESENTE", id_curso, id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS));
+                    tasistencias += reporteAsistenciaAulaDTO.getAsistencias();
+                    reporteAsistenciaAulaDTO.setFaltas(this.asistenciaRepository.countAsistenciasAulaAño(alumnoEntity.getUniqueIdentifier(), "AUSENTE", id_curso, id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS));
+                    tfaltas += reporteAsistenciaAulaDTO.getFaltas();
+                    reporteAsistenciaAulaDTO.setJustificadas(this.asistenciaRepository.countAsistenciasAulaAño(alumnoEntity.getUniqueIdentifier(), "JUSTIFICADA", id_curso, id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS));
+                    tjustificadas += reporteAsistenciaAulaDTO.getJustificadas();
                     reporteAsistenciaAulaDTOS.add(reporteAsistenciaAulaDTO);
                 }
+
                 //Se llenan los parámetros del reporte
                 final HashMap<String, Object> parameters = new HashMap<>();
                 parameters.put("logoEmpresa", new FileInputStream(imgLogo));
-                    parameters.put("curso", cursoEntity.getName());
+                parameters.put("curso", cursoEntity.getName());
                 parameters.put("grado", aulaEntity.getGradoEntity().getName().toString());
                 parameters.put("seccion", aulaEntity.getSeccionEntity().getName().toString());
+                parameters.put("docente", docenteEntity.getUsuarioEntity().getNameCompleto());
                 parameters.put("año", anioLectivoEntity.getName());
+                parameters.put("tasistencias", tasistencias);
+                parameters.put("tfaltas", tfaltas);
+                parameters.put("tjustificadas", tjustificadas);
                 parameters.put("dsAsistAula", new JRBeanArrayDataSource(reporteAsistenciaAulaDTOS.toArray()));
-
                 //Se imprime el reporte
-                JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
-                byte [] reporte = JasperExportManager.exportReportToPdf(jasperPrint);
-                String sdf = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
-                StringBuilder stringBuilder = new StringBuilder().append("MatriculaPDF:");
-                ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
+            log.info("0");
+
+            JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
+            log.info("1");
+
+            byte [] reporte = JasperExportManager.exportReportToPdf(jasperPrint);
+            log.info("3");
+            String sdf = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
+            log.info("4");
+
+            StringBuilder stringBuilder = new StringBuilder().append("ResumenAsistenciaPDF:");
+            log.info("5");
+
+            ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
                         .filename(stringBuilder
                                 .append(aulaEntity.getCode())
                                 .append("generateDate:").append(sdf)
@@ -271,7 +295,9 @@ public class AsistenciaService {
                         .build();
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentDisposition(contentDisposition);
-                return ResponseEntity.ok().contentLength((long) reporte.length)
+            log.info("1");
+
+            return ResponseEntity.ok().contentLength(reporte.length)
                         .contentType(MediaType.APPLICATION_PDF)
                         .headers(headers).body(new ByteArrayResource(reporte));
             } catch (Exception e) {

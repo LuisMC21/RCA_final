@@ -49,7 +49,7 @@ public class ApoderadoRESTController {
     }
 
     @DeleteMapping("{id}")
-    public ApiResponse<ApoderadoDTO> delete(@PathVariable String id) {
+    public ApiResponse<ApoderadoDTO> delete(@PathVariable String id) throws ResourceNotFoundException {
         return this.apoderadoService.delete(id);
     }
 }
