@@ -6,7 +6,6 @@ import com.rca.RCA.service.PeriodoService;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.PeriodoDTO;
-import com.rca.RCA.type.SeccionDTO;
 import com.rca.RCA.util.exceptions.AttributeException;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -122,7 +121,6 @@ class PeriodoRESTControllerTest {
 
         verify(periodoService, times(1)).one(periodoEntity.getUniqueIdentifier());
     }
-
 
     @DisplayName("Test para agregar un periodo")
     @Test

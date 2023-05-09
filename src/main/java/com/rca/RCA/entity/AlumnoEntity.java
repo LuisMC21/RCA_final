@@ -120,11 +120,11 @@ public class AlumnoEntity extends AuditoryEntity{
     }
 
     public String getNombreApoderado(){
-        return this.apoderadoEntity != null ? (this.apoderadoEntity.getUsuarioEntity().getPa_surname() + " " + this.apoderadoEntity.getUsuarioEntity().getMa_surname() + " " +this.apoderadoEntity.getUsuarioEntity().getName()) :"---";
+        return this.apoderadoEntity != null ? (this.apoderadoEntity.getPa_surname() + " " + this.apoderadoEntity.getMa_surname() + " " +this.apoderadoEntity.getName()) :"---";
     }
 
     public String getTelApoderado(){
-        return this.apoderadoEntity != null ? this.apoderadoEntity.getUsuarioEntity().getTel() :"---";
+        return this.apoderadoEntity != null ? this.apoderadoEntity.getTel() :"---";
     }
     public String getEmailApoderado(){
         return this.apoderadoEntity != null ? this.apoderadoEntity.getEmail():"---";

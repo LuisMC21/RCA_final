@@ -1,10 +1,7 @@
 package com.rca.RCA.controller;
 
-import com.rca.RCA.entity.CursoEntity;
-import com.rca.RCA.service.CursoService;
-import com.rca.RCA.type.ApiResponse;
-import com.rca.RCA.type.CursoDTO;
-import com.rca.RCA.type.Pagination;
+import com.rca.RCA.service.ImagenService;
+import com.rca.RCA.type.*;
 import com.rca.RCA.util.exceptions.AttributeException;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,27 +23,38 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class CursoRESTControllerTest {
+class ImagenRESTControllerTest {
 
     @Mock
-    private CursoService cursoService;
+    private ImagenService imagenService;
 
     @InjectMocks
-    private CursoRESTController cursoRESTController;
+    private ImagenRESTController imagenRESTController;
 
-    private CursoEntity cursoEntity;
+    private ImagenFileDTO imagenFileDTO;
+
+    private ImagenDTO imagenDTO;
+
+    private UsuarioDTO usuarioDTO;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        cursoEntity= new CursoEntity();
-        cursoEntity.setName("MATEMÁTICAS");
-        cursoEntity.setCode("CUR001");
-        cursoEntity.setUniqueIdentifier(UUID.randomUUID().toString());
-        cursoEntity.setCreateAt(LocalDateTime.now());
+        imagenDTO= new ImagenDTO();
+        imagenDTO.setName("Logo");
+        imagenDTO.setCode("IMG001");
+        imagenDTO.setRoute("/images/lkdasmdkas.jpg");
+        imagenDTO.setId(UUID.randomUUID().toString());
+        imagenDTO.setCreateAt(LocalDateTime.now());
+
+        usuarioDTO = new UsuarioDTO();
+        usuarioDTO.setCreateAt(LocalDateTime.now());
+        usuarioDTO.setId(UUID.randomUUID().toString());
+
+        imagenDTO.setUsuarioDTO(usuarioDTO);
     }
 
-    @DisplayName("Test para listar los cursos")
+    @DisplayName("Test para listar las imágenes")
     @Test
     void list() {
         // Given
@@ -54,25 +62,30 @@ class CursoRESTControllerTest {
         int page = 1;
         int size = 10;
 
-        Pagination<CursoDTO> pagination = new Pagination<>();
+        Pagination<ImagenDTO> pagination = new Pagination<>();
         pagination.setCountFilter(2);
         pagination.setTotalPages(pagination.processAndGetTotalPages(size));
-        List<CursoEntity> cursoEntities = new ArrayList<>();
-        cursoEntities.add(cursoEntity);
-        CursoEntity cursoEntity2 = new CursoEntity();
-        cursoEntity2.setName("COMUNICACIÓN");
-        cursoEntities.add(cursoEntity2);
-        pagination.setList(cursoEntities.stream().map(CursoEntity::getCursoDTO).collect(Collectors.toList()));
+        List<ImagenDTO> imagenDTOS = new ArrayList<>();
+        imagenDTOS.add(imagenDTO);
 
-        ApiResponse<Pagination<CursoDTO>> expectedApiResponse = new ApiResponse<>();
+        ImagenDTO imagenDTO2 = new ImagenDTO();
+        imagenDTO2.setName("Logo");
+        imagenDTO2.setCode("IMG001");
+        imagenDTO2.setId(UUID.randomUUID().toString());
+        imagenDTO2.setCreateAt(LocalDateTime.now());
+        imagenDTO2.setUsuarioDTO(usuarioDTO);
+        imagenDTOS.add(imagenDTO2);
+        pagination.setList(imagenDTOS.stream().collect(Collectors.toList()));
+
+        ApiResponse<Pagination<ImagenDTO>> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
         expectedApiResponse.setMessage("ok");
         expectedApiResponse.setData(pagination);
 
-        when(cursoService.getList(filter, page, size)).thenReturn(expectedApiResponse);
+        when(imagenService.getList(filter, page, size)).thenReturn(expectedApiResponse);
 
         // When
-        ApiResponse<Pagination<CursoDTO>> actualApiResponse = cursoRESTController.list(filter, page, size);
+        ApiResponse<Pagination<ImagenDTO>> actualApiResponse = imagenRESTController.list(filter, page, size);
 
         // Then
         assertTrue(actualApiResponse.isSuccessful());
@@ -81,22 +94,22 @@ class CursoRESTControllerTest {
         assertThat(actualApiResponse.getMessage()).isEqualTo(expectedApiResponse.getMessage());
         assertThat(actualApiResponse.getData()).isEqualTo(expectedApiResponse.getData());
 
-        verify(cursoService).getList(filter, page, size);
+        verify(imagenService).getList(filter, page, size);
     }
 
-    @DisplayName("Test para obtener un curso por id")
+    @DisplayName("Test para obtener una imagen por id")
     @Test
     void one() throws ResourceNotFoundException {
         //given
-        ApiResponse<CursoDTO> expectedApiResponse = new ApiResponse<>();
+        ApiResponse<ImagenDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
         expectedApiResponse.setMessage("ok");
-        expectedApiResponse.setData(cursoEntity.getCursoDTO());
+        expectedApiResponse.setData(imagenDTO);
 
-        when(cursoService.one(cursoEntity.getUniqueIdentifier())).thenReturn(expectedApiResponse);
+        when(imagenService.one(imagenDTO.getId())).thenReturn(expectedApiResponse);
 
         // When
-        ApiResponse<CursoDTO> actualApiResponse = cursoRESTController.one(cursoEntity.getUniqueIdentifier());
+        ApiResponse<ImagenDTO> actualApiResponse = imagenRESTController.one(imagenDTO.getId());
 
         // Then
         assertTrue(actualApiResponse.isSuccessful());
@@ -105,21 +118,26 @@ class CursoRESTControllerTest {
         assertThat(actualApiResponse.getData().getName()).isEqualTo(expectedApiResponse.getData().getName());
         assertThat(actualApiResponse.getData().getCode()).isEqualTo(expectedApiResponse.getData().getCode());
 
-        verify(cursoService, times(1)).one(cursoEntity.getUniqueIdentifier());
+        verify(imagenService, times(1)).one(imagenDTO.getId());
     }
 
-    @DisplayName("Test para agregar un curso")
+    @DisplayName("Test para agregar una imagen")
     @Test
-    void add() throws AttributeException {
+    void add() throws AttributeException, ResourceNotFoundException {
         // given
-        ApiResponse<CursoDTO> expectedApiResponse = new ApiResponse<>();
+        ApiResponse<ImagenDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
         expectedApiResponse.setMessage("ok");
-        expectedApiResponse.setData(cursoEntity.getCursoDTO());
-        when(cursoService.add(cursoEntity.getCursoDTO())).thenReturn(expectedApiResponse);
+
+        imagenFileDTO = new ImagenFileDTO();
+        imagenFileDTO.setName("Logo");
+        imagenFileDTO.setImagenBase64("base64:imagen/liaj´dsajkdasndas78dsad9as8dusajdonask");
+
+        expectedApiResponse.setData(imagenDTO);
+        when(imagenService.add(imagenFileDTO)).thenReturn(expectedApiResponse);
 
         //when
-        ApiResponse<CursoDTO> actualApiResponse = cursoRESTController.add(cursoEntity.getCursoDTO());
+        ApiResponse<ImagenDTO> actualApiResponse = imagenRESTController.add(imagenFileDTO);
 
         // then
         assertThat(actualApiResponse).isNotNull();
@@ -129,59 +147,54 @@ class CursoRESTControllerTest {
         assertThat(actualApiResponse.getData().getName()).isEqualTo(expectedApiResponse.getData().getName());
         assertThat(actualApiResponse.getData().getCode()).isEqualTo(expectedApiResponse.getData().getCode());
 
-        verify(cursoService).add(this.cursoEntity.getCursoDTO());
+        verify(imagenService).add(this.imagenFileDTO);
     }
 
-    @DisplayName("Test para actualizar un curso")
+    @DisplayName("Test para actualizar una imagen")
     @Test
-    void update() throws ResourceNotFoundException, AttributeException {
+    void update() throws ResourceNotFoundException {
         //given
-        CursoDTO cursoDTO2 = new CursoDTO();
-        cursoDTO2.setName("COMUNICACION");
-        cursoDTO2.setCode("CUR001");
-        cursoDTO2.setUpdateAt(LocalDateTime.now());
+        ImagenDTO imagenDTO2 = imagenDTO;
+        imagenDTO2.setName("Logo 2");
 
-        ApiResponse<CursoDTO> expectedApiResponse = new ApiResponse<>();
+        ApiResponse<ImagenDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
         expectedApiResponse.setMessage("ok");
-        expectedApiResponse.setData(cursoDTO2);
+        expectedApiResponse.setData(imagenDTO2);
 
-        when(cursoService.one(cursoEntity.getUniqueIdentifier())).thenReturn(expectedApiResponse);
-        when(cursoService.update(cursoDTO2)).thenReturn(expectedApiResponse);
+        when(imagenService.one(imagenDTO2.getId())).thenReturn(expectedApiResponse);
+        when(imagenService.update(imagenDTO2)).thenReturn(expectedApiResponse);
 
         // When
-        ApiResponse<CursoDTO> actualApiResponse = cursoRESTController.update(cursoDTO2);
+        ApiResponse<ImagenDTO> actualApiResponse = imagenRESTController.update(imagenDTO2);
 
         // Then
         assertTrue(actualApiResponse.isSuccessful());
         assertEquals(expectedApiResponse, actualApiResponse);
-        assertThat(actualApiResponse.getData().getName()).isEqualTo(expectedApiResponse.getData().getName());
         assertThat(actualApiResponse.getData().getCode()).isEqualTo(expectedApiResponse.getData().getCode());
         assertThat(actualApiResponse.getData().getUpdateAt()).isEqualTo(expectedApiResponse.getData().getUpdateAt());
-
-        verify(cursoService).update(cursoDTO2);
+        verify(imagenService).update(imagenDTO2);
     }
 
-    @DisplayName("Test para eliminar un curso")
+    @DisplayName("Test para eliminar una imagen")
     @Test
     void delete() throws ResourceNotFoundException {
         // given
-        ApiResponse<CursoDTO> expectedApiResponse = new ApiResponse<>();
+        ApiResponse<ImagenDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
         expectedApiResponse.setMessage("ok");
-        expectedApiResponse.setData(cursoEntity.getCursoDTO());
+        expectedApiResponse.setData(imagenDTO);
 
-        when(cursoService.delete(cursoEntity.getUniqueIdentifier())).thenReturn(expectedApiResponse);
+        when(imagenService.delete(imagenDTO.getId())).thenReturn(expectedApiResponse);
 
         // when
-        ApiResponse<CursoDTO> actualApiResponse = cursoRESTController.delete(cursoEntity.getUniqueIdentifier());
+        ApiResponse<ImagenDTO> actualApiResponse = imagenRESTController.delete(imagenDTO.getId());
 
         // then
         assertTrue(actualApiResponse.isSuccessful());
         assertEquals(expectedApiResponse, actualApiResponse);
-        assertThat(actualApiResponse.getData().getName()).isEqualTo(expectedApiResponse.getData().getName());
         assertThat(actualApiResponse.getData().getId()).isEqualTo(expectedApiResponse.getData().getId());
 
-        verify(cursoService, times(1)).delete(cursoEntity.getUniqueIdentifier());
+        verify(imagenService, times(1)).delete(imagenDTO.getId());
     }
 }

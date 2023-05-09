@@ -57,10 +57,6 @@ public class UsuarioEntity extends AuditoryEntity{
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private AlumnoEntity alumnoEntity;
 
-    @OneToOne(mappedBy = "usuarioEntity")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private ApoderadoEntity apoderadoEntity;
-
     @OneToMany(mappedBy = "usuarioEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<ImagenEntity> imagenEntities = new HashSet<>();
 
@@ -87,7 +83,6 @@ public class UsuarioEntity extends AuditoryEntity{
         this.roles = roles;
         this.docenteEntity = docenteEntity;
         this.alumnoEntity = alumnoEntity;
-        this.apoderadoEntity = apoderadoEntity;
         this.imagenEntities = imagenEntities;
         this.noticiaEntities = noticiaEntities;
     }
@@ -188,14 +183,6 @@ public class UsuarioEntity extends AuditoryEntity{
         this.alumnoEntity = alumnoEntity;
     }
 
-    public ApoderadoEntity getApoderadoEntity() {
-        return apoderadoEntity;
-    }
-
-    public void setApoderadoEntity(ApoderadoEntity apoderadoEntity) {
-        this.apoderadoEntity = apoderadoEntity;
-    }
-
     public Set<ImagenEntity> getImagenEntities() {
         return imagenEntities;
     }
@@ -292,7 +279,7 @@ public class UsuarioEntity extends AuditoryEntity{
     }
 
     public String getNameCompleto(){
-        return this.name;
+        return this.pa_surname + " "+ ma_surname + " "+ this.name;
     }
 
 }

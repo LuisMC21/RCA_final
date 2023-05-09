@@ -1,12 +1,10 @@
 package com.rca.RCA.controller;
 
 import com.rca.RCA.entity.AnioLectivoEntity;
-import com.rca.RCA.entity.SeccionEntity;
 import com.rca.RCA.service.AnioLectivoService;
 import com.rca.RCA.type.AnioLectivoDTO;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
-import com.rca.RCA.type.SeccionDTO;
 import com.rca.RCA.util.exceptions.AttributeException;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;

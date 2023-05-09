@@ -62,6 +62,23 @@ public interface AsistenciaRepository extends JpaRepository<AsistenciaEntity, In
                     "AND p.uniqueIdentifier = :id_periodo " +
                     "AND a.uniqueIdentifier= :id_aniolectivo ")
     Optional<List<AsistenciaEntity>> findAsistencias(String id_alumno, String id_periodo, String id_aniolectivo, String status);
+    @Query(value = "SELECT count(distinct(ass)) FROM AsistenciaEntity ass " +
+            "JOIN ass.claseEntity cl " +
+            "JOIN ass.alumnoEntity al " +
+            "JOIN cl.docentexCursoEntity dxc " +
+            "JOIN dxc.cursoEntity c " +
+            "JOIN dxc.aulaEntity au " +
+            "JOIN al.matriculaEntities m " +
+            "JOIN m.anio_lectivoEntity a " +
+            "WHERE ass.status = :status " +
+            "AND ass.state = :state " +
+            "AND al.uniqueIdentifier = :id_alumno " +
+            "AND c.uniqueIdentifier = :id_curso " +
+            "AND au.uniqueIdentifier = :id_aula " +
+            "AND a.uniqueIdentifier= :id_aniolectivo ")
+    int countAsistenciasAulaAño(String id_alumno, String state, String id_curso, String id_aula, String id_aniolectivo, String status);
+
+
     @Query(value = "SELECT cl FROM AnioLectivoEntity a " +
             "JOIN a.matriculaEntities l " +
             "JOIN l.alumnoEntity al " +
