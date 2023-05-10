@@ -1,6 +1,7 @@
 package com.rca.RCA.repository;
 
 import com.rca.RCA.entity.DocenteEntity;
+import com.rca.RCA.entity.UsuarioEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -53,7 +54,7 @@ public interface DocenteRepository extends JpaRepository<DocenteEntity, Integer>
             "AND au.uniqueIdentifier = :id_aula " +
             "AND an.uniqueIdentifier = :id_anio ")
     Optional<DocenteEntity> findAulaAnio(String id_aula, String id_curso, String id_anio, String status);
-@Query(value = "SELECT d FROM DocenteEntity d " +
+    @Query(value = "SELECT d FROM DocenteEntity d " +
             "JOIN d.docentexCursoEntities dxc " +
             "JOIN dxc.aulaEntity au " +
             "JOIN dxc.cursoEntity c " +
@@ -64,5 +65,12 @@ public interface DocenteRepository extends JpaRepository<DocenteEntity, Integer>
             "AND au.uniqueIdentifier = :id_aula " +
             "AND an.uniqueIdentifier = :id_anio ")
     Optional<List<DocenteEntity>> findOneAulaAnio(String id_aula, String id_curso, String id_anio, String status);
+
+  @Query(value = "SELECT u FROM UsuarioEntity u " +
+          "JOIN u.docenteEntity d " +
+          "WHERE d.uniqueIdentifier = :id_docente " +
+          "AND d.status = :status " +
+          "AND u.status = :status ")
+  Optional<UsuarioEntity> findUserByDocente(String id_docente, String status);
 
 }
