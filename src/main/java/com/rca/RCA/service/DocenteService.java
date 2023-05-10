@@ -118,14 +118,11 @@ public class DocenteService {
     public ApiResponse<DocenteDTO> update(DocenteDTO docenteDTO) throws ResourceNotFoundException {
         if(docenteDTO.getId().isBlank())
             throw new ResourceNotFoundException("Docente no encontrado");
-        ApiResponse<UsuarioDTO> apiResponseU;
-        if(docenteDTO.getUsuarioDTO().getId().isBlank()){
-            apiResponseU = this.usuarioService.update(docenteDTO.getUsuarioDTO());
-        } else {
-            UsuarioDTO usuarioDTO = this.docenteRepository.findUserByDocente(docenteDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no existe")).getUsuarioDTO();
-            usuarioDTO.setRol(docenteDTO.getUsuarioDTO().getRol());
-            apiResponseU = this.usuarioService.update(usuarioDTO);
-        }
+
+        UsuarioDTO usuarioDTO = this.docenteRepository.findUserByDocente(docenteDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no existe")).getUsuarioDTO();
+        usuarioDTO.setRol(docenteDTO.getUsuarioDTO().getRol());
+        ApiResponse<UsuarioDTO> apiResponseU = this.usuarioService.update(usuarioDTO);
+
         ApiResponse<DocenteDTO> apiResponse = new ApiResponse<>();
         DocenteEntity docenteEntity = this.docenteRepository.findByUniqueIdentifier(docenteDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Docente no existe"));
         //Set update time
