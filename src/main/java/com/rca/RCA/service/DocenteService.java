@@ -132,8 +132,9 @@ public class DocenteService {
         docenteEntity.getUsuarioEntity().setName(docenteDTO.getUsuarioDTO().getName());
         docenteEntity.getUsuarioEntity().setGra_inst(docenteDTO.getUsuarioDTO().getGra_inst());
         docenteEntity.getUsuarioEntity().setEmail(docenteDTO.getUsuarioDTO().getEmail());
+        log.info("0");
         //Update in database to usuario
-        ApiResponse<UsuarioDTO> apiResponseU = this.usuarioService.update(docenteEntity.getUsuarioEntity().getUsuarioDTO());
+        ApiResponse<UsuarioDTO> apiResponseU = this.usuarioService.update(docenteDTO.getUsuarioDTO());
         if (apiResponseU.isSuccessful()) {
             //Update in database to docente
             apiResponse.setSuccessful(true);

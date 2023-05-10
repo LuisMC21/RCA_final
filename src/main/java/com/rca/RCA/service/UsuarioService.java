@@ -78,47 +78,42 @@ public class UsuarioService {
     }
 
     //Modificar usuario
-    public ApiResponse<UsuarioDTO> update(UsuarioDTO UsuarioDTO) {
+    public ApiResponse<UsuarioDTO> update(UsuarioDTO usuarioDTO) throws ResourceNotFoundException {
         ApiResponse<UsuarioDTO> apiResponse = new ApiResponse<>();
 
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(UsuarioDTO.getId(), ConstantsGeneric.CREATED_STATUS);
-        if (optionalUsuarioEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("Usuario_NOT_EXISTS");
-            apiResponse.setMessage("No se encontro el Usuario");
-            return apiResponse;
-        }
+        UsuarioEntity usuarioEntity = this.usuarioRepository.findByUniqueIdentifier(usuarioDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no existe"));
 
         //validamos
-        Optional<UsuarioEntity> optionalUsuarioEntityValidation = this.usuarioRepository.findByNumdoc(UsuarioDTO.getNumdoc(), UsuarioDTO.getId());
-        if (optionalUsuarioEntityValidation.isPresent()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("Usuario_EXISTS");
-            apiResponse.setMessage("No se actualizó, el Usuario existe");
-            return apiResponse;
-        }
+        if(this.usuarioRepository.existsByNumdoc(usuarioDTO.getNumdoc(), usuarioDTO.getId(), ConstantsGeneric.CREATED_STATUS))
+            new ResourceNotFoundException("Usuario ya existe");
 
         //change dto to entity
-        UsuarioEntity UsuarioEntity = optionalUsuarioEntity.get();
-        UsuarioEntity.setName(UsuarioDTO.getName());
-        UsuarioEntity.setPa_surname(UsuarioDTO.getPa_surname());
-        UsuarioEntity.setMa_surname(UsuarioDTO.getMa_surname());
-        UsuarioEntity.setBirthdate(UsuarioDTO.getBirthdate());
-        UsuarioEntity.setType_doc(UsuarioDTO.getType_doc());
-        UsuarioEntity.setNumdoc(UsuarioDTO.getNumdoc());
-        UsuarioEntity.setGra_inst(UsuarioDTO.getGra_inst());
-        UsuarioEntity.setEmail(UsuarioDTO.getEmail());
-        UsuarioEntity.setTel(UsuarioDTO.getTel());
+        usuarioEntity.setName(usuarioDTO.getName());
+        usuarioEntity.setPa_surname(usuarioDTO.getPa_surname());
+        usuarioEntity.setMa_surname(usuarioDTO.getMa_surname());
+        usuarioEntity.setBirthdate(usuarioDTO.getBirthdate());
+        usuarioEntity.setType_doc(usuarioDTO.getType_doc());
+        usuarioEntity.setNumdoc(usuarioDTO.getNumdoc());
+        usuarioEntity.setGra_inst(usuarioDTO.getGra_inst());
+        usuarioEntity.setEmail(usuarioDTO.getEmail());
+        usuarioEntity.setTel(usuarioDTO.getTel());
+        log.info(usuarioDTO.getRol());
         //set category
-        Optional<Rol> optionalRol = this.rolRepository.findByUniqueIdentifier(UsuarioDTO.getRol());
-        if (optionalRol.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("CATEGORY_NOT_EXISTS");
-            apiResponse.setMessage("No se registro, la categoria asociada al Usuarioo no existe");
-            return apiResponse;
+        if(usuarioDTO.getRol().equalsIgnoreCase("ADMINISTRADOR")){
+            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_ADMIN).get());
+            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_TEACHER).get());
+            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_STUDENT).get());
         }
-        UsuarioEntity.getRoles().add(optionalRol.get());
-        apiResponse.setData(this.usuarioRepository.save(UsuarioEntity).getUsuarioDTO());
+        if(usuarioDTO.getRol().equalsIgnoreCase("TEACHER")){
+            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_TEACHER).get());
+            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_STUDENT).get());
+        }
+        if(usuarioDTO.getRol().equalsIgnoreCase("STUDENT")){
+            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_STUDENT).get());
+        }
+        log.info("1");
+
+        apiResponse.setData(this.usuarioRepository.save(usuarioEntity).getUsuarioDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
         return apiResponse;
