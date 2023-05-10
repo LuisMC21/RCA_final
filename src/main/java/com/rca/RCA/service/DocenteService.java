@@ -118,6 +118,14 @@ public class DocenteService {
     public ApiResponse<DocenteDTO> update(DocenteDTO docenteDTO) throws ResourceNotFoundException {
         if(docenteDTO.getId().isBlank())
             throw new ResourceNotFoundException("Docente no encontrado");
+        ApiResponse<UsuarioDTO> apiResponseU;
+        if(docenteDTO.getUsuarioDTO().getId().isBlank()){
+            apiResponseU = this.usuarioService.update(docenteDTO.getUsuarioDTO());
+        } else {
+            UsuarioDTO usuarioDTO = this.docenteRepository.findUserByDocente(docenteDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no existe")).getUsuarioDTO();
+            usuarioDTO.setRol(docenteDTO.getUsuarioDTO().getRol());
+            apiResponseU = this.usuarioService.update(usuarioDTO);
+        }
         ApiResponse<DocenteDTO> apiResponse = new ApiResponse<>();
         DocenteEntity docenteEntity = this.docenteRepository.findByUniqueIdentifier(docenteDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Docente no existe"));
         //Set update time
@@ -132,25 +140,26 @@ public class DocenteService {
         docenteEntity.getUsuarioEntity().setName(docenteDTO.getUsuarioDTO().getName());
         docenteEntity.getUsuarioEntity().setGra_inst(docenteDTO.getUsuarioDTO().getGra_inst());
         docenteEntity.getUsuarioEntity().setEmail(docenteDTO.getUsuarioDTO().getEmail());
-        log.info("0");
+        if(docenteDTO.getUsuarioDTO().getPassword() != null)
+            docenteEntity.getUsuarioEntity().setPassword(docenteDTO.getUsuarioDTO().getPassword());
         //Update in database to usuario
-        ApiResponse<UsuarioDTO> apiResponseU = this.usuarioService.update(docenteDTO.getUsuarioDTO());
+        log.info("1");
         if (apiResponseU.isSuccessful()) {
             //Update in database to docente
             apiResponse.setSuccessful(true);
             apiResponse.setMessage("ok");
-            apiResponse.setData(this.docenteRepository.save(docenteEntity).getDocenteDTO());
+            docenteDTO = this.docenteRepository.save(docenteEntity).getDocenteDTO();
+            docenteDTO.getUsuarioDTO().setPassword("CIFRADA");
+            apiResponse.setData(docenteDTO);
             return apiResponse;
         } else {
             apiResponse.setSuccessful(false);
             apiResponse.setMessage(apiResponseU.getMessage());
             return apiResponse;
         }
-
     }
     //Función para actualizar docente-END
-
-
+    
     //Función para cambiar estado a eliminado- START
     //id dto=uniqueIdentifier Entity
     @Transactional

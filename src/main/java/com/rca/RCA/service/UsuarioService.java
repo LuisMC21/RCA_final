@@ -111,8 +111,6 @@ public class UsuarioService {
         if(usuarioDTO.getRol().equalsIgnoreCase("STUDENT")){
             usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_STUDENT).get());
         }
-        log.info("1");
-
         apiResponse.setData(this.usuarioRepository.save(usuarioEntity).getUsuarioDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
