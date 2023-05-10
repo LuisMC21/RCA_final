@@ -51,9 +51,10 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
     //Función para encontrar un usuario por su telefono
     Optional<UsuarioEntity> findByTel(String tel);
 
-    @Query(value = "select u from UsuarioEntity u " +
-            "where u.numdoc = :numdoc and u.uniqueIdentifier <> :uniqueIdentifier ")
-    Optional<UsuarioEntity> findByNumdoc(String numdoc, String uniqueIdentifier);
+    @Query(value = "select count(u)>0 from UsuarioEntity u " +
+            "where u.numdoc = :numdoc and u.uniqueIdentifier <> :uniqueIdentifier " +
+            "AND u.status = :status ")
+    boolean existsByNumdoc(String numdoc, String uniqueIdentifier, String status);
 
     //Función para eliminar imágenes asociadas al usuario
     @Transactional

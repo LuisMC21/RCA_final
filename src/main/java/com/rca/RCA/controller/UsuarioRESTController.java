@@ -36,7 +36,7 @@ public class UsuarioRESTController {
     }
 
     @PutMapping
-    public ApiResponse<UsuarioDTO> update(@RequestBody UsuarioDTO UsuarioDTO) {
+    public ApiResponse<UsuarioDTO> update(@RequestBody UsuarioDTO UsuarioDTO) throws ResourceNotFoundException {
         return this.usuarioService.update(UsuarioDTO);
     }
 
