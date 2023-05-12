@@ -6,6 +6,7 @@ import com.rca.RCA.type.GradoDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.UsuarioDTO;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,7 +37,7 @@ public class UsuarioRESTController {
     }
 
     @PutMapping
-    public ApiResponse<UsuarioDTO> update(@RequestBody UsuarioDTO UsuarioDTO) throws ResourceNotFoundException {
+    public ApiResponse<UsuarioDTO> update(@Valid @RequestBody UsuarioDTO UsuarioDTO) throws ResourceNotFoundException {
         return this.usuarioService.update(UsuarioDTO);
     }
 

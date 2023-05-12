@@ -58,21 +58,19 @@ public class LoginService {
         return apiResponse;
     }
     //Agregar usuario
-    public ApiResponse<UsuarioDTO> add(UsuarioDTO usuarioDTO) {
+    public ApiResponse<UsuarioDTO> add(UsuarioDTO usuarioDTO) throws AttributeException {
+        //Excepciones
+        if(this.usuarioRepository.existsByNumdoc(usuarioDTO.getNumdoc(), "", ConstantsGeneric.CREATED_STATUS))
+            throw new AttributeException("Usuario con documento existente");
+        if(this.usuarioRepository.existsByTel(usuarioDTO.getTel(), "", ConstantsGeneric.CREATED_STATUS))
+                    throw new AttributeException("Usuario con telefono existente");
+
         ApiResponse<UsuarioDTO> apiResponse = new ApiResponse<>();
         usuarioDTO.setId(UUID.randomUUID().toString());
         usuarioDTO.setCode(Code.generateCode(Code.USUARIO_CODE, this.usuarioRepository.count() + 1, Code.USUARIO_LENGTH));
         usuarioDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         usuarioDTO.setCreateAt(LocalDateTime.now());
-        //validamos
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByNumdoc(usuarioDTO.getNumdoc());
-        Optional<UsuarioEntity> optionalUsuarioEntity2 = this.usuarioRepository.findByTel(usuarioDTO.getTel());
-        if (optionalUsuarioEntity.isPresent() || optionalUsuarioEntity2.isPresent()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("Usuario_EXISTS");
-            apiResponse.setMessage("No se registró, el usuario existe");
-            return apiResponse;
-        }
+
         //change dto to entity
         UsuarioEntity usuarioEntity = new UsuarioEntity();
         usuarioEntity.setUsuarioDTO(usuarioDTO);

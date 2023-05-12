@@ -19,7 +19,7 @@ public class AuthController {
     LoginService loginService;
 
     @PostMapping("/usuario")
-    public ApiResponse<UsuarioDTO> add(@RequestBody @Valid UsuarioDTO UsuarioDTO) {
+    public ApiResponse<UsuarioDTO> add(@RequestBody @Valid UsuarioDTO UsuarioDTO) throws AttributeException {
         return this.loginService.add(UsuarioDTO);
     }
     @PostMapping("/login")

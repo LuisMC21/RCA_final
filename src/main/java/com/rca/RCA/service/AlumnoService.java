@@ -106,12 +106,12 @@ public class AlumnoService {
         //Verifica que el rol sea docente
         if (!AlumnoDTO.getUsuarioDTO().getRol().equalsIgnoreCase("STUDENT"))
             throw new AttributeException("El rol es inválido");
-
+        log.info("Rol existe");
         ApiResponse<UsuarioDTO> apiResponseU = this.loginService.add(AlumnoDTO.getUsuarioDTO());
         ApiResponse<AlumnoDTO> apiResponse = new ApiResponse<>();
         if (apiResponseU.isSuccessful()) {
-
-        //AlumnoDTO add data
+            log.info("Agregó al usuario");
+            //AlumnoDTO add data
         AlumnoDTO.setId(UUID.randomUUID().toString());
         AlumnoDTO.setCode(Code.generateCode(Code.ALU_CODE, this.alumnoRepository.count() + 1, Code.ALU_LENGTH));
         AlumnoDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
