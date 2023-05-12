@@ -122,7 +122,6 @@ public class DocenteService {
         UsuarioDTO usuarioDTO = this.docenteRepository.findUserByDocente(docenteDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no existe")).getUsuarioDTO();
         usuarioDTO.setRol(docenteDTO.getUsuarioDTO().getRol());
         ApiResponse<UsuarioDTO> apiResponseU = this.usuarioService.update(usuarioDTO);
-
         ApiResponse<DocenteDTO> apiResponse = new ApiResponse<>();
         DocenteEntity docenteEntity = this.docenteRepository.findByUniqueIdentifier(docenteDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Docente no existe"));
         //Set update time
@@ -140,7 +139,6 @@ public class DocenteService {
         if(docenteDTO.getUsuarioDTO().getPassword() != null)
             docenteEntity.getUsuarioEntity().setPassword(docenteDTO.getUsuarioDTO().getPassword());
         //Update in database to usuario
-        log.info("1");
         if (apiResponseU.isSuccessful()) {
             //Update in database to docente
             apiResponse.setSuccessful(true);
