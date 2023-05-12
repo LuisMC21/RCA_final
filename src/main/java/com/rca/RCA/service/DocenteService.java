@@ -106,7 +106,10 @@ public class DocenteService {
         //add usuario to docente
         docenteEntity.setUsuarioEntity(this.usuarioRepository.findByUniqueIdentifier(docenteDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS).get());
         //save docente
-        apiResponse.setData(this.docenteRepository.save(docenteEntity).getDocenteDTO());
+        docenteDTO = this.docenteRepository.save(docenteEntity).getDocenteDTO();
+        docenteDTO.getUsuarioDTO().setPassword("CIFRADA");
+        apiResponse.setData(docenteDTO);
+
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
         return apiResponse;
@@ -179,7 +182,9 @@ public class DocenteService {
         docenteEntity.setDeleteAt(LocalDateTime.now());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
-        apiResponse.setData(this.docenteRepository.save(docenteEntity).getDocenteDTO());
+        docenteEntity = this.docenteRepository.save(docenteEntity);
+        docenteEntity.getDocenteDTO().getUsuarioDTO().setPassword("CIFRADA");
+        apiResponse.setData(docenteEntity.getDocenteDTO());
         return apiResponse;
     }
     //Función para cambiar estado a eliminado- END
