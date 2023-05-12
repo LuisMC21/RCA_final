@@ -1,10 +1,12 @@
 package com.rca.RCA.type;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 public class ApoderadoDTO extends AuditoryDTO{
@@ -16,7 +18,8 @@ public class ApoderadoDTO extends AuditoryDTO{
     @NotBlank (message = "Apellido materno de apoderado no puede estar vacío")
     private String ma_surname;
     @NotNull(message = "Fecha de nacimiento no puede estar vacía")
-    private Date birthdate;
+    @JsonFormat(pattern = "dd-MM-yyyy") @Past
+    private LocalDate birthdate;
     @NotBlank (message = "Tipo de documento no puede estar vacío")
     private String type_doc;
     @NotBlank (message = "Número de documento no puede estar vacío")
