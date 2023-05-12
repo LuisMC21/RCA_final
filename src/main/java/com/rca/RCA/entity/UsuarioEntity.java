@@ -253,6 +253,7 @@ public class UsuarioEntity extends AuditoryEntity{
         usuarioDTO.setTel(this.tel);
         usuarioDTO.setGra_inst(this.gra_inst);
         usuarioDTO.setEmail(this.email);
+        usuarioDTO.setPassword(this.password);
         usuarioDTO.setStatus(this.getStatus());
         usuarioDTO.setCreateAt(this.getCreateAt());
         usuarioDTO.setUpdateAt(this.getUpdateAt());
@@ -272,6 +273,7 @@ public class UsuarioEntity extends AuditoryEntity{
         this.tel = UsuarioDTO.getTel();
         this.gra_inst = UsuarioDTO.getGra_inst();
         this.email = UsuarioDTO.getEmail();
+        this.password = UsuarioDTO.getPassword();
         this.setStatus(UsuarioDTO.getStatus());
         this.setCreateAt(UsuarioDTO.getCreateAt());
         this.setUpdateAt(UsuarioDTO.getUpdateAt());

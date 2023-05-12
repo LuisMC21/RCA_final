@@ -53,6 +53,7 @@ public class ApoderadoEntity extends AuditoryEntity{
         ApoderadoDTO.setNumdoc(this.numdoc);
         ApoderadoDTO.setEmail(this.email);
         ApoderadoDTO.setTel(this.tel);
+        ApoderadoDTO.setNumdoc(this.numdoc);
         ApoderadoDTO.setStatus(this.getStatus());
         ApoderadoDTO.setCreateAt(this.getCreateAt());
         ApoderadoDTO.setUpdateAt(this.getUpdateAt());
@@ -60,7 +61,7 @@ public class ApoderadoEntity extends AuditoryEntity{
         return ApoderadoDTO;
     }
 
-    public void setApoderadoDTO(ApoderadoDTO apoderadoDTO){
+    public void setApoderadoDTO(ApoderadoDTO apoderadoDTO) {
         this.setUniqueIdentifier(apoderadoDTO.getId());
         this.code = apoderadoDTO.getCode();
         this.name = apoderadoDTO.getName();
