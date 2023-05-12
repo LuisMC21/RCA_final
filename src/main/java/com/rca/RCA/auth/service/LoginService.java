@@ -12,6 +12,7 @@ import com.rca.RCA.type.UsuarioDTO;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
 import com.rca.RCA.util.exceptions.AttributeException;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
+@Log4j2
 
 @Service
 public class LoginService {
@@ -58,21 +60,22 @@ public class LoginService {
         return apiResponse;
     }
     //Agregar usuario
-    public ApiResponse<UsuarioDTO> add(UsuarioDTO usuarioDTO) {
+    public ApiResponse<UsuarioDTO> add(UsuarioDTO usuarioDTO) throws AttributeException {
+        //Excepciones
+        if(this.usuarioRepository.existsByNumdoc(usuarioDTO.getNumdoc(), "", ConstantsGeneric.CREATED_STATUS))
+            throw new AttributeException("Usuario con documento existente");
+        if(this.usuarioRepository.existsByTel(usuarioDTO.getTel(), "", ConstantsGeneric.CREATED_STATUS))
+            throw new AttributeException("Usuario con telefono existente");
+        if(this.usuarioRepository.existsByEmail(usuarioDTO.getEmail(), "", ConstantsGeneric.CREATED_STATUS))
+            throw new AttributeException("Usuario con email existente");
+        if(this.usuarioRepository.existsByNombreUsuario(usuarioDTO.getNombreUsuario(), "", ConstantsGeneric.CREATED_STATUS))
+            throw new AttributeException("Usuario con nombre de usuario existente");
         ApiResponse<UsuarioDTO> apiResponse = new ApiResponse<>();
         usuarioDTO.setId(UUID.randomUUID().toString());
         usuarioDTO.setCode(Code.generateCode(Code.USUARIO_CODE, this.usuarioRepository.count() + 1, Code.USUARIO_LENGTH));
         usuarioDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         usuarioDTO.setCreateAt(LocalDateTime.now());
-        //validamos
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByNumdoc(usuarioDTO.getNumdoc());
-        Optional<UsuarioEntity> optionalUsuarioEntity2 = this.usuarioRepository.findByTel(usuarioDTO.getTel());
-        if (optionalUsuarioEntity.isPresent() || optionalUsuarioEntity2.isPresent()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("Usuario_EXISTS");
-            apiResponse.setMessage("No se registró, el usuario existe");
-            return apiResponse;
-        }
+        log.info("Creó los datos de auditoría");
         //change dto to entity
         UsuarioEntity usuarioEntity = new UsuarioEntity();
         usuarioEntity.setUsuarioDTO(usuarioDTO);
@@ -91,7 +94,6 @@ public class LoginService {
         }
 
         usuarioEntity.setPassword(passwordEncoder.encode(usuarioDTO.getPassword()));
-        System.out.println(usuarioEntity);
         apiResponse.setData(this.usuarioRepository.save(usuarioEntity).getUsuarioDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");

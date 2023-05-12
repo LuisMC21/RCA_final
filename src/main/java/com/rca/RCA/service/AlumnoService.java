@@ -28,6 +28,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
@@ -101,29 +102,31 @@ public class AlumnoService {
     }
 
     //Agregar Alumno
+    @Transactional(rollbackFor = {ResourceNotFoundException.class, AttributeException.class, Exception.class})
     public ApiResponse<AlumnoDTO> add(AlumnoDTO AlumnoDTO) throws AttributeException, ResourceNotFoundException {
-
-        //Verifica que el rol sea docente
+        //Verifica que el rol sea alumno
         if (!AlumnoDTO.getUsuarioDTO().getRol().equalsIgnoreCase("STUDENT"))
             throw new AttributeException("El rol es inválido");
+        log.info("Rol existe");
 
         ApiResponse<UsuarioDTO> apiResponseU = this.loginService.add(AlumnoDTO.getUsuarioDTO());
         ApiResponse<AlumnoDTO> apiResponse = new ApiResponse<>();
         if (apiResponseU.isSuccessful()) {
-
-        //AlumnoDTO add data
+            log.info("Agregó al usuario");
+            //AlumnoDTO add data
         AlumnoDTO.setId(UUID.randomUUID().toString());
         AlumnoDTO.setCode(Code.generateCode(Code.ALU_CODE, this.alumnoRepository.count() + 1, Code.ALU_LENGTH));
         AlumnoDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         AlumnoDTO.setCreateAt(LocalDateTime.now());
         //change dto to entity
-        AlumnoEntity AlumnoEntity = new AlumnoEntity();
-        AlumnoEntity.setAlumnoDTO(AlumnoDTO);
+        AlumnoEntity alumnoEntity = new AlumnoEntity();
+        alumnoEntity.setApoderadoEntity(this.apoderadoRepository.findByUniqueIdentifier(AlumnoDTO.getApoderadoDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Apoderado no encontrado")));
 
-        AlumnoEntity.setUsuarioEntity(this.usuarioRepository.findByUniqueIdentifier(apiResponseU.getData().getId(), ConstantsGeneric.CREATED_STATUS).get());
-        AlumnoEntity.setApoderadoEntity(this.apoderadoRepository.findByUniqueIdentifier(AlumnoDTO.getApoderadoDTO().getId(), ConstantsGeneric.CREATED_STATUS).get());
+        alumnoEntity.setAlumnoDTO(AlumnoDTO);
 
-        apiResponse.setData(this.alumnoRepository.save(AlumnoEntity).getAlumnoDTO());
+        alumnoEntity.setUsuarioEntity(this.usuarioRepository.findByUniqueIdentifier(apiResponseU.getData().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Hubo un error al  crear el usuario")));
+
+        apiResponse.setData(this.alumnoRepository.save(alumnoEntity).getAlumnoDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
 
@@ -139,7 +142,7 @@ public class AlumnoService {
     }
 
     //Modificar Alumno
-    public ApiResponse<AlumnoDTO> update(AlumnoDTO alumnoDTO) throws ResourceNotFoundException {
+    public ApiResponse<AlumnoDTO> update(AlumnoDTO alumnoDTO) throws ResourceNotFoundException, AttributeException {
         if(alumnoDTO.getId().isBlank())
             throw new ResourceNotFoundException("Alumno no encontrado");
 

@@ -118,7 +118,7 @@ public class DocenteService {
 
     //Función para actualizar docente-START
     @Transactional
-    public ApiResponse<DocenteDTO> update(DocenteDTO docenteDTO) throws ResourceNotFoundException {
+    public ApiResponse<DocenteDTO> update(DocenteDTO docenteDTO) throws ResourceNotFoundException, AttributeException {
         if(docenteDTO.getId().isBlank())
             throw new ResourceNotFoundException("Docente no encontrado");
 

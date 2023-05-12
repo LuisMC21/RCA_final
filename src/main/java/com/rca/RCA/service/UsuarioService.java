@@ -15,6 +15,7 @@ import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.UsuarioDTO;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
+import com.rca.RCA.util.exceptions.AttributeException;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,14 +79,17 @@ public class UsuarioService {
     }
 
     //Modificar usuario
-    public ApiResponse<UsuarioDTO> update(UsuarioDTO usuarioDTO) throws ResourceNotFoundException {
-        ApiResponse<UsuarioDTO> apiResponse = new ApiResponse<>();
-
-        UsuarioEntity usuarioEntity = this.usuarioRepository.findByUniqueIdentifier(usuarioDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no existe"));
-
+    public ApiResponse<UsuarioDTO> update(UsuarioDTO usuarioDTO) throws ResourceNotFoundException, AttributeException {
         //validamos
+        if(usuarioDTO.getId().isBlank())
+            throw new ResourceNotFoundException("Usuario no encontrado");
         if(this.usuarioRepository.existsByNumdoc(usuarioDTO.getNumdoc(), usuarioDTO.getId(), ConstantsGeneric.CREATED_STATUS))
             new ResourceNotFoundException("Usuario ya existe");
+        if(this.usuarioRepository.existsByTel(usuarioDTO.getTel(),  usuarioDTO.getId(), ConstantsGeneric.CREATED_STATUS))
+            throw new AttributeException("Usuario con telefono existente");
+
+        ApiResponse<UsuarioDTO> apiResponse = new ApiResponse<>();
+        UsuarioEntity usuarioEntity = this.usuarioRepository.findByUniqueIdentifier(usuarioDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no existe"));
 
         //change dto to entity
         usuarioEntity.setName(usuarioDTO.getName());

@@ -45,7 +45,7 @@ public class AlumnoRESTController {
     }
 
     @PutMapping
-    public ApiResponse<AlumnoDTO> update(@RequestBody AlumnoDTO alumnoDTO) throws ResourceNotFoundException{
+    public ApiResponse<AlumnoDTO> update(@RequestBody AlumnoDTO alumnoDTO) throws ResourceNotFoundException, AttributeException {
         return this.alumnoService.update(alumnoDTO);
     }
 
