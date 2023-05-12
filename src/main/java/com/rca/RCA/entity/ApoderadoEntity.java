@@ -1,11 +1,12 @@
 package com.rca.RCA.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.rca.RCA.type.ApoderadoDTO;
 import lombok.Data;
 
 import jakarta.persistence.*;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,8 +27,9 @@ public class ApoderadoEntity extends AuditoryEntity{
     private String pa_surname;
     @Column(name = "ma_surname")
     private String ma_surname;
+    @JsonFormat(pattern = "dd-MM-yyyy")
     @Column(name = "birthdate")
-    private Date birthdate;
+    private LocalDate birthdate;
     @Column(name = "type_doc")
     private String type_doc;
     @Column(name = "numdoc")
@@ -48,6 +50,7 @@ public class ApoderadoEntity extends AuditoryEntity{
         ApoderadoDTO.setMa_surname(this.ma_surname);
         ApoderadoDTO.setBirthdate(this.birthdate);
         ApoderadoDTO.setType_doc(this.type_doc);
+        ApoderadoDTO.setNumdoc(this.numdoc);
         ApoderadoDTO.setEmail(this.email);
         ApoderadoDTO.setTel(this.tel);
         ApoderadoDTO.setStatus(this.getStatus());
@@ -57,20 +60,21 @@ public class ApoderadoEntity extends AuditoryEntity{
         return ApoderadoDTO;
     }
 
-    public void setApoderadoDTO(ApoderadoDTO ApoderadoDTO){
-        this.setUniqueIdentifier(ApoderadoDTO.getId());
-        this.code = ApoderadoDTO.getCode();
-        this.name = ApoderadoDTO.getName();
-        this.pa_surname = ApoderadoDTO.getPa_surname();
-        this.ma_surname = ApoderadoDTO.getMa_surname();
-        this.birthdate = ApoderadoDTO.getBirthdate();
-        this.type_doc = ApoderadoDTO.getType_doc();
-        this.email = ApoderadoDTO.getEmail();
-        this.tel = ApoderadoDTO.getTel();
-        this.setStatus(ApoderadoDTO.getStatus());
-        this.setCreateAt(ApoderadoDTO.getCreateAt());
-        this.setUpdateAt(ApoderadoDTO.getUpdateAt());
-        this.setDeleteAt(ApoderadoDTO.getDeleteAt());
+    public void setApoderadoDTO(ApoderadoDTO apoderadoDTO){
+        this.setUniqueIdentifier(apoderadoDTO.getId());
+        this.code = apoderadoDTO.getCode();
+        this.name = apoderadoDTO.getName();
+        this.pa_surname = apoderadoDTO.getPa_surname();
+        this.ma_surname = apoderadoDTO.getMa_surname();
+        this.birthdate = apoderadoDTO.getBirthdate();
+        this.type_doc = apoderadoDTO.getType_doc();
+        this.email = apoderadoDTO.getEmail();
+        this.numdoc = apoderadoDTO.getNumdoc();
+        this.tel = apoderadoDTO.getTel();
+        this.setStatus(apoderadoDTO.getStatus());
+        this.setCreateAt(apoderadoDTO.getCreateAt());
+        this.setUpdateAt(apoderadoDTO.getUpdateAt());
+        this.setDeleteAt(apoderadoDTO.getDeleteAt());
     }
     public String getNameCompleto(){
         return this.pa_surname + " "+ ma_surname + " "+ this.name;

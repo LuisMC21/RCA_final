@@ -110,4 +110,10 @@ public interface AsistenciaRepository extends JpaRepository<AsistenciaEntity, In
             "AND p.uniqueIdentifier = :id_periodo " +
             "AND a.uniqueIdentifier= :id_aniolectivo ")
     Optional<List<ClaseEntity>> findClasesDeAsistencias(String id_alumno, String id_periodo, String id_aniolectivo, String status);
+
+    @Query(value = "SELECT ass FROM AsistenciaEntity ass " +
+            "JOIN ass.claseEntity c " +
+            "WHERE ass.status = :status " +
+            "AND c.uniqueIdentifier = :id_clase")
+    Optional<List<AsistenciaEntity>> findByClase(String id_clase, String status);
 }
