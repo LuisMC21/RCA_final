@@ -25,13 +25,13 @@ public class AlumnoEntity extends AuditoryEntity{
     @Column(name = "namecon_pri")
     @NotBlank
     private String namecon_pri;
-    @Column(name = "telcon_pri", unique = true)
+    @Column(name = "telcon_pri")
     @NotBlank
     private String telcon_pri;
     @Column(name = "namecon_sec")
     @NotBlank
     private String namecon_sec;
-    @Column(name = "telcon_sec", unique = true)
+    @Column(name = "telcon_sec")
     @NotBlank
     private String telcon_sec;
     @Column(name = "vaccine")

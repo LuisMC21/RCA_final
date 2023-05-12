@@ -49,7 +49,7 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
 
     //Función para encontrar un usuario por su telefono
     @Query(value = "select count(u)>0 from UsuarioEntity u " +
-            "where u.tel = :tel and u.id <> :id " +
+            "where u.tel = :tel and u.uniqueIdentifier <> :id " +
             "AND u.status = :status ")
     boolean existsByTel(String tel, String id, String status);
 
@@ -75,11 +75,17 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
     void deleteNoticia(@Param("uniqueIdentifier") String uniqueIdentifier, @Param("fecha") LocalDateTime fecha);
 
 
-    Optional<UsuarioEntity> findByNombreUsuario(String nombreUsuario);
     Optional<UsuarioEntity> findByNombreUsuarioOrEmail(String nombreUsuario, String email);
     Optional<UsuarioEntity> findByTokenPassword(String tokenPassword);
-    boolean existsByNombreUsuario(String nombreUsuario);
-    boolean existsByEmail(String email);
+
+    @Query(value = "select count(u)>0 from UsuarioEntity u " +
+            "where u.nombreUsuario = :nombreUsuario and u.uniqueIdentifier <> :id " +
+            "AND u.status = :status ")
+    boolean existsByNombreUsuario(String nombreUsuario, String id, String status);
+    @Query(value = "select count(u)>0 from UsuarioEntity u " +
+            "where u.email = :email and u.uniqueIdentifier <> :id " +
+            "AND u.status = :status ")
+    boolean existsByEmail(String email, String id, String status);
 }
 
 
