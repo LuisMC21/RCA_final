@@ -143,12 +143,13 @@ public class AlumnoService {
 
     //Modificar Alumno
     public ApiResponse<AlumnoDTO> update(AlumnoDTO alumnoDTO) throws ResourceNotFoundException, AttributeException {
+
         if(alumnoDTO.getId().isBlank())
             throw new ResourceNotFoundException("Alumno no encontrado");
 
-        UsuarioDTO usuarioDTO = this.alumnoRepository.findByUniqueIdentifier(alumnoDTO.getId()).orElseThrow(()-> new ResourceNotFoundException("Usuario no existe")).getAlumnoDTO().getUsuarioDTO();
+        UsuarioDTO usuarioDTO = this.alumnoRepository.findByUniqueIdentifier(alumnoDTO.getId()).orElseThrow(()-> new ResourceNotFoundException("Ulumno no existe")).getAlumnoDTO().getUsuarioDTO();
         usuarioDTO.setRol(alumnoDTO.getUsuarioDTO().getRol());
-        ApiResponse<UsuarioDTO> apiResponseU = this.usuarioService.update(usuarioDTO);
+        ApiResponse<UsuarioDTO> apiResponseU = this.usuarioService.update(alumnoDTO.getUsuarioDTO());
         ApiResponse<AlumnoDTO> apiResponse = new ApiResponse<>();
         AlumnoEntity alumnoEntity = this.alumnoRepository.findByUniqueIdentifier(alumnoDTO.getId()).orElseThrow(()->new ResourceNotFoundException("Alumno no existe"));
 
@@ -168,8 +169,8 @@ public class AlumnoService {
             alumnoEntity.getUsuarioEntity().setPassword(alumnoDTO.getUsuarioDTO().getPassword());
         //Update in database to usuario
 
-        alumnoEntity.setUsuarioEntity(this.usuarioRepository.findByUniqueIdentifier(alumnoDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Usuario no existe")));
-        alumnoEntity.setApoderadoEntity(this.apoderadoRepository.findByUniqueIdentifier(alumnoDTO.getId(),ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Apoderado no existe")));
+        alumnoEntity.setUsuarioEntity(this.usuarioRepository.findByUniqueIdentifier(alumnoDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Usuario no existe")));
+        alumnoEntity.setApoderadoEntity(this.apoderadoRepository.findByUniqueIdentifier(alumnoDTO.getApoderadoDTO().getId(),ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Apoderado no existe")));
 
         if (apiResponseU.isSuccessful()) {
             //Update in database to alumno
