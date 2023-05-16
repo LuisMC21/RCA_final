@@ -94,7 +94,7 @@ public class UsuarioService {
 
         ApiResponse<UsuarioDTO> apiResponse = new ApiResponse<>();
         UsuarioEntity usuarioEntity = this.usuarioRepository.findByUniqueIdentifier(usuarioDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no existe"));
-
+        System.out.println(usuarioEntity.getUsuarioDTO());
         //change dto to entity
         usuarioEntity.setName(usuarioDTO.getName());
         usuarioEntity.setPa_surname(usuarioDTO.getPa_surname());
@@ -106,6 +106,7 @@ public class UsuarioService {
         usuarioEntity.setEmail(usuarioDTO.getEmail());
         usuarioEntity.setTel(usuarioDTO.getTel());
         log.info(usuarioDTO.getRol());
+        System.out.println(usuarioEntity.getUsuarioDTO());
         //set category
         if(usuarioDTO.getRol().equalsIgnoreCase("ADMINISTRADOR")){
             usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_ADMIN).get());
