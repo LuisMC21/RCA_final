@@ -50,7 +50,7 @@ public class AlumnoRESTController {
     }
 
     @DeleteMapping("{id}")
-    public ApiResponse<AlumnoDTO> delete(@PathVariable String id) {
+    public ApiResponse<AlumnoDTO> delete(@PathVariable String id) throws ResourceNotFoundException {
          return this.alumnoService.delete(id);
     }
 

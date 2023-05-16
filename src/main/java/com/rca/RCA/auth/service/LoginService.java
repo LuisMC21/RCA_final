@@ -61,6 +61,7 @@ public class LoginService {
     }
     //Agregar usuario
     public ApiResponse<UsuarioDTO> add(UsuarioDTO usuarioDTO) throws AttributeException {
+        log.info("Entró a crear el usuario");
         //Excepciones
         if(this.usuarioRepository.existsByNumdoc(usuarioDTO.getNumdoc(), "", ConstantsGeneric.CREATED_STATUS))
             throw new AttributeException("Usuario con documento existente");
