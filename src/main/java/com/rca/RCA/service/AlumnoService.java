@@ -146,13 +146,17 @@ public class AlumnoService {
         if(alumnoDTO.getId().isBlank())
             throw new ResourceNotFoundException("Alumno no encontrado");
 
+        UsuarioDTO usuarioDTO = this.alumnoRepository.findByUniqueIdentifier(alumnoDTO.getId()).orElseThrow(()-> new ResourceNotFoundException("Usuario no existe")).getAlumnoDTO().getUsuarioDTO();
+        usuarioDTO.setRol(alumnoDTO.getUsuarioDTO().getRol());
+        ApiResponse<UsuarioDTO> apiResponseU = this.usuarioService.update(usuarioDTO);
         ApiResponse<AlumnoDTO> apiResponse = new ApiResponse<>();
-
         AlumnoEntity alumnoEntity = this.alumnoRepository.findByUniqueIdentifier(alumnoDTO.getId()).orElseThrow(()->new ResourceNotFoundException("Alumno no existe"));
+
+        alumnoEntity.setUpdateAt(LocalDateTime.now());
+        alumnoEntity.getUsuarioEntity().setUpdateAt(alumnoEntity.getUpdateAt());
 
         //change dto to entity
         alumnoEntity.setDiseases(alumnoDTO.getDiseases());
-        alumnoEntity.setUpdateAt(LocalDateTime.now());
         alumnoEntity.setNamecon_pri(alumnoDTO.getNamecon_pri());
         alumnoEntity.setTelcon_pri(alumnoDTO.getTelcon_pri());
         alumnoEntity.setNamecon_sec(alumnoDTO.getNamecon_sec());
@@ -160,16 +164,19 @@ public class AlumnoService {
         alumnoEntity.setVaccine(alumnoDTO.getVaccine());
         alumnoEntity.setType_insurance(alumnoDTO.getType_insurance());
 
+        if(alumnoDTO.getUsuarioDTO().getPassword() != null)
+            alumnoEntity.getUsuarioEntity().setPassword(alumnoDTO.getUsuarioDTO().getPassword());
+        //Update in database to usuario
+
         alumnoEntity.setUsuarioEntity(this.usuarioRepository.findByUniqueIdentifier(alumnoDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Usuario no existe")));
         alumnoEntity.setApoderadoEntity(this.apoderadoRepository.findByUniqueIdentifier(alumnoDTO.getId(),ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Apoderado no existe")));
 
-        //Update in database to usuario
-        ApiResponse<UsuarioDTO> apiResponseU = this.usuarioService.update(alumnoEntity.getUsuarioEntity().getUsuarioDTO());
         if (apiResponseU.isSuccessful()) {
-            //Update in database to docente
+            //Update in database to alumno
             apiResponse.setSuccessful(true);
-            apiResponse.setMessage("ok");
-            apiResponse.setData(this.alumnoRepository.save(alumnoEntity).getAlumnoDTO());
+            alumnoDTO = this.alumnoRepository.save(alumnoEntity).getAlumnoDTO();
+            alumnoDTO.getUsuarioDTO().setPassword("CIFRADA");
+            apiResponse.setData(alumnoDTO);
             return apiResponse;
         } else {
             apiResponse.setSuccessful(false);

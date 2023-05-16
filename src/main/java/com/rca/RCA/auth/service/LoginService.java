@@ -70,6 +70,7 @@ public class LoginService {
             throw new AttributeException("Usuario con email existente");
         if(this.usuarioRepository.existsByNombreUsuario(usuarioDTO.getNombreUsuario(), "", ConstantsGeneric.CREATED_STATUS))
             throw new AttributeException("Usuario con nombre de usuario existente");
+
         ApiResponse<UsuarioDTO> apiResponse = new ApiResponse<>();
         usuarioDTO.setId(UUID.randomUUID().toString());
         usuarioDTO.setCode(Code.generateCode(Code.USUARIO_CODE, this.usuarioRepository.count() + 1, Code.USUARIO_LENGTH));

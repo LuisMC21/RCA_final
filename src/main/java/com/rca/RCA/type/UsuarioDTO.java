@@ -1,5 +1,6 @@
 package com.rca.RCA.type;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import jakarta.validation.constraints.NotBlank;
@@ -20,6 +21,7 @@ public class UsuarioDTO extends AuditoryDTO{
     @NotBlank (message = "Apellido materno de usuario no puede estar vacío")
     private String ma_surname;
     @NotNull (message = "Fecha de nacimiento no puede estar vacía")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthdate;
     @NotBlank (message = "Tipo de documento no puede estar vacío")
     private String type_doc;

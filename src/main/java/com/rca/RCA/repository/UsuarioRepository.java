@@ -53,6 +53,7 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
             "AND u.status = :status ")
     boolean existsByTel(String tel, String id, String status);
 
+
     @Query(value = "select count(u)>0 from UsuarioEntity u " +
             "where u.numdoc = :numdoc and u.uniqueIdentifier <> :uniqueIdentifier " +
             "AND u.status = :status ")

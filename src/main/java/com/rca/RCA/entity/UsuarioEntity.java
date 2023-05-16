@@ -38,9 +38,7 @@ public class UsuarioEntity extends AuditoryEntity{
     private String tel;
     @Column(name = "gra_inst")
     private String gra_inst;
-    @Column(unique = true)
     private String nombreUsuario;
-    @Column(unique = true)
     private String email;
     private String password;
     private String tokenPassword;
