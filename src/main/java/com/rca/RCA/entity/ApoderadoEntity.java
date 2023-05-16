@@ -34,7 +34,7 @@ public class ApoderadoEntity extends AuditoryEntity{
     private String type_doc;
     @Column(name = "numdoc")
     private String numdoc;
-    @Column(name = "email", unique = true)
+    @Column(name = "email")
     private String email;
     private String tel;
 
