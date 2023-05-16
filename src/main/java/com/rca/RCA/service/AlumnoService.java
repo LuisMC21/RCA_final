@@ -179,36 +179,27 @@ public class AlumnoService {
     }
 
     //Borrar Alumno
-    public ApiResponse<AlumnoDTO> delete(String id) {
+    public ApiResponse<AlumnoDTO> delete(String id) throws ResourceNotFoundException {
         ApiResponse<AlumnoDTO> apiResponse = new ApiResponse<>();
-        Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(id);
+        AlumnoEntity alumnoEntity = this.alumnoRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Alumno no existe"));
         Long asistencias = this.asistenciaRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, id);
         Long evaluaciones = this.evaluacionRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, id);
-        if (optionalAlumnoEntity.isPresent()) {
 
-            if (asistencias > 0){
-                this.alumnoRepository.deleteAsistencia(id, LocalDateTime.now());
-            }
-
-            if (evaluaciones > 0){
-                this.alumnoRepository.deleteEvaluciones(id, LocalDateTime.now());
-            }
-
-            this.alumnoRepository.deleteUsuario(id, LocalDateTime.now());
-
-            AlumnoEntity AlumnoEntity = optionalAlumnoEntity.get();
-            AlumnoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
-            AlumnoEntity.setDeleteAt(LocalDateTime.now());
-
-            apiResponse.setSuccessful(true);
-            apiResponse.setMessage("ok");
-            apiResponse.setData(this.alumnoRepository.save(AlumnoEntity).getAlumnoDTO());
-
-        } else {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("ROL_DOES_NOT_EXISTS");
-            apiResponse.setMessage("No existe el alumno para poder eliminar");
+        if (asistencias > 0){
+            this.alumnoRepository.deleteAsistencia(id, LocalDateTime.now());
         }
+
+        if (evaluaciones > 0){
+            this.alumnoRepository.deleteEvaluciones(id, LocalDateTime.now());
+        }
+
+        this.alumnoRepository.deleteUsuario(id, LocalDateTime.now());
+
+        alumnoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
+        alumnoEntity.setDeleteAt(LocalDateTime.now());
+
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
 
         return apiResponse;
     }

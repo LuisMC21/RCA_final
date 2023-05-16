@@ -27,7 +27,7 @@ public class UsuarioEntity extends AuditoryEntity{
     @Column(name = "ma_surname")
     private String ma_surname;
 
-    @JsonFormat(pattern = "YYYY-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "birthdate")
     private Date birthdate;
     @Column(name = "type_doc")

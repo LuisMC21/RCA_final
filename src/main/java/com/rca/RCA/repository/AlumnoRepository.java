@@ -58,7 +58,7 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
     //Función para eliminar usuario asociado al alumno
     @Transactional
     @Modifying
-    @Query(value = "update usuario u JOIN alumno a  SET u.tx_status = 'DELETED', u.tx_delete_at = :fecha " +
+    @Query(value = "update user u JOIN alumno a  SET u.tx_status = 'DELETED', u.tx_delete_at = :fecha " +
             "where a.user_id = u.id " +
             "and a.tx_unique_identifier = :uniqueIdentifier", nativeQuery = true)
     void deleteUsuario(@Param("uniqueIdentifier") String uniqueIdentifier, @Param("fecha")LocalDateTime fecha);
