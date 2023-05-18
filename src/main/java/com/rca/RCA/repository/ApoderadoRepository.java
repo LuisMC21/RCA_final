@@ -29,6 +29,8 @@ public interface ApoderadoRepository extends JpaRepository<ApoderadoEntity, Inte
             "WHERE apo.uniqueIdentifier = :id " +
             "AND apo.status = :status ")
     Optional<ApoderadoEntity> findByUniqueIdentifier(String id, String status);
+    
+    Optional<ApoderadoEntity> findByCode(String code);
 
     //Funcion para obtener un apoderado por su email
     Optional<ApoderadoEntity> findByEmail(String email);

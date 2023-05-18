@@ -55,6 +55,7 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
     //Función para obtener un alumno por su identificador
     Optional<AlumnoEntity> findByUniqueIdentifier(String uniqueIdentifier);
 
+
     //Función para eliminar usuario asociado al alumno
     @Transactional
     @Modifying
