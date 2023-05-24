@@ -5,11 +5,17 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.rca.RCA.auth.dto.JwtDto;
 import com.rca.RCA.auth.entity.UsuarioPrincipal;
+import com.rca.RCA.auth.enums.RolNombre;
+import com.rca.RCA.repository.UsuarioRepository;
+import com.rca.RCA.util.ConstantsGeneric;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,7 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class JwtProvider {
+public class  JwtProvider {
     private final static Logger logger = LoggerFactory.getLogger(JwtProvider.class);
 
     @Value("${jwt.secret}")
@@ -31,14 +37,27 @@ public class JwtProvider {
     @Value("${jwt.expiration}")
     private int expiration;
 
-    public String generateToken(Authentication authentication) {
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    public String generateToken(Authentication authentication) throws ResourceNotFoundException {
         UsuarioPrincipal usuarioPrincipal = (UsuarioPrincipal) authentication.getPrincipal();
         List<String> roles = usuarioPrincipal.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+        String userId;
+        if(roles.contains("ROLE_ADMIN")){
+            userId = this.usuarioRepository.idFindByUsername(usuarioPrincipal.getUsername(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no encontrado")).getUniqueIdentifier();
+        } else if (roles.contains(("ROLE_TEACHER"))){
+            userId = this.usuarioRepository.idFindByUsername(usuarioPrincipal.getUsername(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no encontrado")).getDocenteEntity().getUniqueIdentifier();
+        } else {
+            userId = this.usuarioRepository.idFindByUsername(usuarioPrincipal.getUsername(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no encontrado")).getAlumnoEntity().getUniqueIdentifier();
+        }
+
         return Jwts.builder()
                 .setSubject(usuarioPrincipal.getUsername())
                 .claim("roles", roles)
+                .claim("userId", userId)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(new Date().getTime() + expiration * 1000))
+                .setExpiration(new Date(new Date().getTime() + expiration + 100000))
                 .signWith(getSecret(secret))
                 .compact();
     }
@@ -73,10 +92,12 @@ public class JwtProvider {
             JWTClaimsSet claims = jwt.getJWTClaimsSet();
             String nombreUsuario = claims.getSubject();
             List<String> roles = (List<String>) claims.getClaim("roles");
+            String userId = (String) claims.getClaim("userId");
 
             return Jwts.builder()
                     .setSubject(nombreUsuario)
                     .claim("roles", roles)
+                    .claim("userId", userId)
                     .setIssuedAt(new Date())
                     .setExpiration(new Date(new Date().getTime() + expiration))
                     .signWith(getSecret(secret))

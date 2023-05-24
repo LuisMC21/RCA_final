@@ -55,7 +55,8 @@ public class MainSecurity  {
                         "/swagger-ui/**",
                         "/webjars/**").permitAll()
                 //permitidos sin auth el método get
-                .requestMatchers(HttpMethod.GET, "/**").permitAll()
+//                .requestMatchers(HttpMethod.GET, "/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/noticia").permitAll()
                 .requestMatchers(HttpMethod.POST, "/**").permitAll()
                 .requestMatchers(HttpMethod.PUT, "/**").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/**").permitAll()

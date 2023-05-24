@@ -12,6 +12,7 @@ import com.rca.RCA.type.UsuarioDTO;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
 import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,8 +22,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 @Log4j2
 
@@ -44,15 +45,15 @@ public class LoginService {
     PasswordEncoder passwordEncoder;
 
 
-    public ApiResponse<JwtDto> login(LoginUsuario loginUsuario) throws AttributeException {
-        ApiResponse apiResponse = new ApiResponse();
+    public ApiResponse<JwtDto> login(LoginUsuario loginUsuario) throws ResourceNotFoundException {
+        log.info("Entró a validar el logueo");
+        ApiResponse<JwtDto> apiResponse = new ApiResponse<>();
         Authentication authentication =
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginUsuario.getNombreUsuario(), loginUsuario.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtProvider.generateToken(authentication);
         JwtDto jwtDto = new JwtDto();
         jwtDto.setToken(jwt);
-        jwtDto.setEmailorUser(loginUsuario.getNombreUsuario());
         apiResponse.setMessage("Sesión correcta");
         apiResponse.setData(jwtDto);
         apiResponse.setCode("Bearer");
@@ -60,8 +61,7 @@ public class LoginService {
         return apiResponse;
     }
     //Agregar usuario
-    public ApiResponse<UsuarioDTO> add(UsuarioDTO usuarioDTO) throws AttributeException {
-        log.info("Entró a crear el usuario");
+    public ApiResponse<UsuarioDTO> add(UsuarioDTO usuarioDTO) throws AttributeException, ResourceNotFoundException {
         //Excepciones
         if(this.usuarioRepository.existsByNumdoc(usuarioDTO.getNumdoc(), "", ConstantsGeneric.CREATED_STATUS))
             throw new AttributeException("Usuario con documento existente");
@@ -82,20 +82,29 @@ public class LoginService {
         usuarioEntity.setUsuarioDTO(usuarioDTO);
 
         if(usuarioDTO.getRol().equalsIgnoreCase("ADMINISTRADOR")){
-            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_ADMIN).get());
-            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_TEACHER).get());
-            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_STUDENT).get());
+            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_ADMIN).orElseThrow(()-> new ResourceNotFoundException("Rol administrador no encontrado")));
+            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_TEACHER).orElseThrow(()-> new ResourceNotFoundException("Rol docente no encontrado")));
+            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_STUDENT).orElseThrow(()-> new ResourceNotFoundException("Rol alumno no encontrado")));
         }
         if(usuarioDTO.getRol().equalsIgnoreCase("TEACHER")){
-            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_TEACHER).get());
-            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_STUDENT).get());
+            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_TEACHER).orElseThrow(()-> new ResourceNotFoundException("Rol docente no encontrado")));
+            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_STUDENT).orElseThrow(()-> new ResourceNotFoundException("Rol alumno no encontrado")));
         }
         if(usuarioDTO.getRol().equalsIgnoreCase("STUDENT")){
-            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_STUDENT).get());
+            usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_STUDENT).orElseThrow(()-> new ResourceNotFoundException("Rol alumno no encontrado")));
         }
 
         usuarioEntity.setPassword(passwordEncoder.encode(usuarioDTO.getPassword()));
         apiResponse.setData(this.usuarioRepository.save(usuarioEntity).getUsuarioDTO());
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+
+    public ApiResponse<JwtDto> refresh(JwtDto jwtDto) throws ParseException {
+        String token = jwtProvider.refreshToken(jwtDto);
+        ApiResponse<JwtDto> apiResponse = new ApiResponse<>();
+        apiResponse.setData(new JwtDto(token));
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
         return apiResponse;

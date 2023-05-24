@@ -3,9 +3,9 @@ package com.rca.RCA.auth.dto;
 import jakarta.validation.constraints.NotBlank;
 
 public class LoginUsuario {
-    @NotBlank
+    @NotBlank(message = "Nombre de usuario vacío")
     private String nombreUsuario;
-    @NotBlank
+    @NotBlank(message = "Contraseña vacía")
     private String password;
 
     public String getNombreUsuario() {
