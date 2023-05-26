@@ -57,7 +57,9 @@ public class Code {
     public static final String MAT_CODE = "MAT";
     public static final int MAT_LENGTH = 9;
 
-    public static final String RUTA_IMAGENES = "src/main/resources/images/";
+    public static final String RUTA_IMAGENES = "src/main/resources/images";
+
+    public static final String RUTA_SERVIDOR = "http://localhost:8080/";
 
 
     public static String generateCode(String prefix, long current, int maxLength) {

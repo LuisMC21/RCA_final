@@ -1,11 +1,14 @@
 package com.rca.RCA.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rca.RCA.type.NoticiaDTO;
 import lombok.Data;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+
+import java.util.Date;
 
 @Data
 @Entity
@@ -29,9 +32,9 @@ public class NoticiaEntity extends AuditoryEntity{
     @Column(name = "route")
     @NotBlank
     private String route;
+    @JsonFormat(pattern = "YYYY-MM-dd")
     @Column(name = "date")
-    @NotBlank
-    private String date;
+    private Date date;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
