@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Past;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 @Data
 public class ApoderadoDTO extends AuditoryDTO{
@@ -19,7 +20,7 @@ public class ApoderadoDTO extends AuditoryDTO{
     private String ma_surname;
     @NotNull(message = "Fecha de nacimiento no puede estar vacía")
     @JsonFormat(pattern = "dd-MM-yyyy") @Past
-    private LocalDate birthdate;
+    private Date birthdate;
     @NotBlank (message = "Tipo de documento no puede estar vacío")
     private String type_doc;
     @NotBlank (message = "Número de documento no puede estar vacío")

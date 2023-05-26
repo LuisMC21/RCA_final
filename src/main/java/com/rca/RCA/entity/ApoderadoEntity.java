@@ -7,6 +7,7 @@ import lombok.Data;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,7 +30,7 @@ public class ApoderadoEntity extends AuditoryEntity{
     private String ma_surname;
     @JsonFormat(pattern = "dd-MM-yyyy")
     @Column(name = "birthdate")
-    private LocalDate birthdate;
+    private Date birthdate;
     @Column(name = "type_doc")
     private String type_doc;
     @Column(name = "numdoc")
