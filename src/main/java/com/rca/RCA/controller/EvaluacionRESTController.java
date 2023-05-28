@@ -59,7 +59,7 @@ public class EvaluacionRESTController {
 
     @GetMapping("cursoNotas")
     public ResponseEntity<Resource> exportNotas(@RequestParam String periodo, @RequestParam String anio,
-                                                @RequestParam String curso){
-        return this.evaluacionService.exportNotas(curso, periodo, anio);
+                                                @RequestParam String curso, @RequestParam String aula){
+        return this.evaluacionService.exportNotas(curso, aula, periodo, anio);
     }
 }

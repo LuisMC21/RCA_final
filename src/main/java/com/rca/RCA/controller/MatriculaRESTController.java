@@ -48,8 +48,8 @@ public class MatriculaRESTController {
 
     //Exportar reporte de alumnos matriuclados por aula y periodo
     @GetMapping("alumnosAula")
-    public ResponseEntity<Resource> exportListAlumnos(@RequestParam String uniqueIdentifierAula, @RequestParam String uniqueIdentifierPeriodo) throws ResourceNotFoundException {
-        return this.matriculaService.exportListaAlumnos(uniqueIdentifierAula, uniqueIdentifierPeriodo);
+    public ResponseEntity<Resource> exportListAlumnos(@RequestParam String uniqueIdentifierAula, @RequestParam String uniqueIdentifierAnio) throws ResourceNotFoundException {
+        return this.matriculaService.exportListaAlumnos(uniqueIdentifierAula, uniqueIdentifierAnio);
     }
 
     //Exportar reporte de matrícula por alumno y año lectivo
