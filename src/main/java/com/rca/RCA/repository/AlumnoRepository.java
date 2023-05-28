@@ -55,6 +55,7 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
     //Función para obtener un alumno por su identificador
     Optional<AlumnoEntity> findByUniqueIdentifier(String uniqueIdentifier);
 
+    Optional<AlumnoEntity> findByCode(String code);
 
     //Función para eliminar usuario asociado al alumno
     @Transactional
@@ -88,14 +89,16 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
     Iterable<AlumnoEntity> findByApoderadoI(int idApo);
 
 
-    @Query(value="select * from alumno a join matricula m on a.id = m.alumno_id join aula al on al.id = m.aula_id join anio_lectivo ale on " +
+    @Query(value="SELECT a.* FROM alumno a join matricula m on a.id = m.alumno_id join " +
+            "aula al on al.id = m.aula_id join anio_lectivo ale on " +
             "ale.id = m.anio_lectivo_id where al.tx_unique_identifier = :aula " +
             "and ale.tx_unique_identifier = :anio", nativeQuery=true)
     Optional<List<AlumnoEntity>> findByAulaPeriodo(String aula, String anio);
-    @Query(value="select * from alumno a join matricula m on a.id = m.alumno_id join aula al on al.id = m.aula_id join anio_lectivo ale on " +
+    @Query(value="SELECT a.* FROM alumno a join matricula m on a.id = m.alumno_id join " +
+            "aula al on al.id = m.aula_id join anio_lectivo ale on " +
             "ale.id = m.anio_lectivo_id where al.tx_unique_identifier = :aula " +
-            "and ale.tx_unique_identifier = :periodo", nativeQuery=true)
-    Iterable<AlumnoEntity> findByAulaPeriodoI(String aula, String periodo);
+            "and ale.tx_unique_identifier = :anio", nativeQuery=true)
+    Iterable<AlumnoEntity> findByAulaPeriodoI(String aula, String anio);
 
 
 }

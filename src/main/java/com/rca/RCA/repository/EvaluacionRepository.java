@@ -49,18 +49,23 @@ public interface EvaluacionRepository extends JpaRepository<EvaluacionEntity, In
     @Query(value = "Select c.name, e.note from curso c join docentexcurso dxc on c.id = dxc.curso_id " +
             "join evaluacion e on dxc.id = e.docentexcurso_id join periodo p on p.id = e.periodo_id " +
             "join alumno a on a.id = e.alumno_id join anio_lectivo al on al.id = p.anio_lectivo_id " +
-            "where a.tx_unique_identifier = :alumno and " +
+            "where a.code = :alumno and " +
             "al.tx_unique_identifier = :anio " +
             "and p.tx_unique_identifier = :periodo ", nativeQuery = true)
     List<Object[]> findByAlumnoPeriodoAnio(String alumno, String anio, String periodo);
 
-    @Query(value = "Select concat(u.pa_surname, ' ', u.ma_surname, ' ', u.name) as estudiante, e.note from curso c join docentexcurso dxc on c.id = dxc.curso_id " +
-            "join evaluacion e on dxc.id = e.docentexcurso_id join periodo p on p.id = e.periodo_id " +
-            "join alumno a on a.id = e.alumno_id join anio_lectivo al on al.id = p.anio_lectivo_id " +
-            "join usuario u on u.id = a.user_id " +
-            "where c.tx_unique_identifier = :curso " +
-            "and al.tx_unique_identifier = :anio " +
-            "and p.tx_unique_identifier = :periodo", nativeQuery = true)
-    List<Object[]> findByCursoPeriodoAnio(String curso, String anio, String periodo);
+    @Query(value = "SELECT concat(u.pa_surname, ' ', u.ma_surname, ' ',u.name), e.note from user u "+
+            "join alumno a on a.user_id = u.id "+
+            "join evaluacion e on e.alumno_id = a.id "+
+            "join periodo p on p.id = e.periodo_id "+
+            "join docentexcurso dc on dc.id = e.docentexcurso_id "+
+            "join aula al on al.id = dc.aula_id "+
+            "join curso c on c.id = dc.curso_id "+
+            "join anio_lectivo an on an.id = p.anio_lectivo_id "+
+            "where al.tx_unique_identifier = :aula and "+
+            "an.tx_unique_identifier = :anio and "+
+            "c.tx_unique_identifier = :curso and "+
+            "p.tx_unique_identifier = :periodo", nativeQuery = true)
+    List<Object[]> findByCursoPeriodoAnio(String curso, String aula, String periodo, String anio);
 
 }
