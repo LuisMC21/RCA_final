@@ -76,9 +76,9 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
     void deleteNoticia(@Param("uniqueIdentifier") String uniqueIdentifier, @Param("fecha") LocalDateTime fecha);
 
     @Query(value = "SELECT u FROM UsuarioEntity u " +
-            "WHERE (u.nombreUsuario = :nombreUsuario OR u.email = :email) " +
-            "AND status = 'CREATED'")
-    Optional<UsuarioEntity> findByNombreUsuarioOrEmail(String nombreUsuario, String email);
+            "WHERE (u.nombreUsuario = :nombreUsuario OR u.email = :nombreUsuario) " +
+            "AND status = :status ")
+    Optional<UsuarioEntity> findByNombreUsuarioOrEmail(String nombreUsuario, String status);
     Optional<UsuarioEntity> findByTokenPassword(String tokenPassword);
 
     @Query(value = "select count(u)>0 from UsuarioEntity u " +
