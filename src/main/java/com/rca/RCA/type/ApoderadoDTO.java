@@ -19,8 +19,8 @@ public class ApoderadoDTO extends AuditoryDTO{
     @NotBlank (message = "Apellido materno de apoderado no puede estar vacío")
     private String ma_surname;
     @NotNull(message = "Fecha de nacimiento no puede estar vacía")
-    @JsonFormat(pattern = "dd-MM-yyyy") @Past
-    private Date birthdate;
+    @JsonFormat(pattern = "yyyy-MM-dd") @Past
+    private LocalDate birthdate;
     @NotBlank (message = "Tipo de documento no puede estar vacío")
     private String type_doc;
     @NotBlank (message = "Número de documento no puede estar vacío")
