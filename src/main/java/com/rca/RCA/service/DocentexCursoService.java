@@ -42,6 +42,9 @@ public class DocentexCursoService {
     private EvaluacionService evaluacionService;
 
     @Autowired
+    private AnioLectivoRepository anioLectivoRepository;
+
+    @Autowired
     private AulaRepository aulaRepository;
     //Función para listar los cursos asignados a los docente-START
     public ApiResponse<Pagination<DocentexCursoDTO>> getList(String filter, int page, int size){
@@ -85,11 +88,13 @@ public class DocentexCursoService {
         DocenteEntity docenteEntity=this.docenteRepository.findByUniqueIdentifier(docentexCursoDTO.getDocenteDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Docente no existe"));
         CursoEntity cursoEntity=this.cursoRepository.findByUniqueIdentifier(docentexCursoDTO.getCursoDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Curso no existe"));
         AulaEntity aulaEntity=this.aulaRepository.findByUniqueIdentifier(docentexCursoDTO.getAulaDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Aula no existe"));
+        AnioLectivoEntity anioLectivoEntity=this.anioLectivoRepository.findByUniqueIdentifier(docentexCursoDTO.getAnioLectivoDTO().getId(),ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Año no existe"));
         //Update in database
         docentexCursoEntity.setCode(Code.generateCode(Code.CXD_CODE, this.docentexCursoRepository.count() + 1,Code.CXD_LENGTH));
         docentexCursoEntity.setDocenteEntity(docenteEntity);
         docentexCursoEntity.setCursoEntity(cursoEntity);
         docentexCursoEntity.setAulaEntity(aulaEntity);
+        docentexCursoEntity.setAnioLectivoEntity(anioLectivoEntity);
         docentexCursoEntity.setUniqueIdentifier(UUID.randomUUID().toString());
         docentexCursoEntity.setStatus(ConstantsGeneric.CREATED_STATUS);
         docentexCursoEntity.setCreateAt(LocalDateTime.now());
@@ -114,10 +119,12 @@ public class DocentexCursoService {
         DocenteEntity docenteEntity = this.docenteRepository.findByUniqueIdentifier(docentexCursoDTO.getDocenteDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Docente no existe"));
         CursoEntity cursoEntity = this.cursoRepository.findByUniqueIdentifier(docentexCursoDTO.getCursoDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Curso no existe"));
         AulaEntity aulaEntity = this.aulaRepository.findByUniqueIdentifier(docentexCursoDTO.getAulaDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Aula no existe"));
+        AnioLectivoEntity anioLectivoEntity=this.anioLectivoRepository.findByUniqueIdentifier(docentexCursoDTO.getAnioLectivoDTO().getId(),ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Año no existe"));
         //Set update data
         docentexCursoEntity.setDocenteEntity(docenteEntity);
         docentexCursoEntity.setCursoEntity(cursoEntity);
         docentexCursoEntity.setAulaEntity(aulaEntity);
+        docentexCursoEntity.setAnioLectivoEntity(anioLectivoEntity);
         docentexCursoEntity.setUpdateAt(LocalDateTime.now());
         //Update in database
         apiResponse.setSuccessful(true);

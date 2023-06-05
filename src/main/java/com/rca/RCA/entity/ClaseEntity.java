@@ -8,6 +8,7 @@ import lombok.Data;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,7 +26,10 @@ public class ClaseEntity extends AuditoryEntity{
     private String code;
     @JsonFormat(pattern = "YYYY-MM-dd")
     @Column(name = "date")
-    private Date date;
+    @NotBlank
+    private LocalDate date;
+
+    private String name;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "docentexcurso_id")
@@ -45,6 +49,7 @@ public class ClaseEntity extends AuditoryEntity{
         ClaseDTO.setId(this.getUniqueIdentifier());
         ClaseDTO.setCode(this.code);
         ClaseDTO.setDate(this.date);
+        ClaseDTO.setName(this.name);
         ClaseDTO.setPeriodoDTO(this.periodoEntity.getPeriodoDTO());
         ClaseDTO.setDocentexCursoDTO(this.docentexCursoEntity.getDocentexCursoDTO());
         ClaseDTO.setStatus(this.getStatus());
@@ -58,6 +63,7 @@ public class ClaseEntity extends AuditoryEntity{
         this.setUniqueIdentifier(ClaseDTO.getId());
         this.code= ClaseDTO.getCode();
         this.date= ClaseDTO.getDate();
+        this.name= ClaseDTO.getName();
         this.setStatus(ClaseDTO.getStatus());
         this.setCreateAt(ClaseDTO.getCreateAt());
         this.setUpdateAt(ClaseDTO.getUpdateAt());

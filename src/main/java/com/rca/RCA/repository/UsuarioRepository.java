@@ -1,6 +1,7 @@
 package com.rca.RCA.repository;
 
 
+import com.rca.RCA.auth.entity.Rol;
 import com.rca.RCA.entity.UsuarioEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -75,8 +76,10 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
             "and u.tx_unique_identifier = :uniqueIdentifier", nativeQuery = true)
     void deleteNoticia(@Param("uniqueIdentifier") String uniqueIdentifier, @Param("fecha") LocalDateTime fecha);
 
-
-    Optional<UsuarioEntity> findByNombreUsuarioOrEmail(String nombreUsuario, String email);
+    @Query(value = "SELECT u FROM UsuarioEntity u " +
+            "WHERE (u.nombreUsuario = :nombreUsuario OR u.email = :nombreUsuario) " +
+            "AND status = :status ")
+    Optional<UsuarioEntity> findByNombreUsuarioOrEmail(String nombreUsuario, String status);
     Optional<UsuarioEntity> findByTokenPassword(String tokenPassword);
 
     @Query(value = "select count(u)>0 from UsuarioEntity u " +
@@ -87,6 +90,13 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
             "where u.email = :email and u.uniqueIdentifier <> :id " +
             "AND u.status = :status ")
     boolean existsByEmail(String email, String id, String status);
+
+    @Query(value = "SELECT u FROM UsuarioEntity u " +
+            "JOIN u.roles r " +
+            "WHERE (u.nombreUsuario = :username OR u.email = :username) " +
+            "AND status = :status ")
+    Optional<UsuarioEntity> idFindByUsername(String username,String status);
+
 }
 
 

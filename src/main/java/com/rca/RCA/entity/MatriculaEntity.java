@@ -2,6 +2,8 @@ package com.rca.RCA.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;import com.rca.RCA.type.MatriculaDTO;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 import lombok.Data;
 import jakarta.persistence.*;
 
@@ -21,7 +23,7 @@ public class MatriculaEntity extends AuditoryEntity{
     @Column(name = "code", length = 15)
     private String code;
     //Fecha
-    @JsonFormat(pattern = "dd-MM-yyyy")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "date")
     private LocalDate date;
     //Sección y grado

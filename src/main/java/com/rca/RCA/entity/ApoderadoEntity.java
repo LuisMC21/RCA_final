@@ -30,7 +30,7 @@ public class ApoderadoEntity extends AuditoryEntity{
     private String ma_surname;
     @JsonFormat(pattern = "dd-MM-yyyy")
     @Column(name = "birthdate")
-    private Date birthdate;
+    private LocalDate birthdate;
     @Column(name = "type_doc")
     private String type_doc;
     @Column(name = "numdoc")
