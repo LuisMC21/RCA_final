@@ -72,6 +72,23 @@ public class EvaluacionService {
         return apiResponse;
     }
 
+    public ApiResponse<Pagination<EvaluacionDTO>> getList(String filter, int page, int size, String periodo, String aula, String curso) {
+        log.info("filter page size {} {} {}", filter, page, size);
+        ApiResponse<Pagination<EvaluacionDTO>> apiResponse = new ApiResponse<>();
+        Pagination<EvaluacionDTO> pagination = new Pagination<>();
+        pagination.setCountFilter(this.evaluacionRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, periodo, aula, curso));
+        if (pagination.getCountFilter() > 0) {
+            Pageable pageable = PageRequest.of(page, size);
+            List<EvaluacionEntity> EvaluacionEntities = this.evaluacionRepository.findEntities(ConstantsGeneric.CREATED_STATUS, periodo, aula, curso,pageable).orElse(new ArrayList<>());
+            pagination.setList(EvaluacionEntities.stream().map(EvaluacionEntity::getEvaluacionDTO).collect(Collectors.toList()));
+        }
+        pagination.setTotalPages(pagination.processAndGetTotalPages(size));
+        apiResponse.setData(pagination);
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+
     public ApiResponse<EvaluacionDTO> one(String id) throws ResourceNotFoundException {
         EvaluacionEntity evaluacionEntity=this.evaluacionRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Evaluacion no encontrado"));
         ApiResponse<EvaluacionDTO> apiResponse = new ApiResponse<>();
@@ -166,13 +183,12 @@ public class EvaluacionService {
         return apiResponse;
     }
 
-    public ResponseEntity<Resource> exportBoletaNotas(String periodo, String anio, String alumno) {
+    public ResponseEntity<Resource> exportBoletaNotas(String periodo, String alumno) {
         Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByCode(alumno);
         Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(periodo, ConstantsGeneric.CREATED_STATUS);
-        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(anio, ConstantsGeneric.CREATED_STATUS);
         if (optionalAlumnoEntity.isPresent() && optionalPeriodoEntity.isPresent()){
 
-            List<Object[]> tuples = this.evaluacionRepository.findByAlumnoPeriodoAnio(alumno, anio, periodo);
+            List<Object[]> tuples = this.evaluacionRepository.findByAlumnoPeriodoAnio(alumno, periodo);
             List<CursoEvaluacionDTO> cursos = new ArrayList<>();
 
             for (Object[] tuple : tuples) {
@@ -185,7 +201,6 @@ public class EvaluacionService {
             try{
                 final PeriodoEntity periodoEntity = optionalPeriodoEntity.get();
                 final AlumnoEntity alumnoEntity = optionalAlumnoEntity.get();
-                final AnioLectivoEntity anioLectivoEntity = optionalAnioLectivoEntity.get();
                 final File file = ResourceUtils.getFile("classpath:reportes/cursosEvaluacion.jasper");
                 final File imgLogo = ResourceUtils.getFile("classpath:images/logo.png");
                 final JasperReport report = (JasperReport) JRLoader.loadObject(file);
@@ -198,7 +213,7 @@ public class EvaluacionService {
                 parameters.put("apellidoMaterno", alumnoEntity.getUsuarioEntity().getMa_surname());
                 parameters.put("nombres", alumnoEntity.getUsuarioEntity().getName());
                 parameters.put("Periodo", periodoEntity.getName());
-                parameters.put("anio", anioLectivoEntity.getAnioLectivoDTO().getName());
+                parameters.put("anio", periodoEntity.getAnio_lectivoEntity().getName());
                 parameters.put("gradoSeccion", "3");
                 parameters.put("dsCursos",  new JRBeanCollectionDataSource(cursos));
 
@@ -229,14 +244,13 @@ public class EvaluacionService {
         return null;
     }
 
-    public ResponseEntity<Resource> exportNotas(String curso, String aula, String periodo, String anio) {
+    public ResponseEntity<Resource> exportNotas(String curso, String aula, String periodo) {
         Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(periodo, ConstantsGeneric.CREATED_STATUS);
-        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(anio, ConstantsGeneric.CREATED_STATUS);
         Optional<CursoEntity> optionalCursoEntity = this.cursoRepository.findByUniqueIdentifier(curso, ConstantsGeneric.CREATED_STATUS);
 
-        if (optionalCursoEntity.isPresent() && optionalPeriodoEntity.isPresent() && optionalAnioLectivoEntity.isPresent()){
+        if (optionalCursoEntity.isPresent() && optionalPeriodoEntity.isPresent()){
 
-            List<Object[]> tuples = this.evaluacionRepository.findByCursoPeriodoAnio(curso, aula, periodo, anio);
+            List<Object[]> tuples = this.evaluacionRepository.findByCursoPeriodoAnio(curso, aula, periodo);
             List<CursoNotasDTO> notas = new ArrayList<>();
 
             for (Object[] tuple : tuples) {
@@ -249,7 +263,6 @@ public class EvaluacionService {
             try{
                 final PeriodoEntity periodoEntity = optionalPeriodoEntity.get();
                 final CursoEntity cursoEntity = optionalCursoEntity.get();
-                final AnioLectivoEntity anioLectivoEntity = optionalAnioLectivoEntity.get();
                 final File file = ResourceUtils.getFile("classpath:reportes/notasCurso.jasper");
                 final File imgLogo = ResourceUtils.getFile("classpath:images/logo.png");
                 final JasperReport report = (JasperReport) JRLoader.loadObject(file);
@@ -260,7 +273,7 @@ public class EvaluacionService {
                 parameters.put("logoEmpresa", new FileInputStream(imgLogo));
                 parameters.put("curso", cursoEntity.getName());
                 parameters.put("Periodo", periodoEntity.getName());
-                parameters.put("anio", anioLectivoEntity.getAnioLectivoDTO().getName());
+                parameters.put("anio", periodoEntity.getAnio_lectivoEntity().getName());
                 parameters.put("dsAlumnos",  new JRBeanCollectionDataSource(notas));
 
                 JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());

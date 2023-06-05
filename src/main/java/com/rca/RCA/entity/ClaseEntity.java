@@ -25,7 +25,6 @@ public class ClaseEntity extends AuditoryEntity{
     private String code;
     @JsonFormat(pattern = "YYYY-MM-dd")
     @Column(name = "date")
-    @NotBlank
     private Date date;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
