@@ -116,6 +116,7 @@ public class ClaseService {
 
         //change dto to entity
         ClaseEntity ClaseEntity = claseEntity;
+        ClaseEntity.setName(ClaseDTO.getName());
         ClaseEntity.setDate(ClaseDTO.getDate());
         ClaseEntity.setUpdateAt(LocalDateTime.now());
 

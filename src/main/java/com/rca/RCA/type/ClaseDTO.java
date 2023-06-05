@@ -14,6 +14,7 @@ public class ClaseDTO extends AuditoryDTO {
     @NotNull(message = "Fecha de nacimiento no puede estar vacía")
     @JsonFormat(pattern = "yyyy-MM-dd") @Past
     private LocalDate date;
+    private String name;
     private PeriodoDTO periodoDTO;
     private DocentexCursoDTO docentexCursoDTO;
 }
