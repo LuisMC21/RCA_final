@@ -32,6 +32,18 @@ public class ClaseRESTController {
         return this.claseService.getList(filter, page, size);
     }
 
+    @GetMapping("cpau")
+    public ApiResponse<Pagination<ClaseDTO>> list(
+            @RequestParam(defaultValue = "") String filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam String periodo,
+            @RequestParam String aula,
+            @RequestParam String curso
+    ) {
+        return this.claseService.getList(filter, page, size, periodo, aula, curso);
+    }
+
     @GetMapping("{id}")
     public ApiResponse<ClaseDTO> one(@PathVariable String id) throws ResourceNotFoundException {
         return this.claseService.one(id);

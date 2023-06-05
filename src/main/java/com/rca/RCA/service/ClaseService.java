@@ -69,6 +69,23 @@ public class ClaseService {
         return apiResponse;
     }
 
+    public ApiResponse<Pagination<ClaseDTO>> getList(String filter, int page, int size, String periodo, String aula, String curso) {
+        log.info("filter page size {} {} {}", filter, page, size);
+        ApiResponse<Pagination<ClaseDTO>> apiResponse = new ApiResponse<>();
+        Pagination<ClaseDTO> pagination = new Pagination<>();
+        pagination.setCountFilter(this.claseRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, periodo, aula, curso));
+        if (pagination.getCountFilter() > 0) {
+            Pageable pageable = PageRequest.of(page, size);
+            List<ClaseEntity> ClaseEntities = this.claseRepository.findEntities(ConstantsGeneric.CREATED_STATUS, periodo, aula, curso, pageable).orElse(new ArrayList<>());
+            pagination.setList(ClaseEntities.stream().map(ClaseEntity::getClaseDTO).collect(Collectors.toList()));
+        }
+        pagination.setTotalPages(pagination.processAndGetTotalPages(size));
+        apiResponse.setData(pagination);
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+
     public ApiResponse<ClaseDTO> one(String id) throws ResourceNotFoundException {
         ClaseEntity claseEntity=this.claseRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Clase no encontrada"));
         ApiResponse<ClaseDTO> apiResponse = new ApiResponse<>();

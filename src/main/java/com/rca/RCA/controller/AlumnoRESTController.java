@@ -36,6 +36,18 @@ public class AlumnoRESTController {
         return this.alumnoService.getList(filter, page, size);
     }
 
+    @GetMapping("auc")
+    public ApiResponse<Pagination<AlumnoDTO>> list(
+            @RequestParam(defaultValue = "") String filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam String anio,
+            @RequestParam String aula,
+            @RequestParam String curso
+    ) {
+        return this.alumnoService.getList(filter, page, size, anio, aula, curso);
+    }
+
     @GetMapping("{id}")
     public ApiResponse<AlumnoDTO> one(@PathVariable String id) throws ResourceNotFoundException {
         return this.alumnoService.one(id);
