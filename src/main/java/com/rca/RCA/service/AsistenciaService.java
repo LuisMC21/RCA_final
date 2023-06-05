@@ -83,6 +83,23 @@ public class AsistenciaService {
         return apiResponse;
     }
 
+    public ApiResponse<Pagination<AsistenciaDTO>> getList(String filter, int page, int size, String periodo, String aula, String curso) {
+        log.info("filter page size {} {} {}", filter, page, size);
+        ApiResponse<Pagination<AsistenciaDTO>> apiResponse = new ApiResponse<>();
+        Pagination<AsistenciaDTO> pagination = new Pagination<>();
+        pagination.setCountFilter(this.asistenciaRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, filter));
+        if (pagination.getCountFilter() > 0) {
+            Pageable pageable = PageRequest.of(page, size);
+            List<AsistenciaEntity> AsistenciaEntities = this.asistenciaRepository.findEntities(ConstantsGeneric.CREATED_STATUS, filter, pageable).orElse(new ArrayList<>());
+            pagination.setList(AsistenciaEntities.stream().map(AsistenciaEntity::getAsistenciaDTO).collect(Collectors.toList()));
+        }
+        pagination.setTotalPages(pagination.processAndGetTotalPages(size));
+        apiResponse.setData(pagination);
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+
     public ApiResponse<AsistenciaDTO> one(String id) throws ResourceNotFoundException {
         AsistenciaEntity asistenciaEntity=this.asistenciaRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Asistencia no encontrado"));
         ApiResponse<AsistenciaDTO> apiResponse = new ApiResponse<>();

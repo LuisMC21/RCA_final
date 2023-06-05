@@ -1,6 +1,7 @@
 package com.rca.RCA.repository;
 
 import com.rca.RCA.entity.ClaseEntity;
+import com.rca.RCA.entity.PeriodoEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -25,6 +26,28 @@ public interface ClaseRepository extends JpaRepository<ClaseEntity, Integer> {
             "c.status = :status and dc.status = :status " +
             "and ( dc.code like concat('%', :filter, '%'))")
     Long findCountEntities(String status, String filter);
+
+    @Query(value = "Select c.* from clase c " +
+            "join periodo p on p.id = c.periodo_id " +
+            "join docentexcurso dxc on dxc.id = c.docentexcurso_id " +
+            "join curso cu on cu.id = dxc.curso_id " +
+            "join aula a on a.id = dxc.aula_id " +
+            "Where c.tx_status = 'CREATED' " +
+            "and a.tx_unique_identifier like concat ('%',:aula,'%') " +
+            "and cu.tx_unique_identifier like concat ('%',:curso,'%') " +
+            "and p.tx_unique_identifier like concat ('%',:periodo,'%') and c.tx_status=:status", nativeQuery = true)
+    Optional<List<ClaseEntity>> findEntities(String status, String periodo, String aula, String curso, Pageable pageable);
+
+    @Query(value = "Select count(*) from clase c " +
+            "join periodo p on p.id = c.periodo_id " +
+            "join docentexcurso dxc on dxc.id = c.docentexcurso_id " +
+            "join curso cu on cu.id = dxc.curso_id " +
+            "join aula a on a.id = dxc.aula_id " +
+            "Where c.tx_status = 'CREATED' " +
+            "and a.tx_unique_identifier like concat ('%',:aula,'%') " +
+            "and cu.tx_unique_identifier like concat ('%',:curso,'%') " +
+            "and p.tx_unique_identifier like concat ('%',:periodo,'%') and c.tx_status=:status", nativeQuery = true)
+    Long findCountEntities(String status, String periodo, String aula, String curso);
 
     Optional<ClaseEntity> findByUniqueIdentifier(String uniqueIdentifier);
 
