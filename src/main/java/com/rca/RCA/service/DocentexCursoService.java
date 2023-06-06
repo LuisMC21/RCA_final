@@ -94,7 +94,7 @@ public class DocentexCursoService {
         docentexCursoEntity.setDocenteEntity(docenteEntity);
         docentexCursoEntity.setCursoEntity(cursoEntity);
         docentexCursoEntity.setAulaEntity(aulaEntity);
-        docentexCursoEntity.setAnioLectivoEntity(anioLectivoEntity);
+        docentexCursoEntity.setAnio_lectivoEntity(anioLectivoEntity);
         docentexCursoEntity.setUniqueIdentifier(UUID.randomUUID().toString());
         docentexCursoEntity.setStatus(ConstantsGeneric.CREATED_STATUS);
         docentexCursoEntity.setCreateAt(LocalDateTime.now());
@@ -124,7 +124,7 @@ public class DocentexCursoService {
         docentexCursoEntity.setDocenteEntity(docenteEntity);
         docentexCursoEntity.setCursoEntity(cursoEntity);
         docentexCursoEntity.setAulaEntity(aulaEntity);
-        docentexCursoEntity.setAnioLectivoEntity(anioLectivoEntity);
+        docentexCursoEntity.setAnio_lectivoEntity(anioLectivoEntity);
         docentexCursoEntity.setUpdateAt(LocalDateTime.now());
         //Update in database
         apiResponse.setSuccessful(true);
