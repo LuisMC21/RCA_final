@@ -98,12 +98,20 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
     Optional<UsuarioEntity> idFindByUsername(String username,String status);
 
     @Query(value = "SELECT d.uniqueIdentifier FROM UsuarioEntity u " +
-            "JOIN u.docenteEntity d" +
+            "JOIN u.docenteEntity d " +
             "JOIN u.roles r " +
             "WHERE (u.nombreUsuario = :username OR u.email = :username) " +
             "AND u.status = :status ")
     Optional<String> idDocenteByUsername(String username,String status);
 
+
+
+    @Query(value = "SELECT a.uniqueIdentifier FROM UsuarioEntity u " +
+            "JOIN u.alumnoEntity a " +
+            "JOIN u.roles r " +
+            "WHERE (u.nombreUsuario = :username OR u.email = :username) " +
+            "AND u.status = :status ")
+    Optional<String> idAlumnoByUsername(String username,String status);
 }
 
 
