@@ -5,11 +5,13 @@ import com.rca.RCA.auth.entity.Rol;
 import com.rca.RCA.type.UsuarioDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+@Data
 @Table(name = "user")
 @Entity
 public class UsuarioEntity extends AuditoryEntity{
@@ -83,158 +85,6 @@ public class UsuarioEntity extends AuditoryEntity{
         this.alumnoEntity = alumnoEntity;
         this.imagenEntities = imagenEntities;
         this.noticiaEntities = noticiaEntities;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getPa_surname() {
-        return pa_surname;
-    }
-
-    public void setPa_surname(String pa_surname) {
-        this.pa_surname = pa_surname;
-    }
-
-    public String getMa_surname() {
-        return ma_surname;
-    }
-
-    public void setMa_surname(String ma_surname) {
-        this.ma_surname = ma_surname;
-    }
-
-    public Date getBirthdate() {
-        return birthdate;
-    }
-
-    public void setBirthdate(Date birthdate) {
-        this.birthdate = birthdate;
-    }
-
-    public String getType_doc() {
-        return type_doc;
-    }
-
-    public void setType_doc(String type_doc) {
-        this.type_doc = type_doc;
-    }
-
-    public String getNumdoc() {
-        return numdoc;
-    }
-
-    public void setNumdoc(String numdoc) {
-        this.numdoc = numdoc;
-    }
-
-    public String getTel() {
-        return tel;
-    }
-
-    public void setTel(String tel) {
-        this.tel = tel;
-    }
-
-    public String getGra_inst() {
-        return gra_inst;
-    }
-
-    public void setGra_inst(String gra_inst) {
-        this.gra_inst = gra_inst;
-    }
-
-    public DocenteEntity getDocenteEntity() {
-        return docenteEntity;
-    }
-
-    public void setDocenteEntity(DocenteEntity docenteEntity) {
-        this.docenteEntity = docenteEntity;
-    }
-
-    public AlumnoEntity getAlumnoEntity() {
-        return alumnoEntity;
-    }
-
-    public void setAlumnoEntity(AlumnoEntity alumnoEntity) {
-        this.alumnoEntity = alumnoEntity;
-    }
-
-    public Set<ImagenEntity> getImagenEntities() {
-        return imagenEntities;
-    }
-
-    public void setImagenEntities(Set<ImagenEntity> imagenEntities) {
-        this.imagenEntities = imagenEntities;
-    }
-
-    public Set<NoticiaEntity> getNoticiaEntities() {
-        return noticiaEntities;
-    }
-
-    public void setNoticiaEntities(Set<NoticiaEntity> noticiaEntities) {
-        this.noticiaEntities = noticiaEntities;
-    }
-
-    public String getNombreUsuario() {
-        return nombreUsuario;
-    }
-
-    public void setNombreUsuario(String nombreUsuario) {
-        this.nombreUsuario = nombreUsuario;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getTokenPassword() {
-        return tokenPassword;
-    }
-
-    public void setTokenPassword(String tokenPassword) {
-        this.tokenPassword = tokenPassword;
-    }
-
-    public Set<Rol> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<Rol> roles) {
-        this.roles = roles;
     }
 
     public UsuarioDTO getUsuarioDTO(){

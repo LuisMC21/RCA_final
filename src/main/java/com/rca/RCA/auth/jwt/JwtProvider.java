@@ -47,7 +47,7 @@ public class  JwtProvider {
         if(roles.contains("ROLE_ADMIN")){
             userId = this.usuarioRepository.idFindByUsername(usuarioPrincipal.getUsername(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no encontrado")).getUniqueIdentifier();
         } else if (roles.contains(("ROLE_TEACHER"))){
-            userId = this.usuarioRepository.idFindByUsername(usuarioPrincipal.getUsername(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no encontrado")).getDocenteEntity().getUniqueIdentifier();
+            userId = this.usuarioRepository.idDocenteByUsername(usuarioPrincipal.getUsername(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no encontrado"));
         } else {
             userId = this.usuarioRepository.idFindByUsername(usuarioPrincipal.getUsername(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no encontrado")).getAlumnoEntity().getUniqueIdentifier();
         }
