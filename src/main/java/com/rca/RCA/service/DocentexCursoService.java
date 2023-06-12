@@ -47,14 +47,14 @@ public class DocentexCursoService {
     @Autowired
     private AulaRepository aulaRepository;
     //Función para listar los cursos asignados a los docente-START
-    public ApiResponse<Pagination<DocentexCursoDTO>> getList(String filter, int page, int size){
+    public ApiResponse<Pagination<DocentexCursoDTO>> getList(String filter, String anio, int page, int size){
         log.info("filter page size {} {} {}", filter, page, size);
         ApiResponse<Pagination<DocentexCursoDTO>> apiResponse = new ApiResponse<>();
         Pagination<DocentexCursoDTO> pagination = new Pagination<>();
-        pagination.setCountFilter(this.docentexCursoRepository.findCountDocentexCurso(ConstantsGeneric.CREATED_STATUS, filter));
+        pagination.setCountFilter(this.docentexCursoRepository.findCountDocentexCurso(ConstantsGeneric.CREATED_STATUS, anio, filter));
         if(pagination.getCountFilter()>0){
             Pageable pageable= PageRequest.of(page, size);
-            List<DocentexCursoEntity> docentexCursoEntities=this.docentexCursoRepository.findDocentexCurso(ConstantsGeneric.CREATED_STATUS, filter, pageable).orElse(new ArrayList<>());
+            List<DocentexCursoEntity> docentexCursoEntities=this.docentexCursoRepository.findDocentexCurso(ConstantsGeneric.CREATED_STATUS, anio, filter, pageable).orElse(new ArrayList<>());
             log.info(docentexCursoEntities.size());
             pagination.setList(docentexCursoEntities.stream().map(DocentexCursoEntity::getDocentexCursoDTO).collect(Collectors.toList()));
         }

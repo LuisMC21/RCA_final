@@ -16,23 +16,27 @@ public interface DocentexCursoRepository extends JpaRepository<DocentexCursoEnti
      @Query(value = "SELECT count(x) from DocenteEntity d " +
             "JOIN d.docentexCursoEntities x " +
             "JOIN x.cursoEntity c " +
+            "JOIN x.anio_lectivoEntity a " +
             "WHERE d=x.docenteEntity " +
             "AND d.status = :status " +
             "AND x.status = :status " +
             "AND c.status = :status " +
-            "AND (d.code like concat('%', :filter, '%') or x.code like concat('%', :filter, '%'))")
-    Long findCountDocentexCurso(String status, String filter);
+            "AND a.uniqueIdentifier = :anio " +
+            "AND (d.code like concat('%', :filter, '%') or x.code like concat('%', :filter, '%') or a.name like concat('%', :filter, '%'))")
+    Long findCountDocentexCurso(String status, String anio, String filter);
 
     //Función para listar las aulas existentes y activas de un grado, con filtro de código y nombre
     @Query(value = "SELECT x from DocenteEntity d " +
             "JOIN d.docentexCursoEntities x " +
             "JOIN x.cursoEntity c " +
+            "JOIN x.anio_lectivoEntity a " +
             "WHERE d=x.docenteEntity " +
             "AND d.status = :status " +
             "AND x.status = :status " +
             "AND c.status = :status " +
-            "AND (d.code like concat('%', :filter, '%') or x.code like concat('%', :filter, '%'))")
-    Optional<List<DocentexCursoEntity>> findDocentexCurso(String status, String filter, Pageable pageable);
+            "AND a.uniqueIdentifier = :anio " +
+            "AND (d.code like concat('%', :filter, '%') or x.code like concat('%', :filter, '%') or a.name like concat('%', :filter, '%'))")
+    Optional<List<DocentexCursoEntity>> findDocentexCurso(String status, String anio, String filter, Pageable pageable);
 
     //Función para obtener un aula con su Identificado Único
     Optional<DocentexCursoEntity> findByUniqueIdentifier(String uniqueIdentifier);
