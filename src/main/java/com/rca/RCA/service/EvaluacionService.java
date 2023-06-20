@@ -89,6 +89,23 @@ public class EvaluacionService {
         return apiResponse;
     }
 
+    public ApiResponse<Pagination<EvaluacionDTO>> getList(String filter, int page, int size, String periodo, String alumno) {
+        log.info("filter page size {} {} {}", filter, page, size);
+        ApiResponse<Pagination<EvaluacionDTO>> apiResponse = new ApiResponse<>();
+        Pagination<EvaluacionDTO> pagination = new Pagination<>();
+        pagination.setCountFilter(this.evaluacionRepository.findCountEvaluacionEntities(ConstantsGeneric.CREATED_STATUS, filter, periodo, alumno));
+        if (pagination.getCountFilter() > 0) {
+            Pageable pageable = PageRequest.of(page, size);
+            List<EvaluacionEntity> EvaluacionEntities = this.evaluacionRepository.findEvaluacionEntities(ConstantsGeneric.CREATED_STATUS, filter, periodo, alumno, pageable).orElse(new ArrayList<>());
+            pagination.setList(EvaluacionEntities.stream().map(EvaluacionEntity::getEvaluacionDTO).collect(Collectors.toList()));
+        }
+        pagination.setTotalPages(pagination.processAndGetTotalPages(size));
+        apiResponse.setData(pagination);
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+
     public ApiResponse<EvaluacionDTO> one(String id) throws ResourceNotFoundException {
         EvaluacionEntity evaluacionEntity=this.evaluacionRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Evaluacion no encontrado"));
         ApiResponse<EvaluacionDTO> apiResponse = new ApiResponse<>();
