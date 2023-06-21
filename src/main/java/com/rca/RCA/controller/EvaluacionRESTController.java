@@ -39,6 +39,16 @@ public class EvaluacionRESTController {
     ) {
         return this.evaluacionService.getList(filter, page, size, periodo, aula, curso);
     }
+    @GetMapping("epwal")
+    public ApiResponse<Pagination<EvaluacionDTO>> list(
+            @RequestParam(defaultValue = "") String filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam String periodo,
+            @RequestParam String alumno
+    ) {
+        return this.evaluacionService.getList(filter, page, size, periodo, alumno);
+    }
 
     @GetMapping("{id}")
     public ApiResponse<EvaluacionDTO> one(@PathVariable String id) throws ResourceNotFoundException {

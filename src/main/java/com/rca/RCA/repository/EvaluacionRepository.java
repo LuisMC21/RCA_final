@@ -23,6 +23,32 @@ public interface EvaluacionRepository extends JpaRepository<EvaluacionEntity, In
             "and e.tx_status = :status", nativeQuery = true)
     Optional<List<EvaluacionEntity>> findEntities(String status, String periodo, String aula, String curso,Pageable pageable);
 
+
+    @Query(value = "SELECT e FROM EvaluacionEntity e " +
+            "JOIN e.periodoEntity p " +
+            "JOIN e.alumnoEntity a " +
+            "JOIN a.usuarioEntity u " +
+            "WHERE e.status = :status " +
+            "AND a.uniqueIdentifier = :alumno " +
+            "AND p.uniqueIdentifier = :periodo " +
+            "AND (e.date like concat('%', :filter, '%') " +
+            "OR u.name like concat('%', :filter, '%') " +
+            "OR u.pa_surname like concat('%', :filter, '%') " +
+            "OR u.numdoc like concat('%', :filter, '%')) ")
+    Optional<List<EvaluacionEntity>> findEvaluacionEntities(String status, String filter, String periodo, String alumno, Pageable pageable);
+    @Query(value = "SELECT count(e) FROM EvaluacionEntity e " +
+            "JOIN e.periodoEntity p " +
+            "JOIN e.alumnoEntity a " +
+            "JOIN a.usuarioEntity u " +
+            "WHERE e.status = :status " +
+            "AND a.uniqueIdentifier = :alumno " +
+            "AND p.uniqueIdentifier = :periodo " +
+            "AND (e.date like concat('%', :filter, '%') " +
+            "OR u.name like concat('%', :filter, '%') " +
+            "OR u.pa_surname like concat('%', :filter, '%') " +
+            "OR u.numdoc like concat('%', :filter, '%')) ")
+    Long findCountEvaluacionEntities(String status, String filter, String periodo, String alumno);
+
     @Query(value = "select e from EvaluacionEntity e JOIN e.alumnoEntity a JOIN e.docentexCursoEntity dc " +
             "JOIN e.periodoEntity p " +
             "WHERE a = e.alumnoEntity and dc = e.docentexCursoEntity and p = e.periodoEntity " +
