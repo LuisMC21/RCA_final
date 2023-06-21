@@ -11,9 +11,8 @@ import java.util.Date;
 @Data
 public class ClaseDTO extends AuditoryDTO {
     private String code;
-    @NotNull(message = "Fecha de nacimiento no puede estar vacía")
-    @JsonFormat(pattern = "yyyy-MM-dd") @Past
-    private LocalDate date;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date date;
     private String name;
     private PeriodoDTO periodoDTO;
     private DocentexCursoDTO docentexCursoDTO;

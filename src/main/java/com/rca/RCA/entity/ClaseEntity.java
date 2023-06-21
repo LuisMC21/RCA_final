@@ -26,8 +26,7 @@ public class ClaseEntity extends AuditoryEntity{
     private String code;
     @JsonFormat(pattern = "YYYY-MM-dd")
     @Column(name = "date")
-    @NotBlank
-    private LocalDate date;
+    private Date date;
 
     private String name;
 
