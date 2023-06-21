@@ -87,10 +87,10 @@ public class AsistenciaService {
         log.info("filter page size {} {} {}", filter, page, size);
         ApiResponse<Pagination<AsistenciaDTO>> apiResponse = new ApiResponse<>();
         Pagination<AsistenciaDTO> pagination = new Pagination<>();
-        pagination.setCountFilter(this.asistenciaRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, filter));
+        pagination.setCountFilter(this.asistenciaRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, periodo, aula, curso));
         if (pagination.getCountFilter() > 0) {
             Pageable pageable = PageRequest.of(page, size);
-            List<AsistenciaEntity> AsistenciaEntities = this.asistenciaRepository.findEntities(ConstantsGeneric.CREATED_STATUS, filter, pageable).orElse(new ArrayList<>());
+            List<AsistenciaEntity> AsistenciaEntities = this.asistenciaRepository.findEntities(ConstantsGeneric.CREATED_STATUS, periodo, aula, curso, pageable).orElse(new ArrayList<>());
             pagination.setList(AsistenciaEntities.stream().map(AsistenciaEntity::getAsistenciaDTO).collect(Collectors.toList()));
         }
         pagination.setTotalPages(pagination.processAndGetTotalPages(size));
