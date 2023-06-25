@@ -54,7 +54,7 @@ public class DocentexCursoService {
         pagination.setCountFilter(this.docentexCursoRepository.findCountDocentexCurso(ConstantsGeneric.CREATED_STATUS, anio, filter));
         if(pagination.getCountFilter()>0){
             Pageable pageable= PageRequest.of(page, size);
-            List<DocentexCursoEntity> docentexCursoEntities=this.docentexCursoRepository.findDocentexCurso(ConstantsGeneric.CREATED_STATUS, anio, filter, pageable).orElse(new ArrayList<>());
+            List<DocentexCursoEntity> docentexCursoEntities=this.docentexCursoRepository.findDocentexCurso(ConstantsGeneric.CREATED_STATUS, filter, pageable).orElse(new ArrayList<>());
             log.info(docentexCursoEntities.size());
             pagination.setList(docentexCursoEntities.stream().map(DocentexCursoEntity::getDocentexCursoDTO).collect(Collectors.toList()));
         }

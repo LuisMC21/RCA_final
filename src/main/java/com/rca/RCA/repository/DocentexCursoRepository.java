@@ -35,8 +35,9 @@ public interface DocentexCursoRepository extends JpaRepository<DocentexCursoEnti
             "AND x.status = :status " +
             "AND c.status = :status " +
             "AND a.uniqueIdentifier = :anio " +
-            "AND (d.code like concat('%', :filter, '%') or x.code like concat('%', :filter, '%') or a.name like concat('%', :filter, '%'))")
-    Optional<List<DocentexCursoEntity>> findDocentexCurso(String status, String anio, String filter, Pageable pageable);
+            "AND (d.code like concat('%', :filter, '%') or x.code like concat('%', :filter, '%') or a.name like concat('%', :filter, '%')) " +
+            "order by x.aulaEntity.gradoEntity.name, x.aulaEntity.seccionEntity.name")
+    Optional<List<DocentexCursoEntity>> findDocentexCurso(String status, String filter, Pageable pageable);
 
     @Query(value = "SELECT x from DocenteEntity d " +
             "JOIN d.docentexCursoEntities x " +
