@@ -66,6 +66,24 @@ public class DocentexCursoService {
     }
     //Función para listar los cursos asignados a los docente-END
 
+    public ApiResponse<Pagination<DocentexCursoDTO>> getList(String filter,  String alumno, String anio, int page, int size){
+        log.info("filter page size {} {} {}", filter, page, size);
+        ApiResponse<Pagination<DocentexCursoDTO>> apiResponse = new ApiResponse<>();
+        Pagination<DocentexCursoDTO> pagination = new Pagination<>();
+        pagination.setCountFilter(this.docentexCursoRepository.findCountDocentexCurso(ConstantsGeneric.CREATED_STATUS, alumno, anio, filter));
+        if(pagination.getCountFilter()>0){
+            Pageable pageable= PageRequest.of(page, size);
+            List<DocentexCursoEntity> docentexCursoEntities=this.docentexCursoRepository.findDocentexCurso(ConstantsGeneric.CREATED_STATUS, alumno, anio, filter, pageable).orElse(new ArrayList<>());
+            log.info(docentexCursoEntities.size());
+            pagination.setList(docentexCursoEntities.stream().map(DocentexCursoEntity::getDocentexCursoDTO).collect(Collectors.toList()));
+        }
+        pagination.setTotalPages(pagination.processAndGetTotalPages(size));
+        apiResponse.setData(pagination);
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+
     //Función para obtener un curso asignado al docente-START
     public ApiResponse<DocentexCursoDTO> one(String id) throws ResourceNotFoundException {
         DocentexCursoEntity docentexCursoEntity=this.docentexCursoRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Asignatura no existe"));
