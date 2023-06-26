@@ -75,6 +75,26 @@ public class AulaService {
     }
 
     //Función para listar aulas-END
+    //Función para listar aulas por año con paginación-START
+    public ApiResponse<Pagination<AulaDTO>> getList(String filter, String anio, int page, int size) {
+        log.info("filter page size {} {} {}", filter, page, size);
+        ApiResponse<Pagination<AulaDTO>> apiResponse = new ApiResponse<>();
+        Pagination<AulaDTO> pagination = new Pagination<>();
+        pagination.setCountFilter(this.aulaRepository.findCountAula(ConstantsGeneric.CREATED_STATUS, anio, filter));
+        if (pagination.getCountFilter() > 0) {
+            Pageable pageable = PageRequest.of(page, size);
+            List<AulaEntity> aulaEntities = this.aulaRepository.findAula(ConstantsGeneric.CREATED_STATUS, anio, filter, pageable).orElse(new ArrayList<>());
+            log.info(aulaEntities.size());
+            pagination.setList(aulaEntities.stream().map(AulaEntity::getAulaDTO).collect(Collectors.toList()));
+        }
+        pagination.setTotalPages(pagination.processAndGetTotalPages(size));
+        apiResponse.setData(pagination);
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+
+    //Función para listar aulas-END
     //Función para obtener un aula con ID- START
     public ApiResponse<AulaDTO> one(String id) throws ResourceNotFoundException {
         AulaEntity aulaEntity = this.aulaRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Aula no existe para eliminar"));
