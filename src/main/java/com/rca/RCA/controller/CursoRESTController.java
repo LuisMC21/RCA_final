@@ -28,6 +28,16 @@ public class CursoRESTController {
             @RequestParam(defaultValue = "10") int size){
         return this.cursoService.getList(filter, page, size);
     }
+
+    @GetMapping("/aulaanio")
+    public ApiResponse<Pagination<CursoDTO>> list(
+            @RequestParam(defaultValue = "") String filter,
+            @RequestParam(defaultValue = "") String aula,
+            @RequestParam(defaultValue = "") String anio,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size){
+        return this.cursoService.getListByAulaAnio(filter, aula, anio, page, size);
+    }
     @GetMapping("{id}")
     public ApiResponse<CursoDTO> one(@PathVariable String id) throws ResourceNotFoundException {
         return this.cursoService.one(id);

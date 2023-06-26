@@ -53,6 +53,33 @@ public interface CursoRepository extends JpaRepository<CursoEntity, Integer> {
             "order by c.name")
     Long findCountCurso(String status, String filter, String anio, String alumno);
 
+    //Cursos por año y aula
+    @Query(value = "SELECT c FROM CursoEntity c " +
+            "JOIN c.docentexCursoEntities dxc " +
+            "JOIN dxc.aulaEntity au " +
+            "JOIN au.matriculaEntities m " +
+            "JOIN m.anio_lectivoEntity anio " +
+            "JOIN m.alumnoEntity alumno " +
+            "where c.status = :status " +
+            "AND au.uniqueIdentifier = :aula " +
+            "AND anio.uniqueIdentifier = :anio " +
+            "and (c.code like concat('%', :filter, '%') or c.name like concat('%', :filter, '%'))"+
+            "order by c.name")
+    Optional<List<CursoEntity>> findCursoByAulaAnio(String status, String filter, String aula, String anio, Pageable pageable);
+
+    @Query(value = "SELECT count(c) FROM CursoEntity c " +
+            "JOIN c.docentexCursoEntities dxc " +
+            "JOIN dxc.aulaEntity au " +
+            "JOIN au.matriculaEntities m " +
+            "JOIN m.anio_lectivoEntity anio " +
+            "JOIN m.alumnoEntity alumno " +
+            "where c.status = :status " +
+            "AND au.uniqueIdentifier = :aula " +
+            "AND anio.uniqueIdentifier = :anio " +
+            "and (c.code like concat('%', :filter, '%') or c.name like concat('%', :filter, '%'))"+
+            "order by c.name")
+    Long findCountCursoByAulaAnio(String status, String filter, String aula, String anio);
+
     //Función para obtener una sección con su Identificado Único
     @Query(value = "SELECT c FROM CursoEntity c " +
             "WHERE c.uniqueIdentifier = :id " +
