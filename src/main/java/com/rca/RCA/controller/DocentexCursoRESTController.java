@@ -22,10 +22,9 @@ public class DocentexCursoRESTController {
     @GetMapping
     public ApiResponse<Pagination<DocentexCursoDTO>> list(
             @RequestParam(defaultValue = "") String filter,
-            @RequestParam(defaultValue = "") String anio,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size){
-        return this.docentexCursoService.getList(filter, anio, page, size);
+        return this.docentexCursoService.getList(filter, page, size);
     }
 
     @GetMapping("alau")
