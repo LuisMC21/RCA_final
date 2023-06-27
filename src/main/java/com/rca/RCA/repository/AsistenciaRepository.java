@@ -26,9 +26,9 @@ public interface AsistenciaRepository extends JpaRepository<AsistenciaEntity, In
             "JOIN curso cu ON dc.curso_id = cu.id " +
             "JOIN aula au ON dc.aula_id = au.id " +
             "JOIN periodo p ON c.periodo_id = p.id " +
-            "WHERE p.id like concat('%',:periodo,'%') " +
-            "AND au.id like concat('%',:aula,'%') " +
-            "AND cu.id like concat('%',:curso,'%') AND a.tx_status=:status", nativeQuery = true)
+            "WHERE p.tx_unique_identifier like concat('%',:periodo,'%') " +
+            "AND au.tx_unique_identifier like concat('%',:aula,'%') " +
+            "AND cu.tx_unique_identifier like concat('%',:curso,'%') AND a.tx_status=:status", nativeQuery = true)
     Optional<List<AsistenciaEntity>> findEntities(String status, String periodo, String aula, String curso, Pageable pageable);
 
     @Query(value = "SELECT a FROM AsistenciaEntity a " +
@@ -73,9 +73,9 @@ public interface AsistenciaRepository extends JpaRepository<AsistenciaEntity, In
             "JOIN curso cu ON dc.curso_id = cu.id " +
             "JOIN aula au ON dc.aula_id = au.id " +
             "JOIN periodo p ON c.periodo_id = p.id " +
-            "WHERE p.id like concat('%',':periodo','%') " +
-            "AND au.id like concat('%',':aula','%') " +
-            "AND cu.id like concat('%',':curso','%')AND a.tx_status=:status", nativeQuery = true)
+            "WHERE p.tx_unique_identifier like concat('%',:periodo,'%') " +
+            "AND au.tx_unique_identifier like concat('%',:aula,'%') " +
+            "AND cu.tx_unique_identifier like concat('%',:curso,'%')AND a.tx_status=:status", nativeQuery = true)
     Long findCountEntities(String status, String periodo, String aula, String curso);
 
     //Obtener una asistencia por su identificador
