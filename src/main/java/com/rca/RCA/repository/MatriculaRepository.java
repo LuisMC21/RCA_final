@@ -138,10 +138,7 @@ public interface MatriculaRepository extends JpaRepository<MatriculaEntity, Inte
             "JOIN l.alumnoEntity al " +
             "JOIN l.aulaEntity au " +
             "JOIN au.gradoEntity g " +
-            "WHERE a=l.anio_lectivoEntity " +
-            "AND al=l.alumnoEntity " +
-            "AND au=l.aulaEntity " +
-            "AND l.status = :status " +
+            "WHERE l.status = :status " +
             "AND a.status = :status " +
             "AND al.uniqueIdentifier = :id_alumno " +
             "AND a.uniqueIdentifier= :id_aniolectivo ")

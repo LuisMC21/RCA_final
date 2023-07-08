@@ -8,11 +8,10 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
-
 @Data
 public class MatriculaDTO extends AuditoryDTO{
     private String code;
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "dd-MM-yyyy")
     @NotNull (message = "La fecha de matrícula no puede estar vacía") @Past
     private LocalDate date;
     private AulaDTO aulaDTO;

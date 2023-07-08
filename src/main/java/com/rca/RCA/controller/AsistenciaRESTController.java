@@ -80,7 +80,7 @@ public class AsistenciaRESTController {
     @GetMapping("exportAsistencia")
     public ResponseEntity<Resource> exportAsistencia(@RequestParam String id_alumno,
                                                     @RequestParam String id_periodo,
-                                                     @RequestParam String id_aniolectivo){
+                                                     @RequestParam String id_aniolectivo) throws ResourceNotFoundException {
         return this.asistenciaService.exportAsistencia(id_alumno, id_periodo,id_aniolectivo);
     }
     @GetMapping("exportAsistAula")
