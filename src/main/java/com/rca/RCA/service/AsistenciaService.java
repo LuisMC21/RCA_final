@@ -217,16 +217,16 @@ public class AsistenciaService {
                 final File imgLogo = ResourceUtils.getFile("classpath:images/logoC.jpg"); //Ruta de la imagen
                 final JasperReport report = (JasperReport) JRLoader.loadObject(file);
                 //Se consultan los datos para el reporte de asistencias DTO
-                List<CursoEntity> cursosEntities = this.matriculaRepository.findCursosMatriculados(id_alumno, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Cursos no encontrados"));
+                //List<CursoEntity> cursosEntities = this.matriculaRepository.findCursosMatriculados(id_alumno, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Cursos no encontrados"));
                 List<AsistenciaEntity> asistenciaEntities = this.asistenciaRepository.findAsistencias(id_alumno, id_periodo, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Asistencias no encontrados"));
-                List<ClaseEntity> clasesEntities = this.asistenciaRepository.findClasesDeAsistencias(id_alumno, id_periodo, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Clases no encontrados"));
+                //List<ClaseEntity> clasesEntities = this.asistenciaRepository.findClasesDeAsistencias(id_alumno, id_periodo, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Clases no encontrados"));
                 //Se agregan los datos para Reporte de Asistencias
                 List<ReporteAsistenciaAlumnoDTO> reporteAsistenciaAlumnoDTOS= new ArrayList<>();
-                for (int i = 0; i < cursosEntities.size(); i++) {
+                for (int i = 0; i < asistenciaEntities.size(); i++) {
                     ReporteAsistenciaAlumnoDTO reporteAsistenciaAlumnoDTO = new ReporteAsistenciaAlumnoDTO();
-                    reporteAsistenciaAlumnoDTO.setCursoDTO(cursosEntities.get(i).getCursoDTO());
+                    reporteAsistenciaAlumnoDTO.setCursoDTO(asistenciaEntities.get(i).getClaseEntity().getDocentexCursoEntity().getCursoEntity().getCursoDTO());
                     reporteAsistenciaAlumnoDTO.setAsistenciaDTO(asistenciaEntities.get(i).getAsistenciaDTO());
-                    reporteAsistenciaAlumnoDTO.setClaseDTO(clasesEntities.get(i).getClaseDTO());
+                    reporteAsistenciaAlumnoDTO.setClaseDTO(asistenciaEntities.get(i).getClaseEntity().getClaseDTO());
                     reporteAsistenciaAlumnoDTOS.add(reporteAsistenciaAlumnoDTO);
                 }
 

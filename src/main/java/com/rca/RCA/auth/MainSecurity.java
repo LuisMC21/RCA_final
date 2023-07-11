@@ -54,12 +54,7 @@ public class MainSecurity  {
                         "/configuration/**",
                         "/swagger-ui/**",
                         "/webjars/**").permitAll()
-                //permitidos sin auth el método get
-//                .requestMatchers(HttpMethod.GET, "/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/**").permitAll()
-                .requestMatchers(HttpMethod.PUT, "/**").permitAll()
-                .requestMatchers(HttpMethod.DELETE, "/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/noticia").permitAll()
                 .anyRequest().authenticated();
         http.exceptionHandling().authenticationEntryPoint(jwtEntryPoint);
         http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
