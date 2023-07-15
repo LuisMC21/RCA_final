@@ -97,7 +97,7 @@ public interface EvaluacionRepository extends JpaRepository<EvaluacionEntity, In
     @Query(value = "Select c.name, e.note from curso c join docentexcurso dxc on c.id = dxc.curso_id " +
             "join evaluacion e on dxc.id = e.docentexcurso_id join periodo p on p.id = e.periodo_id " +
             "join alumno a on a.id = e.alumno_id join anio_lectivo al on al.id = p.anio_lectivo_id " +
-            "where a.code = :alumno " +
+            "where a.tx_unique_identifier = :alumno " +
             "and p.tx_unique_identifier = :periodo ", nativeQuery = true)
     List<Object[]> findByAlumnoPeriodoAnio(String alumno, String periodo);
 

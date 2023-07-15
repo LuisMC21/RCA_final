@@ -201,7 +201,7 @@ public class EvaluacionService {
     }
 
     public ResponseEntity<Resource> exportBoletaNotas(String periodo, String alumno) {
-        Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByCode(alumno);
+        Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(alumno);
         Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(periodo, ConstantsGeneric.CREATED_STATUS);
         if (optionalAlumnoEntity.isPresent() && optionalPeriodoEntity.isPresent()){
 
