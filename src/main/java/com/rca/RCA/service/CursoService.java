@@ -59,10 +59,10 @@ public class CursoService {
         log.info("filter page size {} {} {}", filter, page, size);
         ApiResponse<Pagination<CursoDTO>> apiResponse = new ApiResponse<>();
         Pagination<CursoDTO> pagination = new Pagination<>();
-        pagination.setCountFilter(this.cursoRepository.findCountCursoByAulaAnio(ConstantsGeneric.CREATED_STATUS, aula, anio, filter));
+        pagination.setCountFilter(this.cursoRepository.findCountCursoByAulaAnio(ConstantsGeneric.CREATED_STATUS, filter, aula, anio));
         if(pagination.getCountFilter()>0){
             Pageable pageable= PageRequest.of(page, size);
-            List<CursoEntity> cursoEntities=this.cursoRepository.findCursoByAulaAnio(ConstantsGeneric.CREATED_STATUS, aula, anio, filter, pageable).orElse(new ArrayList<>());
+            List<CursoEntity> cursoEntities=this.cursoRepository.findCursoByAulaAnio(ConstantsGeneric.CREATED_STATUS, filter, aula, anio, pageable).orElse(new ArrayList<>());
             pagination.setList(cursoEntities.stream().map(CursoEntity::getCursoDTO).collect(Collectors.toList()));
         }
         pagination.setTotalPages(pagination.processAndGetTotalPages(size));

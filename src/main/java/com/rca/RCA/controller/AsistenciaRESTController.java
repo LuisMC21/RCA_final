@@ -15,7 +15,7 @@ import jakarta.validation.Valid;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
-@RequestMapping("asistencia")
+@RequestMapping("/asistencia")
 public class AsistenciaRESTController {
 
     @Autowired
@@ -46,7 +46,7 @@ public class AsistenciaRESTController {
         return this.asistenciaService.getList(filter, page, size, periodo, aula, curso);
     }
 
-    @GetMapping("asfc")
+    @GetMapping("/asfc")
     public ApiResponse<Pagination<AsistenciaDTO>> listWithAlumno(
             @RequestParam(defaultValue = "") String filter,
             @RequestParam(defaultValue = "0") int page,

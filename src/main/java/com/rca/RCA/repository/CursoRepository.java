@@ -54,12 +54,10 @@ public interface CursoRepository extends JpaRepository<CursoEntity, Integer> {
     Long findCountCurso(String status, String filter, String anio, String alumno);
 
     //Cursos por año y aula
-    @Query(value = "SELECT c FROM CursoEntity c " +
-            "JOIN c.docentexCursoEntities dxc " +
+    @Query(value = "SELECT c FROM DocentexCursoEntity dxc " +
+            "JOIN dxc.cursoEntity c " +
             "JOIN dxc.aulaEntity au " +
-            "JOIN au.matriculaEntities m " +
-            "JOIN m.anio_lectivoEntity anio " +
-            "JOIN m.alumnoEntity alumno " +
+            "JOIN dxc.anio_lectivoEntity anio " +
             "where c.status = :status " +
             "AND au.uniqueIdentifier = :aula " +
             "AND anio.uniqueIdentifier = :anio " +
@@ -67,12 +65,10 @@ public interface CursoRepository extends JpaRepository<CursoEntity, Integer> {
             "order by c.name")
     Optional<List<CursoEntity>> findCursoByAulaAnio(String status, String filter, String aula, String anio, Pageable pageable);
 
-    @Query(value = "SELECT count(c) FROM CursoEntity c " +
-            "JOIN c.docentexCursoEntities dxc " +
+    @Query(value = "SELECT count(c) FROM DocentexCursoEntity dxc " +
+            "JOIN dxc.cursoEntity c " +
             "JOIN dxc.aulaEntity au " +
-            "JOIN au.matriculaEntities m " +
-            "JOIN m.anio_lectivoEntity anio " +
-            "JOIN m.alumnoEntity alumno " +
+            "JOIN dxc.anio_lectivoEntity anio " +
             "where c.status = :status " +
             "AND au.uniqueIdentifier = :aula " +
             "AND anio.uniqueIdentifier = :anio " +

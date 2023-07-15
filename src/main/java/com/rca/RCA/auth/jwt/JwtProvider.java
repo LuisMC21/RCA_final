@@ -57,7 +57,7 @@ public class  JwtProvider {
                 .claim("roles", roles)
                 .claim("userId", userId)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(new Date().getTime() + expiration + 100000))
+                .setExpiration(new Date(new Date().getTime() + expiration + 1000000))
                 .signWith(getSecret(secret))
                 .compact();
     }
@@ -91,6 +91,7 @@ public class  JwtProvider {
             JWT jwt = JWTParser.parse(jwtDto.getToken());
             JWTClaimsSet claims = jwt.getJWTClaimsSet();
             String nombreUsuario = claims.getSubject();
+
             List<String> roles = (List<String>) claims.getClaim("roles");
             String userId = (String) claims.getClaim("userId");
 
