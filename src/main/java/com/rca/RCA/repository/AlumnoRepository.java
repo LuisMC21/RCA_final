@@ -21,8 +21,19 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
             "AND a.status = :status " +
             "AND u.status = :status " +
             "AND (a.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or " +
+            "u.uniqueIdentifier like concat('%', :filter, '%') or " +
             "u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or u.numdoc like concat('%', :filter, '%'))")
     Optional<List<AlumnoEntity>> findEntities(String status, String filter, Pageable pageable);
+    @Query(value = "SELECT count(a) FROM UsuarioEntity u " +
+            "JOIN u.alumnoEntity a " +
+            "WHERE u = a.usuarioEntity " +
+            "AND a.status = :status " +
+            "AND u.status = :status " +
+            "AND (a.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or " +
+            "u.uniqueIdentifier like concat('%', :filter, '%') or " +
+            "u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or u.numdoc like concat('%', :filter, '%'))")
+    Long findCountEntities(String status, String filter);
+
 
     @Query(value="SELECT a FROM MatriculaEntity m JOIN m.alumnoEntity a JOIN m.aulaEntity al JOIN m.anio_lectivoEntity an " +
             "WHERE a = m.alumnoEntity and al = m.aulaEntity and an = m.anio_lectivoEntity " +
@@ -43,15 +54,6 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
     Long findCountEntitiesAula(String status, String aula, String anio);
 
     //Función para contar los alumnos
-    @Query(value = "SELECT count(a) FROM UsuarioEntity u " +
-            "JOIN u.alumnoEntity a " +
-            "WHERE u = a.usuarioEntity " +
-            "AND a.status = :status " +
-            "AND u.status = :status " +
-            "AND (a.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or " +
-            "u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or u.numdoc like concat('%', :filter, '%'))")
-    Long findCountEntities(String status, String filter);
-
     @Query(value = "Select a.* from alumno a JOIN matricula m ON a.id = m.alumno_id " +
             "join aula al ON al.id = m.aula_id " +
             "join docentexcurso dxc ON dxc.aula_id = al.id " +

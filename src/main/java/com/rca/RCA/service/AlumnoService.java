@@ -192,6 +192,7 @@ public class AlumnoService {
             apiResponse.setSuccessful(true);
             alumnoDTO = this.alumnoRepository.save(alumnoEntity).getAlumnoDTO();
             alumnoDTO.getUsuarioDTO().setPassword("CIFRADA");
+            apiResponse.setMessage(apiResponseU.getMessage());
             apiResponse.setData(alumnoDTO);
             return apiResponse;
         } else {

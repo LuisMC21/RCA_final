@@ -16,7 +16,7 @@ public interface PeriodoRepository extends JpaRepository<PeriodoEntity, Integer>
     @Query(value = "select p from PeriodoEntity p " +
             "where " +
             "p.status = :status " +
-            "and (p.code like concat('%', :filter, '%') or p.name like concat('%', :filter, '%') or p.anio_lectivoEntity.name like concat('%', :filter, '%')) "+
+            "and (p.code like concat('%', :filter, '%') or p.name like concat('%', :filter, '%') or p.anio_lectivoEntity.uniqueIdentifier like concat('%', :filter, '%')) "+
             "order by p.name")
     Optional<List<PeriodoEntity>> findPeriodo(String status, String filter, Pageable pageable);
 
@@ -24,7 +24,7 @@ public interface PeriodoRepository extends JpaRepository<PeriodoEntity, Integer>
     //Función para contar los periodos activos con filro de código o nombre
     @Query(value = "select count(p) from PeriodoEntity p " +
             "where p.status = :status " +
-            "and (p.code like concat('%', :filter, '%') or p.name like concat('%', :filter, '%') or p.anio_lectivoEntity.name like concat('%', :filter, '%')) "+
+            "and (p.code like concat('%', :filter, '%') or p.name like concat('%', :filter, '%') or p.anio_lectivoEntity.uniqueIdentifier like concat('%', :filter, '%')) "+
             "order by p.name")
     Long findCountPeriodo(String status, String filter);
 
