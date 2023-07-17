@@ -31,15 +31,13 @@ public class AulaRESTController {
             @RequestParam(defaultValue = "10") int size){
         return this.aulaService.getList(filter, page, size);
     }
-<<<<<<< Updated upstream
-=======
+
     @GetMapping("/anio")
     public ApiResponse<List<AulaDTO>> list(
             @RequestParam(defaultValue = "") String filter,
             @RequestParam(defaultValue = "") String anio){
         return this.aulaService.getList(filter, anio);
     }
->>>>>>> Stashed changes
     @GetMapping("{id}")
     public ApiResponse<AulaDTO> one(@PathVariable String id) throws ResourceNotFoundException {
         return this.aulaService.one(id);

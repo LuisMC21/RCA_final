@@ -55,16 +55,6 @@ public class MainSecurity  {
                         "/swagger-ui/**",
                         "/webjars/**").permitAll()
                 //permitidos sin auth el método get
-<<<<<<< Updated upstream
-//                .requestMatchers(HttpMethod.GET, "/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/noticia").permitAll()
-                .requestMatchers(HttpMethod.POST, "/**").permitAll()
-                .requestMatchers(HttpMethod.PUT, "/**").permitAll()
-                .requestMatchers(HttpMethod.DELETE, "/**").permitAll()
-=======
-                //.requestMatchers(HttpMethod.GET, "/**").permitAll()
-                //.requestMatchers(HttpMethod.POST, "/**").permitAll()
->>>>>>> Stashed changes
                 .anyRequest().authenticated();
         http.exceptionHandling().authenticationEntryPoint(jwtEntryPoint);
         http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);

@@ -41,8 +41,6 @@ public interface AulaRepository extends JpaRepository<AulaEntity, Integer> {
             "ORDER BY g.name, s.name")
     Optional<List<AulaEntity>> findAula(String status, String filter, Pageable pageable);
 
-<<<<<<< Updated upstream
-=======
     //Aulas por año
     @Query(value = "SELECT x from GradoEntity g " +
             "JOIN g.aulaEntities x " +
@@ -60,7 +58,6 @@ public interface AulaRepository extends JpaRepository<AulaEntity, Integer> {
             "ORDER BY g.name, s.name")
     Optional<List<AulaEntity>> findAulaxAnio(String status, String anio, String filter);
 
->>>>>>> Stashed changes
     //Función para obtener un aula con su Identificado Único
     @Query(value = "SELECT a FROM AulaEntity a " +
             "WHERE a.uniqueIdentifier= :id " +

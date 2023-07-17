@@ -31,8 +31,6 @@ public class EvaluacionRESTController {
         return this.evaluacionService.getList(filter, page, size);
     }
 
-<<<<<<< Updated upstream
-=======
     @GetMapping("epac")
     public ApiResponse<Pagination<EvaluacionDTO>> list(
             @RequestParam(defaultValue = "") String filter,
@@ -61,7 +59,6 @@ public class EvaluacionRESTController {
         return this.evaluacionService.generatedEvaluations(id_perido, filter);
     }
 
->>>>>>> Stashed changes
     @GetMapping("{id}")
     public ApiResponse<EvaluacionDTO> one(@PathVariable String id) throws ResourceNotFoundException {
         return this.evaluacionService.one(id);

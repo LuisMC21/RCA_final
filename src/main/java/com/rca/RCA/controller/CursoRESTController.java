@@ -30,8 +30,6 @@ public class CursoRESTController {
             @RequestParam(defaultValue = "10") int size){
         return this.cursoService.getList(filter, page, size);
     }
-<<<<<<< Updated upstream
-=======
 
     @GetMapping("/aulaanio")
     public ApiResponse<List<CursoDTO>> list(
@@ -39,7 +37,6 @@ public class CursoRESTController {
             @RequestParam(defaultValue = "") String anio){
         return this.cursoService.getListByAulaAnio(aula, anio);
     }
->>>>>>> Stashed changes
     @GetMapping("{id}")
     public ApiResponse<CursoDTO> one(@PathVariable String id) throws ResourceNotFoundException {
         return this.cursoService.one(id);

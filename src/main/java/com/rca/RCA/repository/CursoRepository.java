@@ -26,9 +26,6 @@ public interface CursoRepository extends JpaRepository<CursoEntity, Integer> {
             "order by c.name")
     Long findCountCurso(String status, String filter);
 
-<<<<<<< Updated upstream
-=======
-
     @Query(value = "select c from CursoEntity c " +
             "JOIN c.docentexCursoEntities dxc " +
             "JOIN dxc.aulaEntity au " +
@@ -66,7 +63,6 @@ public interface CursoRepository extends JpaRepository<CursoEntity, Integer> {
             "order by c.name")
     Optional<List<CursoEntity>> findCursoByAulaAnio(String status, String aula, String anio);
 
->>>>>>> Stashed changes
     //Función para obtener una sección con su Identificado Único
     @Query(value = "SELECT c FROM CursoEntity c " +
             "WHERE c.uniqueIdentifier = :id " +

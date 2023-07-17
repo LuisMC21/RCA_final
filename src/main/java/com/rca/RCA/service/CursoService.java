@@ -54,8 +54,6 @@ public class CursoService {
     }
     //Función para listar cursos con paginación-END
 
-<<<<<<< Updated upstream
-=======
     //Listar con año y aula
     public ApiResponse<List<CursoDTO>> getListByAulaAnio(String aula, String anio){
         ApiResponse<List<CursoDTO>> apiResponse = new ApiResponse<>();
@@ -66,7 +64,6 @@ public class CursoService {
         apiResponse.setMessage("ok");
         return apiResponse;
     }
->>>>>>> Stashed changes
     public ApiResponse<CursoDTO> one(String id) throws ResourceNotFoundException {
         CursoEntity cursoEntity = this.cursoRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(() -> new ResourceNotFoundException("Curso no existe"));
         ApiResponse<CursoDTO> apiResponse = new ApiResponse<>();

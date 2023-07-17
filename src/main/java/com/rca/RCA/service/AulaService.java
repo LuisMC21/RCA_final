@@ -75,8 +75,7 @@ public class AulaService {
     }
 
     //Función para listar aulas-END
-<<<<<<< Updated upstream
-=======
+
     //Función para listar aulas por año con paginación-START
     public ApiResponse<List<AulaDTO>> getList(String filter, String anio) {
         log.info("filter {}", filter);
@@ -90,7 +89,6 @@ public class AulaService {
     }
 
     //Función para listar aulas-END
->>>>>>> Stashed changes
     //Función para obtener un aula con ID- START
     public ApiResponse<AulaDTO> one(String id) throws ResourceNotFoundException {
         AulaEntity aulaEntity = this.aulaRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Aula no existe para eliminar"));
