@@ -38,6 +38,7 @@ public class CursoRESTController {
             @RequestParam(defaultValue = "10") int size){
         return this.cursoService.getListByAulaAnio(filter, aula, anio, page, size);
     }
+
     @GetMapping("{id}")
     public ApiResponse<CursoDTO> one(@PathVariable String id) throws ResourceNotFoundException {
         return this.cursoService.one(id);
