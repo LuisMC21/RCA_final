@@ -66,7 +66,9 @@ public class EvaluacionService {
         for (int i = 0; aulaEntities.size() > i; i++) {
             List<CursoEntity> cursoEntities = this.cursoRepository.findCursoByAulaAnio(ConstantsGeneric.CREATED_STATUS, aulaEntities.get(i).getUniqueIdentifier(), periodoEntity.getAnio_lectivoEntity().getUniqueIdentifier()).orElseThrow(()-> new ResourceNotFoundException("Cursos no encontrados"));
             List<AlumnoEntity> alumnoEntities = this.alumnoRepository.findEntities(ConstantsGeneric.CREATED_STATUS, periodoEntity.getAnio_lectivoEntity().getUniqueIdentifier(), aulaEntities.get(i).getUniqueIdentifier(), "").orElseThrow(()->new ResourceNotFoundException("Alumnos no encontrados"));
-
+            for (int j = 0; j < cursoEntities.size(); j++) {
+                
+            }
         }
         return apiResponse;
     }
