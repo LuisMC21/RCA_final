@@ -47,9 +47,9 @@ public class  JwtProvider {
         if(roles.contains("ROLE_ADMIN")){
             userId = this.usuarioRepository.idFindByUsername(usuarioPrincipal.getUsername(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no encontrado")).getUniqueIdentifier();
         } else if (roles.contains(("ROLE_TEACHER"))){
-            userId = this.usuarioRepository.idFindByUsername(usuarioPrincipal.getUsername(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no encontrado")).getDocenteEntity().getUniqueIdentifier();
+            userId = this.usuarioRepository.idDocenteByUsername(usuarioPrincipal.getUsername(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no encontrado"));
         } else {
-            userId = this.usuarioRepository.idFindByUsername(usuarioPrincipal.getUsername(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no encontrado")).getAlumnoEntity().getUniqueIdentifier();
+            userId = this.usuarioRepository.idAlumnoByUsername(usuarioPrincipal.getUsername(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no encontrado"));
         }
 
         return Jwts.builder()
@@ -57,7 +57,7 @@ public class  JwtProvider {
                 .claim("roles", roles)
                 .claim("userId", userId)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(new Date().getTime() + expiration + 100000))
+                .setExpiration(new Date(new Date().getTime() + expiration + 1000000))
                 .signWith(getSecret(secret))
                 .compact();
     }
@@ -91,6 +91,7 @@ public class  JwtProvider {
             JWT jwt = JWTParser.parse(jwtDto.getToken());
             JWTClaimsSet claims = jwt.getJWTClaimsSet();
             String nombreUsuario = claims.getSubject();
+
             List<String> roles = (List<String>) claims.getClaim("roles");
             String userId = (String) claims.getClaim("userId");
 

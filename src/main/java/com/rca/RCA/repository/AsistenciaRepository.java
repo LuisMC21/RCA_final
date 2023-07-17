@@ -12,13 +12,51 @@ import java.util.Optional;
 public interface AsistenciaRepository extends JpaRepository<AsistenciaEntity, Integer> {
 
     //Obtener asistencia por clase (código) o por alumno (nombre, apellido, código)
-    @Query(value = "select a from AsistenciaEntity a JOIN a.alumnoEntity al JOIN a.claseEntity c "+
+    @Query(value = "select a from AsistenciaEntity a JOIN a.alumnoEntity al JOIN a.claseEntity c " +
             "where al = a.alumnoEntity and c = a.claseEntity " +
             "and a.status = :status and al.status =:status and c.status = :status " +
             "and (al.code like concat('%', :filter, '%') or al.uniqueIdentifier like concat('%', :filter, '%') " +
             "or c.code like concat('%', :filter, '%') or c.uniqueIdentifier like concat('%', :filter, '%'))")
     Optional<List<AsistenciaEntity>> findEntities(String status, String filter, Pageable pageable);
 
+    @Query(value = "SELECT a.* " +
+            "FROM asistencia a " +
+            "JOIN clase c ON a.clase_id = c.id " +
+            "JOIN docentexcurso dc ON c.docentexcurso_id = dc.id " +
+            "JOIN curso cu ON dc.curso_id = cu.id " +
+            "JOIN aula au ON dc.aula_id = au.id " +
+            "JOIN periodo p ON c.periodo_id = p.id " +
+            "WHERE p.tx_unique_identifier like concat('%',:periodo,'%') " +
+            "AND au.tx_unique_identifier like concat('%',:aula,'%') " +
+            "AND cu.tx_unique_identifier like concat('%',:curso,'%') AND a.tx_status=:status", nativeQuery = true)
+    Optional<List<AsistenciaEntity>> findEntities(String status, String periodo, String aula, String curso, Pageable pageable);
+
+    @Query(value = "SELECT a FROM AsistenciaEntity a " +
+            "JOIN a.alumnoEntity al " +
+            "JOIN a.claseEntity c " +
+            "JOIN c.docentexCursoEntity dxc " +
+            "JOIN dxc.cursoEntity course " +
+            "JOIN c.periodoEntity p " +
+            "WHERE a.status = :status and al.status =:status and c.status = :status " +
+            "AND al.uniqueIdentifier = :alumno " +
+            "AND p.uniqueIdentifier = :periodo " +
+            "AND course.uniqueIdentifier = :curso " +
+            "AND (al.code like concat('%', :filter, '%') or al.uniqueIdentifier like concat('%', :filter, '%') " +
+            "OR c.code like concat('%', :filter, '%') or c.uniqueIdentifier like concat('%', :filter, '%'))")
+    Optional<List<AsistenciaEntity>> findEntitiesWithAlumno(String status, String filter, String periodo, String alumno, String curso, Pageable pageable);
+    @Query(value = "SELECT count(a) FROM AsistenciaEntity a " +
+            "JOIN a.alumnoEntity al " +
+            "JOIN a.claseEntity c " +
+            "JOIN c.docentexCursoEntity dxc " +
+            "JOIN dxc.cursoEntity course " +
+            "JOIN c.periodoEntity p " +
+            "WHERE a.status = :status and al.status =:status and c.status = :status " +
+            "AND al.uniqueIdentifier = :alumno " +
+            "AND p.uniqueIdentifier = :periodo " +
+            "AND course.uniqueIdentifier = :curso " +
+            "AND (al.code like concat('%', :filter, '%') or al.uniqueIdentifier like concat('%', :filter, '%') " +
+            "OR c.code like concat('%', :filter, '%') or c.uniqueIdentifier like concat('%', :filter, '%'))")
+    Long findCountEntitiesWithAlumno(String status, String filter, String periodo, String alumno, String curso);
 
     //Contar el número de registros de  asistencia según el filtro que se aplique
     @Query(value = "select count(a) from AsistenciaEntity a JOIN a.alumnoEntity al JOIN a.claseEntity c "+
@@ -27,6 +65,18 @@ public interface AsistenciaRepository extends JpaRepository<AsistenciaEntity, In
             "and (al.code like concat('%', :filter, '%') or al.uniqueIdentifier like concat('%', :filter, '%') " +
             "or c.code like concat('%', :filter, '%') or c.uniqueIdentifier like concat('%', :filter, '%'))")
     Long findCountEntities(String status, String filter);
+
+    @Query(value = "SELECT count(*)" +
+            "FROM asistencia a " +
+            "JOIN clase c ON a.clase_id = c.id " +
+            "JOIN docentexcurso dc ON c.docentexcurso_id = dc.id " +
+            "JOIN curso cu ON dc.curso_id = cu.id " +
+            "JOIN aula au ON dc.aula_id = au.id " +
+            "JOIN periodo p ON c.periodo_id = p.id " +
+            "WHERE p.tx_unique_identifier like concat('%',:periodo,'%') " +
+            "AND au.tx_unique_identifier like concat('%',:aula,'%') " +
+            "AND cu.tx_unique_identifier like concat('%',:curso,'%')AND a.tx_status=:status", nativeQuery = true)
+    Long findCountEntities(String status, String periodo, String aula, String curso);
 
     //Obtener una asistencia por su identificador
     Optional<AsistenciaEntity> findByUniqueIdentifier(String uniqueIdentifier);

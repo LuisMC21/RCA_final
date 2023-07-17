@@ -21,6 +21,7 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
             "AND a.status = :status " +
             "AND u.status = :status " +
             "AND (a.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or " +
+            "u.uniqueIdentifier like concat('%', :filter, '%') or " +
             "u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or u.numdoc like concat('%', :filter, '%'))")
     Optional<List<AlumnoEntity>> findEntities(String status, String filter, Pageable pageable);
 
@@ -62,13 +63,17 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
             "c.name like concat('%', :curso, '%') and ale.name like concat('%', :anio, '%')", nativeQuery = true)
     Optional<List<AlumnoEntity>> findEntities(String status, String anio, String aula, String curso);
 
+
     //Función para obtener un alumno por su identificador
     Optional<AlumnoEntity> findByUniqueIdentifier(String uniqueIdentifier);
+
+    Optional<AlumnoEntity> findByCode(String code);
 
     //Función para eliminar usuario asociado al alumno
     @Transactional
     @Modifying
-    @Query(value = "update user u JOIN alumno a  SET u.tx_status = 'DELETED', u.tx_delete_at = :fecha " +
+    @Query(value = "update user u JOIN alumno a  SET u.tx_status = 'DELETED', u.tx_delete_at = :fecha, " +
+            "a.tx_status = 'DELETED', a.tx_delete_at = :fecha " +
             "where a.user_id = u.id " +
             "and a.tx_unique_identifier = :uniqueIdentifier", nativeQuery = true)
     void deleteUsuario(@Param("uniqueIdentifier") String uniqueIdentifier, @Param("fecha")LocalDateTime fecha);
@@ -96,14 +101,16 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
     Iterable<AlumnoEntity> findByApoderadoI(int idApo);
 
 
-    @Query(value="select * from alumno a join matricula m on a.id = m.alumno_id join aula al on al.id = m.aula_id join anio_lectivo ale on " +
+    @Query(value="SELECT a.* FROM alumno a join matricula m on a.id = m.alumno_id join " +
+            "aula al on al.id = m.aula_id join anio_lectivo ale on " +
             "ale.id = m.anio_lectivo_id where al.tx_unique_identifier = :aula " +
             "and ale.tx_unique_identifier = :anio", nativeQuery=true)
     Optional<List<AlumnoEntity>> findByAulaPeriodo(String aula, String anio);
-    @Query(value="select * from alumno a join matricula m on a.id = m.alumno_id join aula al on al.id = m.aula_id join anio_lectivo ale on " +
+    @Query(value="SELECT a.* FROM alumno a join matricula m on a.id = m.alumno_id join " +
+            "aula al on al.id = m.aula_id join anio_lectivo ale on " +
             "ale.id = m.anio_lectivo_id where al.tx_unique_identifier = :aula " +
-            "and ale.tx_unique_identifier = :periodo", nativeQuery=true)
-    Iterable<AlumnoEntity> findByAulaPeriodoI(String aula, String periodo);
+            "and ale.tx_unique_identifier = :anio", nativeQuery=true)
+    Iterable<AlumnoEntity> findByAulaPeriodoI(String aula, String anio);
 
 
 }

@@ -54,6 +54,7 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
             "AND u.status = :status ")
     boolean existsByTel(String tel, String id, String status);
 
+
     @Query(value = "select count(u)>0 from UsuarioEntity u " +
             "where u.numdoc = :numdoc and u.uniqueIdentifier <> :uniqueIdentifier " +
             "AND u.status = :status ")
@@ -93,9 +94,20 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
     @Query(value = "SELECT u FROM UsuarioEntity u " +
             "JOIN u.roles r " +
             "WHERE (u.nombreUsuario = :username OR u.email = :username) " +
-            "AND status = :status ")
+            "AND u.status = :status ")
     Optional<UsuarioEntity> idFindByUsername(String username,String status);
 
+    @Query(value = "SELECT d.code FROM UsuarioEntity u " +
+            "JOIN u.docenteEntity d " +
+            "WHERE (u.nombreUsuario = :username OR u.email = :username) " +
+            "AND u.status = :status ")
+    Optional<String> idDocenteByUsername(String username,String status);
+
+    @Query(value = "SELECT a.uniqueIdentifier FROM UsuarioEntity u " +
+            "JOIN u.alumnoEntity a " +
+            "WHERE (u.nombreUsuario = :username OR u.email = :username) " +
+            "AND u.status = :status ")
+    Optional<String> idAlumnoByUsername(String username,String status);
 }
 
 

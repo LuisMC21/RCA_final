@@ -70,7 +70,7 @@ public class NoticiaService {
 
     //Agreagar noticia
     public ApiResponse<NoticiaDTO> add(@Valid NoticiaFileDTO NoticiaFileDTO) throws AttributeException, ResourceNotFoundException {
-
+        System.out.println(NoticiaFileDTO);
         if(noticiaRepository.existsByTitle("", ConstantsGeneric.CREATED_STATUS, NoticiaFileDTO.getTitle()))
             throw new AttributeException("Noticia ya existe");
 
@@ -92,14 +92,14 @@ public class NoticiaService {
         NoticiaDTO.setUsuarioDTO(NoticiaFileDTO.getUsuarioDTO());
 
         //verificar usuario
-        UsuarioEntity usuarioEntity = this.usuarioRepository.findByUniqueIdentifier(NoticiaDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no exixte"));
+        UsuarioEntity usuarioEntity = this.usuarioRepository.findByUniqueIdentifier(NoticiaDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no exixte"));
 
         //Decodificar la imagen base64
         String base64 = NoticiaFileDTO.getImagenBase64();
         byte[] imageBytes = Base64.getMimeDecoder().decode(base64);
 
         // Obtener la ruta de la carpeta donde se guardarán las imágenes
-        String rutaCarpeta = "src/main/resources/images";
+        String rutaCarpeta = Code.RUTA_IMAGENES;
         Path rutaCompleta = Paths.get(rutaCarpeta);
         System.out.println("--------------------------");
         System.out.println(rutaCompleta);
@@ -124,14 +124,12 @@ public class NoticiaService {
             throw new RuntimeException(e);
         }
 
-        String route = rutaCarpeta + "/" + nombreArchivo;
+        String route = Code.RUTA_SERVIDOR + "images/" + nombreArchivo;
         NoticiaDTO.setRoute(route);
 
         //change dto to entity
         NoticiaEntity NoticiaEntity = new NoticiaEntity();
         NoticiaEntity.setNoticiaDTO(NoticiaDTO);
-
-
 
         NoticiaEntity.setUsuarioEntity(usuarioEntity);
         apiResponse.setData(this.noticiaRepository.save(NoticiaEntity).getNoticiaDTO());
@@ -141,46 +139,74 @@ public class NoticiaService {
     }
 
     //Modificar Noticia
-    public ApiResponse<NoticiaDTO> update(NoticiaDTO noticiaDTO) {
+    public ApiResponse<NoticiaDTO> update(NoticiaFileDTO noticiaFileDTO) throws AttributeException, ResourceNotFoundException {
+        System.out.println(noticiaFileDTO);
         ApiResponse<NoticiaDTO> apiResponse = new ApiResponse<>();
-        System.out.println(noticiaDTO.toString());
 
-        Optional<NoticiaEntity> optionalNoticiaEntity = this.noticiaRepository.findByUniqueIdentifier(noticiaDTO.getId());
-        if (optionalNoticiaEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("Usuario_NOT_EXISTS");
-            apiResponse.setMessage("No se encontro el Usuario");
-            return apiResponse;
-        }
+        if(noticiaRepository.existsByTitle(noticiaFileDTO.getId(), ConstantsGeneric.CREATED_STATUS, noticiaFileDTO.getTitle()))
+            throw new AttributeException("Noticia ya existe");
 
-        //validamos
-        Optional<NoticiaEntity> optionalImagenEntityValidation = this.noticiaRepository.findByTitle(noticiaDTO.getTitle(), noticiaDTO.getId());
-        if (optionalImagenEntityValidation.isPresent()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("NOTICIA_EXISTS");
-            apiResponse.setMessage("No se actualizó, la noticia existe");
-            return apiResponse;
-        }
-
-        //change dto to entity
-        NoticiaEntity NoticiaEntity = optionalNoticiaEntity.get();
-        NoticiaEntity.setTitle(noticiaDTO.getTitle());
-        NoticiaEntity.setSommelier(noticiaDTO.getSommelier());
-        NoticiaEntity.setDescrip(noticiaDTO.getDescrip());
-        NoticiaEntity.setDate(noticiaDTO.getDate());
-        NoticiaEntity.setRoute(noticiaDTO.getRoute());
-        NoticiaEntity.setUpdateAt(LocalDateTime.now());
+        NoticiaEntity noticiaEntity = this.noticiaRepository.findByUniqueIdentifier(noticiaFileDTO.getId()).orElseThrow(()->new ResourceNotFoundException("Noticia no existe"));
 
         //set usuario
-        Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(noticiaDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS);
-        if (optionalUsuarioEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("USUARIO_NOT_EXISTS");
-            apiResponse.setMessage("No se registro, el usuario asociada a la imagen no existe");
-            return apiResponse;
+        UsuarioEntity usuarioEntity = this.usuarioRepository.findByUniqueIdentifier(noticiaFileDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Usuario no encontrado"));
+
+        //change dto to entity
+        NoticiaEntity NoticiaEntity = noticiaEntity;
+        NoticiaEntity.setTitle(noticiaFileDTO.getTitle());
+        NoticiaEntity.setSommelier(noticiaFileDTO.getSommelier());
+        NoticiaEntity.setDescrip(noticiaFileDTO.getDescrip());
+        NoticiaEntity.setDate(noticiaFileDTO.getDate());
+        NoticiaEntity.setUpdateAt(LocalDateTime.now());
+
+        if(noticiaFileDTO.getImagenBase64() != null && noticiaFileDTO.getImagenBase64() != ""){
+            //Decodificar la imagen base64
+            String base64 = noticiaFileDTO.getImagenBase64();
+            byte[] imageBytes = Base64.getMimeDecoder().decode(base64);
+
+            // Obtener la ruta de la carpeta donde se guardarán las imágenes
+            String rutaCarpeta = Code.RUTA_IMAGENES;
+            Path rutaCompleta = Paths.get(rutaCarpeta);
+            System.out.println(rutaCompleta);
+
+            String rutaImagen = noticiaEntity.getRoute();
+            rutaImagen = rutaImagen.split("images/")[1];
+            String deleteRuta= Code.RUTA_IMAGENES + '/' + rutaImagen;
+
+            File archivo = new File(deleteRuta);
+            if (archivo.delete()) {
+                System.out.println("Archivo eliminado correctamente.");
+            } else {
+                System.out.println("No se pudo eliminar el archivo.");
+            }
+
+            // Verificar si la carpeta existe, y crearla en caso contrario
+            if (!Files.exists(rutaCompleta)) {
+                try {
+                    Files.createDirectories(rutaCompleta);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            // Construir la ruta completa del archivo de imagen
+            String nombreArchivo = noticiaFileDTO.getCode() + noticiaFileDTO.getTitle() +".jpg"; // el nombre del archivo
+            Path rutaArchivo = rutaCompleta.resolve(nombreArchivo);
+
+            // Guardar la imagen en el archivo
+            try {
+                Files.write(rutaArchivo, imageBytes);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            String route = Code.RUTA_SERVIDOR + "images/" + nombreArchivo;
+
+            NoticiaEntity.setRoute(route);
+            NoticiaEntity.setUsuarioEntity(usuarioEntity);
         }
 
-        NoticiaEntity.setUsuarioEntity(optionalUsuarioEntity.get());
+
         apiResponse.setData(this.noticiaRepository.save(NoticiaEntity).getNoticiaDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
@@ -202,6 +228,7 @@ public class NoticiaService {
 
         //borrar imagen
         String rutaArchivo = noticiaEntity.getRoute();
+        rutaArchivo = Code.RUTA_IMAGENES + '/'+ rutaArchivo.split("images/")[1];
         File archivo = new File(rutaArchivo);
         if (archivo.delete()) {
             System.out.println("Archivo eliminado correctamente.");

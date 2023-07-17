@@ -1,10 +1,7 @@
 package com.rca.RCA.controller;
 
 import com.rca.RCA.service.EvaluacionService;
-import com.rca.RCA.type.ApiResponse;
-import com.rca.RCA.type.GradoDTO;
-import com.rca.RCA.type.Pagination;
-import com.rca.RCA.type.EvaluacionDTO;
+import com.rca.RCA.type.*;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -65,12 +62,12 @@ public class EvaluacionRESTController {
     }
 
     @PostMapping
-    public ApiResponse<EvaluacionDTO> add(@RequestBody EvaluacionDTO EvaluacionDTO) {
+    public ApiResponse<EvaluacionDTO> add(@RequestBody EvaluacionDTO EvaluacionDTO) throws ResourceNotFoundException {
         return this.evaluacionService.add(EvaluacionDTO);
     }
 
     @PutMapping
-    public ApiResponse<EvaluacionDTO> update(@RequestBody EvaluacionDTO EvaluacionDTO) {
+    public ApiResponse<EvaluacionDTO> update(@RequestBody EvaluacionDTO EvaluacionDTO) throws ResourceNotFoundException {
         return this.evaluacionService.update(EvaluacionDTO);
     }
 
@@ -80,14 +77,14 @@ public class EvaluacionRESTController {
     }
 
     @GetMapping("boletaNotas")
-    public ResponseEntity<Resource> notas(@RequestParam String periodo, @RequestParam String anio,
+    public ResponseEntity<Resource> notas(@RequestParam String periodo,
                                           @RequestParam String alumno){
-        return this.evaluacionService.exportBoletaNotas(periodo, anio, alumno);
+        return this.evaluacionService.exportBoletaNotas(periodo, alumno);
     }
 
     @GetMapping("cursoNotas")
-    public ResponseEntity<Resource> exportNotas(@RequestParam String periodo, @RequestParam String anio,
-                                                @RequestParam String curso){
-        return this.evaluacionService.exportNotas(curso, periodo, anio);
+    public ResponseEntity<Resource> exportNotas(@RequestParam String periodo,
+                                                @RequestParam String curso, @RequestParam String aula){
+        return this.evaluacionService.exportNotas(curso, aula, periodo);
     }
 }

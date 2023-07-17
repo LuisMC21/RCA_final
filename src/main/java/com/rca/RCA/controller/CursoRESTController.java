@@ -37,6 +37,7 @@ public class CursoRESTController {
             @RequestParam(defaultValue = "") String anio){
         return this.cursoService.getListByAulaAnio(aula, anio);
     }
+
     @GetMapping("{id}")
     public ApiResponse<CursoDTO> one(@PathVariable String id) throws ResourceNotFoundException {
         return this.cursoService.one(id);

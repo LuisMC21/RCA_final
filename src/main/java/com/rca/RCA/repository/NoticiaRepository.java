@@ -12,7 +12,7 @@ public interface NoticiaRepository extends JpaRepository<NoticiaEntity, Integer>
 
     //Función para obtener una noticia con filtros por datos de un usuario (codigo, uniqueIdentifier)
     @Query(value = "select n from NoticiaEntity n join n.usuarioEntity u " +
-            "where u = n.usuarioEntity and u.status=:status " +
+            "where u = n.usuarioEntity and u.status=:status and n.status=:status " +
             "and (u.code like concat('%', :filter, '%') or u.uniqueIdentifier like concat('%', :filter, '%'))")
     Optional<List<NoticiaEntity>> findEntities(String status, String filter, Pageable pageable);
 
@@ -34,9 +34,9 @@ public interface NoticiaRepository extends JpaRepository<NoticiaEntity, Integer>
 
     //Función para verificar si exixte una noticia con el mismo nombre
     @Query(value = "SELECT count(n)>0 FROM NoticiaEntity n " +
-            "WHERE n.uniqueIdentifier != :id " +
-            "AND n.status = :status " +
-            "AND n.title = :title")
+            "WHERE n.status = :status " +
+            "AND  n.title = :title " +
+            "AND n.uniqueIdentifier != :id")
     boolean existsByTitle(String id, String status, String title);
 
 }

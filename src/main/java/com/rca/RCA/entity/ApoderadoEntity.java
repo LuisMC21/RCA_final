@@ -7,6 +7,7 @@ import lombok.Data;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,7 +35,7 @@ public class ApoderadoEntity extends AuditoryEntity{
     private String type_doc;
     @Column(name = "numdoc")
     private String numdoc;
-    @Column(name = "email", unique = true)
+    @Column(name = "email")
     private String email;
     private String tel;
 
@@ -53,6 +54,7 @@ public class ApoderadoEntity extends AuditoryEntity{
         ApoderadoDTO.setNumdoc(this.numdoc);
         ApoderadoDTO.setEmail(this.email);
         ApoderadoDTO.setTel(this.tel);
+        ApoderadoDTO.setNumdoc(this.numdoc);
         ApoderadoDTO.setStatus(this.getStatus());
         ApoderadoDTO.setCreateAt(this.getCreateAt());
         ApoderadoDTO.setUpdateAt(this.getUpdateAt());
@@ -60,7 +62,7 @@ public class ApoderadoEntity extends AuditoryEntity{
         return ApoderadoDTO;
     }
 
-    public void setApoderadoDTO(ApoderadoDTO apoderadoDTO){
+    public void setApoderadoDTO(ApoderadoDTO apoderadoDTO) {
         this.setUniqueIdentifier(apoderadoDTO.getId());
         this.code = apoderadoDTO.getCode();
         this.name = apoderadoDTO.getName();

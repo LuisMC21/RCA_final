@@ -45,6 +45,11 @@ public class DocentexCursoEntity extends AuditoryEntity{
     @OneToMany(mappedBy = "docentexCursoEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<ClaseEntity> claseEntities = new HashSet<>();
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "anio_lectivo_id", referencedColumnName = "id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private AnioLectivoEntity anio_lectivoEntity;
+
     public DocentexCursoDTO getDocentexCursoDTO(){
         DocentexCursoDTO docentexCursoDTO = new DocentexCursoDTO();
         docentexCursoDTO.setId(this.getUniqueIdentifier());
@@ -52,6 +57,7 @@ public class DocentexCursoEntity extends AuditoryEntity{
         docentexCursoDTO.setDocenteDTO(this.docenteEntity.getDocenteDTO());
         docentexCursoDTO.setCursoDTO(this.cursoEntity.getCursoDTO());
         docentexCursoDTO.setAulaDTO(this.aulaEntity.getAulaDTO());
+        docentexCursoDTO.setAnioLectivoDTO(this.anio_lectivoEntity.getAnioLectivoDTO());
         docentexCursoDTO.setStatus(this.getStatus());
         docentexCursoDTO.setCreateAt(this.getCreateAt());
         docentexCursoDTO.setUpdateAt(this.getUpdateAt());

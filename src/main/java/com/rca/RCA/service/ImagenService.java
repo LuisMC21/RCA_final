@@ -147,47 +147,30 @@ public class ImagenService {
     }
 
     //Modificar imagen
-    public ApiResponse<ImagenDTO> update(ImagenDTO ImagenDTO) {
+    public ApiResponse<ImagenDTO> update(ImagenDTO ImagenDTO) throws ResourceNotFoundException, AttributeException {
         ApiResponse<ImagenDTO> apiResponse = new ApiResponse<>();
         System.out.println(ImagenDTO.toString());
 
-        Optional<ImagenEntity> optionalImagenEntity = this.imagenRepository.findByUniqueIdentifier(ImagenDTO.getId());
-        if (optionalImagenEntity.isPresent()) {
-            ImagenDTO.setUpdateAt(LocalDateTime.now());
+        ImagenEntity imagenEntity = this.imagenRepository.findByUniqueIdentifier(ImagenDTO.getId()).orElseThrow(()->new ResourceNotFoundException("Imagen no encontrada"));
 
-            //validamos
-            Optional<ImagenEntity> optionalImagenEntityValidation = this.imagenRepository.findByName(ImagenDTO.getName(), ImagenDTO.getId());
-            if (optionalImagenEntityValidation.isPresent()) {
-                apiResponse.setSuccessful(false);
-                apiResponse.setCode("IMAGEN_EXISTS");
-                apiResponse.setMessage("No se actualizó, la imagen existe");
-                return apiResponse;
-            }
+        //validamos
+        if(imagenRepository.existsByName(ImagenDTO.getId(),ConstantsGeneric.CREATED_STATUS, ImagenDTO.getName()))
+            throw new AttributeException("La imagen ya existe");
 
-            //change dto to entity
-            ImagenEntity ImagenEntity = optionalImagenEntity.get();
-            ImagenEntity.setName(ImagenDTO.getName());
-            ImagenEntity.setRoute(ImagenDTO.getRoute());
-            ImagenEntity.setUpdateAt(ImagenDTO.getUpdateAt());
+        //change dto to entity
+        ImagenEntity ImagenEntity = imagenEntity;
+        ImagenEntity.setName(ImagenDTO.getName());
+        ImagenEntity.setRoute(ImagenDTO.getRoute());
+        ImagenEntity.setUpdateAt(ImagenDTO.getUpdateAt());
 
-            //set rol
-            Optional<UsuarioEntity> optionalUsuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ImagenDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS);
-            if (optionalUsuarioEntity.isEmpty()) {
-                apiResponse.setSuccessful(false);
-                apiResponse.setCode("USUARIO_NOT_EXISTS");
-                apiResponse.setMessage("No se registro, el usuario asociada a la imagen no existe");
-                return apiResponse;
-            }
-            ImagenEntity.setUsuarioEntity(optionalUsuarioEntity.get());
-            apiResponse.setData(this.imagenRepository.save(ImagenEntity).getImagenDTO());
-            apiResponse.setSuccessful(true);
-            apiResponse.setMessage("ok");
-        }else {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("imagen_NOT_EXISTS");
-            apiResponse.setMessage("No se encontró la imagen");
-            return apiResponse;
-        }
+        //Validar usuario
+        UsuarioEntity usuarioEntity = this.usuarioRepository.findByUniqueIdentifier(ImagenDTO.getUsuarioDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Usuario no encontrado"));
+
+        ImagenEntity.setUsuarioEntity(usuarioEntity);
+        apiResponse.setData(this.imagenRepository.save(ImagenEntity).getImagenDTO());
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+
 
         return apiResponse;
     }

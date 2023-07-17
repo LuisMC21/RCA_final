@@ -8,4 +8,5 @@ public class DocentexCursoDTO extends AuditoryDTO{
     private DocenteDTO docenteDTO;
     private CursoDTO cursoDTO;
     private AulaDTO aulaDTO;
+    private AnioLectivoDTO anioLectivoDTO;
 }

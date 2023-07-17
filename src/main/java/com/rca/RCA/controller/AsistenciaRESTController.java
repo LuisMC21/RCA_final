@@ -15,7 +15,7 @@ import jakarta.validation.Valid;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
-@RequestMapping("asistencia")
+@RequestMapping("/asistencia")
 public class AsistenciaRESTController {
 
     @Autowired
@@ -32,6 +32,30 @@ public class AsistenciaRESTController {
             @RequestParam(defaultValue = "10") int size
     ) {
         return this.asistenciaService.getList(filter, page, size);
+    }
+
+    @GetMapping("apac")
+    public ApiResponse<Pagination<AsistenciaDTO>> list(
+            @RequestParam(defaultValue = "") String filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam String periodo,
+            @RequestParam String aula,
+            @RequestParam String curso
+    ) {
+        return this.asistenciaService.getList(filter, page, size, periodo, aula, curso);
+    }
+
+    @GetMapping("/asfc")
+    public ApiResponse<Pagination<AsistenciaDTO>> listWithAlumno(
+            @RequestParam(defaultValue = "") String filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam String periodo,
+            @RequestParam String alumno,
+            @RequestParam String curso
+    ) {
+        return this.asistenciaService.getListWithAlumno(filter, page, size, periodo, alumno, curso);
     }
 
     @PostMapping
@@ -56,7 +80,7 @@ public class AsistenciaRESTController {
     @GetMapping("exportAsistencia")
     public ResponseEntity<Resource> exportAsistencia(@RequestParam String id_alumno,
                                                     @RequestParam String id_periodo,
-                                                     @RequestParam String id_aniolectivo){
+                                                     @RequestParam String id_aniolectivo) throws ResourceNotFoundException {
         return this.asistenciaService.exportAsistencia(id_alumno, id_periodo,id_aniolectivo);
     }
     @GetMapping("exportAsistAula")

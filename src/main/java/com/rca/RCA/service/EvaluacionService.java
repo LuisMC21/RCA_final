@@ -89,6 +89,40 @@ public class EvaluacionService {
         return apiResponse;
     }
 
+    public ApiResponse<Pagination<EvaluacionDTO>> getList(String filter, int page, int size, String periodo, String aula, String curso) {
+        log.info("filter page size {} {} {}", filter, page, size);
+        ApiResponse<Pagination<EvaluacionDTO>> apiResponse = new ApiResponse<>();
+        Pagination<EvaluacionDTO> pagination = new Pagination<>();
+        pagination.setCountFilter(this.evaluacionRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, periodo, aula, curso));
+        if (pagination.getCountFilter() > 0) {
+            Pageable pageable = PageRequest.of(page, size);
+            List<EvaluacionEntity> EvaluacionEntities = this.evaluacionRepository.findEntities(ConstantsGeneric.CREATED_STATUS, periodo, aula, curso,pageable).orElse(new ArrayList<>());
+            pagination.setList(EvaluacionEntities.stream().map(EvaluacionEntity::getEvaluacionDTO).collect(Collectors.toList()));
+        }
+        pagination.setTotalPages(pagination.processAndGetTotalPages(size));
+        apiResponse.setData(pagination);
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+
+    public ApiResponse<Pagination<EvaluacionDTO>> getList(String filter, int page, int size, String periodo, String alumno) {
+        log.info("filter page size {} {} {}", filter, page, size);
+        ApiResponse<Pagination<EvaluacionDTO>> apiResponse = new ApiResponse<>();
+        Pagination<EvaluacionDTO> pagination = new Pagination<>();
+        pagination.setCountFilter(this.evaluacionRepository.findCountEvaluacionEntities(ConstantsGeneric.CREATED_STATUS, filter, periodo, alumno));
+        if (pagination.getCountFilter() > 0) {
+            Pageable pageable = PageRequest.of(page, size);
+            List<EvaluacionEntity> EvaluacionEntities = this.evaluacionRepository.findEvaluacionEntities(ConstantsGeneric.CREATED_STATUS, filter, periodo, alumno, pageable).orElse(new ArrayList<>());
+            pagination.setList(EvaluacionEntities.stream().map(EvaluacionEntity::getEvaluacionDTO).collect(Collectors.toList()));
+        }
+        pagination.setTotalPages(pagination.processAndGetTotalPages(size));
+        apiResponse.setData(pagination);
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+
     public ApiResponse<EvaluacionDTO> one(String id) throws ResourceNotFoundException {
         EvaluacionEntity evaluacionEntity=this.evaluacionRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Evaluacion no encontrado"));
         ApiResponse<EvaluacionDTO> apiResponse = new ApiResponse<>();
@@ -99,57 +133,32 @@ public class EvaluacionService {
     }
 
     //Agreagar Evaluacion
-    public ApiResponse<EvaluacionDTO> add(EvaluacionDTO EvaluacionDTO) {
+    public ApiResponse<EvaluacionDTO> add(EvaluacionDTO EvaluacionDTO) throws ResourceNotFoundException {
         ApiResponse<EvaluacionDTO> apiResponse = new ApiResponse<>();
-        System.out.println(EvaluacionDTO.toString());
+
+        //set Alumno
+        AlumnoEntity alumnoEntity = this.alumnoRepository.findByUniqueIdentifier(EvaluacionDTO.getAlumnoDTO().getId()).orElseThrow(()->new ResourceNotFoundException("Alumno no encontrado"));
+
+        //set Periodo
+        PeriodoEntity periodoEntity = this.periodoRepository.findByUniqueIdentifier(EvaluacionDTO.getPeriodoDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Periodo no encontrado"));
+
+        //set docentexCurso
+        DocentexCursoEntity docentexCursoEntity = this.docentexCursoRepository.findByUniqueIdentifier(EvaluacionDTO.getDocentexCursoDTO().getId()).orElseThrow(()->new ResourceNotFoundException("Docentexcurso no encontrado"));
+
         EvaluacionDTO.setId(UUID.randomUUID().toString());
         EvaluacionDTO.setCode(Code.generateCode(Code.EVA_CODE, this.evaluacionRepository.count() + 1, Code.EVA_LENGTH));
         EvaluacionDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
         EvaluacionDTO.setCreateAt(LocalDateTime.now());
         System.out.println(EvaluacionDTO.toString());
 
-        //validamos
-        Optional<EvaluacionEntity> optionalEvaluacionEntity = this.evaluacionRepository.findByUniqueIdentifier(EvaluacionDTO.getId());
-        if (optionalEvaluacionEntity.isPresent()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("Evaluacion_EXISTS");
-            apiResponse.setMessage("No se registró, la Evaluacion existe");
-            return apiResponse;
-        }
         //change dto to entity
         EvaluacionEntity EvaluacionEntity = new EvaluacionEntity();
         EvaluacionEntity.setEvaluacionDTO(EvaluacionDTO);
 
-        //set Alumno
-        Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(EvaluacionDTO.getAlumnoDTO().getId());
-        if (optionalAlumnoEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("ALUMNO_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el alumno asociado a la evaluacion no existe");
-            return apiResponse;
-        }
 
-        //set Periodo
-        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(EvaluacionDTO.getPeriodoDTO().getId(), ConstantsGeneric.CREATED_STATUS);
-        if (optionalAlumnoEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("PERIODO_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el periodo asociado a la evaluacion no existe");
-            return apiResponse;
-        }
-
-        //set docentexCurso
-        Optional<DocentexCursoEntity> optionalDocentexCursoEntity = this.docentexCursoRepository.findByUniqueIdentifier(EvaluacionDTO.getDocentexCursoDTO().getId());
-        if (optionalDocentexCursoEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("docentexCurso_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el docentexCurso asociado a la evaluacion no existe");
-            return apiResponse;
-        }
-
-        EvaluacionEntity.setAlumnoEntity(optionalAlumnoEntity.get());
-        EvaluacionEntity.setPeriodoEntity(optionalPeriodoEntity.get());
-        EvaluacionEntity.setDocentexCursoEntity(optionalDocentexCursoEntity.get());
+        EvaluacionEntity.setAlumnoEntity(alumnoEntity);
+        EvaluacionEntity.setPeriodoEntity(periodoEntity);
+        EvaluacionEntity.setDocentexCursoEntity(docentexCursoEntity);
         apiResponse.setData(this.evaluacionRepository.save(EvaluacionEntity).getEvaluacionDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
@@ -157,53 +166,29 @@ public class EvaluacionService {
     }
 
     //Modificar Evaluacion
-    public ApiResponse<EvaluacionDTO> update(EvaluacionDTO EvaluacionDTO) {
+    public ApiResponse<EvaluacionDTO> update(EvaluacionDTO EvaluacionDTO) throws ResourceNotFoundException {
         ApiResponse<EvaluacionDTO> apiResponse = new ApiResponse<>();
         System.out.println(EvaluacionDTO.toString());
 
-        Optional<EvaluacionEntity> optionalEvaluacionEntity = this.evaluacionRepository.findByUniqueIdentifier(EvaluacionDTO.getId());
-        if (optionalEvaluacionEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("evaluacion_NOT_EXISTS");
-            apiResponse.setMessage("No se encontro la evaluacion");
-            return apiResponse;
-        }
+        EvaluacionEntity evaluacionEntity = this.evaluacionRepository.findByUniqueIdentifier(EvaluacionDTO.getId()).orElseThrow(()->new ResourceNotFoundException("Evaluacion no existe"));
 
         //change dto to entity
-        EvaluacionEntity EvaluacionEntity = optionalEvaluacionEntity.get();
+        EvaluacionEntity EvaluacionEntity = evaluacionEntity;
         EvaluacionEntity.setNote(EvaluacionDTO.getNote());
         EvaluacionEntity.setDate(EvaluacionDTO.getDate());
 
         //set Alumno
-        Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(EvaluacionDTO.getAlumnoDTO().getId());
-        if (optionalAlumnoEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("ALUMNO_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el alumno asociado a la evaluacion no existe");
-            return apiResponse;
-        }
+        AlumnoEntity alumnoEntity = this.alumnoRepository.findByUniqueIdentifier(EvaluacionDTO.getAlumnoDTO().getId()).orElseThrow(()->new ResourceNotFoundException("Alumno no encontrado"));
 
         //set Periodo
-        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(EvaluacionDTO.getPeriodoDTO().getId(), ConstantsGeneric.CREATED_STATUS);
-        if (optionalAlumnoEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("PERIODO_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el periodo asociado a la evaluacion no existe");
-            return apiResponse;
-        }
+        PeriodoEntity periodoEntity = this.periodoRepository.findByUniqueIdentifier(EvaluacionDTO.getPeriodoDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Periodo no encontrado"));
 
         //set docentexCurso
-        Optional<DocentexCursoEntity> optionalDocentexCursoEntity = this.docentexCursoRepository.findByUniqueIdentifier(EvaluacionDTO.getDocentexCursoDTO().getId());
-        if (optionalDocentexCursoEntity.isEmpty()) {
-            apiResponse.setSuccessful(false);
-            apiResponse.setCode("docentexCurso_NOT_EXISTS");
-            apiResponse.setMessage("No se registró, el docentexCurso asociado a la evaluacion no existe");
-            return apiResponse;
-        }
+        DocentexCursoEntity docentexCursoEntity = this.docentexCursoRepository.findByUniqueIdentifier(EvaluacionDTO.getDocentexCursoDTO().getId()).orElseThrow(()->new ResourceNotFoundException("Docentexcurso no encontrado"));
 
-        EvaluacionEntity.setAlumnoEntity(optionalAlumnoEntity.get());
-        EvaluacionEntity.setPeriodoEntity(optionalPeriodoEntity.get());
-        EvaluacionEntity.setDocentexCursoEntity(optionalDocentexCursoEntity.get());
+        EvaluacionEntity.setAlumnoEntity(alumnoEntity);
+        EvaluacionEntity.setPeriodoEntity(periodoEntity);
+        EvaluacionEntity.setDocentexCursoEntity(docentexCursoEntity);
         apiResponse.setData(this.evaluacionRepository.save(EvaluacionEntity).getEvaluacionDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
@@ -232,13 +217,12 @@ public class EvaluacionService {
         return apiResponse;
     }
 
-    public ResponseEntity<Resource> exportBoletaNotas(String periodo, String anio, String alumno) {
+    public ResponseEntity<Resource> exportBoletaNotas(String periodo, String alumno) {
         Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(alumno);
         Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(periodo, ConstantsGeneric.CREATED_STATUS);
-        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(anio, ConstantsGeneric.CREATED_STATUS);
         if (optionalAlumnoEntity.isPresent() && optionalPeriodoEntity.isPresent()){
 
-            List<Object[]> tuples = this.evaluacionRepository.findByAlumnoPeriodoAnio(alumno, anio, periodo);
+            List<Object[]> tuples = this.evaluacionRepository.findByAlumnoPeriodoAnio(alumno, periodo);
             List<CursoEvaluacionDTO> cursos = new ArrayList<>();
 
             for (Object[] tuple : tuples) {
@@ -251,7 +235,6 @@ public class EvaluacionService {
             try{
                 final PeriodoEntity periodoEntity = optionalPeriodoEntity.get();
                 final AlumnoEntity alumnoEntity = optionalAlumnoEntity.get();
-                final AnioLectivoEntity anioLectivoEntity = optionalAnioLectivoEntity.get();
                 final File file = ResourceUtils.getFile("classpath:reportes/cursosEvaluacion.jasper");
                 final File imgLogo = ResourceUtils.getFile("classpath:images/logo.png");
                 final JasperReport report = (JasperReport) JRLoader.loadObject(file);
@@ -264,7 +247,7 @@ public class EvaluacionService {
                 parameters.put("apellidoMaterno", alumnoEntity.getUsuarioEntity().getMa_surname());
                 parameters.put("nombres", alumnoEntity.getUsuarioEntity().getName());
                 parameters.put("Periodo", periodoEntity.getName());
-                parameters.put("anio", anioLectivoEntity.getAnioLectivoDTO().getName());
+                parameters.put("anio", periodoEntity.getAnio_lectivoEntity().getName());
                 parameters.put("gradoSeccion", "3");
                 parameters.put("dsCursos",  new JRBeanCollectionDataSource(cursos));
 
@@ -295,14 +278,13 @@ public class EvaluacionService {
         return null;
     }
 
-    public ResponseEntity<Resource> exportNotas(String curso, String periodo, String anio) {
+    public ResponseEntity<Resource> exportNotas(String curso, String aula, String periodo) {
         Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(periodo, ConstantsGeneric.CREATED_STATUS);
-        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(anio, ConstantsGeneric.CREATED_STATUS);
         Optional<CursoEntity> optionalCursoEntity = this.cursoRepository.findByUniqueIdentifier(curso, ConstantsGeneric.CREATED_STATUS);
 
-        if (optionalCursoEntity.isPresent() && optionalPeriodoEntity.isPresent() && optionalAnioLectivoEntity.isPresent()){
+        if (optionalCursoEntity.isPresent() && optionalPeriodoEntity.isPresent()){
 
-            List<Object[]> tuples = this.evaluacionRepository.findByCursoPeriodoAnio(curso, anio, periodo);
+            List<Object[]> tuples = this.evaluacionRepository.findByCursoPeriodoAnio(curso, aula, periodo);
             List<CursoNotasDTO> notas = new ArrayList<>();
 
             for (Object[] tuple : tuples) {
@@ -315,7 +297,6 @@ public class EvaluacionService {
             try{
                 final PeriodoEntity periodoEntity = optionalPeriodoEntity.get();
                 final CursoEntity cursoEntity = optionalCursoEntity.get();
-                final AnioLectivoEntity anioLectivoEntity = optionalAnioLectivoEntity.get();
                 final File file = ResourceUtils.getFile("classpath:reportes/notasCurso.jasper");
                 final File imgLogo = ResourceUtils.getFile("classpath:images/logo.png");
                 final JasperReport report = (JasperReport) JRLoader.loadObject(file);
@@ -326,7 +307,7 @@ public class EvaluacionService {
                 parameters.put("logoEmpresa", new FileInputStream(imgLogo));
                 parameters.put("curso", cursoEntity.getName());
                 parameters.put("Periodo", periodoEntity.getName());
-                parameters.put("anio", anioLectivoEntity.getAnioLectivoDTO().getName());
+                parameters.put("anio", periodoEntity.getAnio_lectivoEntity().getName());
                 parameters.put("dsAlumnos",  new JRBeanCollectionDataSource(notas));
 
                 JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());

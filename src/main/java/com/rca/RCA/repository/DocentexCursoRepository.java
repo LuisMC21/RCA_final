@@ -16,23 +16,58 @@ public interface DocentexCursoRepository extends JpaRepository<DocentexCursoEnti
      @Query(value = "SELECT count(x) from DocenteEntity d " +
             "JOIN d.docentexCursoEntities x " +
             "JOIN x.cursoEntity c " +
+            "JOIN x.anio_lectivoEntity a " +
             "WHERE d=x.docenteEntity " +
             "AND d.status = :status " +
             "AND x.status = :status " +
             "AND c.status = :status " +
-            "AND (d.code like concat('%', :filter, '%') or x.code like concat('%', :filter, '%'))")
+            "AND (d.code like concat('%', :filter, '%') or x.code like concat('%', :filter, '%') or a.name like concat('%', :filter, '%'))")
     Long findCountDocentexCurso(String status, String filter);
 
     //Función para listar las aulas existentes y activas de un grado, con filtro de código y nombre
     @Query(value = "SELECT x from DocenteEntity d " +
             "JOIN d.docentexCursoEntities x " +
             "JOIN x.cursoEntity c " +
+            "JOIN x.anio_lectivoEntity a " +
             "WHERE d=x.docenteEntity " +
             "AND d.status = :status " +
             "AND x.status = :status " +
             "AND c.status = :status " +
-            "AND (d.code like concat('%', :filter, '%') or x.code like concat('%', :filter, '%'))")
+            "AND (d.code like concat('%', :filter, '%') or x.code like concat('%', :filter, '%') or a.name like concat('%', :filter, '%')) " +
+            "order by x.aulaEntity.gradoEntity.name, x.aulaEntity.seccionEntity.name")
     Optional<List<DocentexCursoEntity>> findDocentexCurso(String status, String filter, Pageable pageable);
+
+    @Query(value = "SELECT x from DocenteEntity d " +
+            "JOIN d.docentexCursoEntities x " +
+            "JOIN x.aulaEntity au " +
+            "JOIN x.cursoEntity c " +
+            "JOIN x.anio_lectivoEntity a " +
+            "JOIN au.matriculaEntities m " +
+            "JOIN m.alumnoEntity al " +
+            "WHERE d=x.docenteEntity " +
+            "AND d.status = :status " +
+            "AND x.status = :status " +
+            "AND c.status = :status " +
+            "AND a.uniqueIdentifier = :anio " +
+            "AND al.uniqueIdentifier = :alumno " +
+            "AND (d.code like concat('%', :filter, '%') or x.code like concat('%', :filter, '%') or a.name like concat('%', :filter, '%'))")
+    Optional<List<DocentexCursoEntity>> findDocentexCurso(String status, String alumno, String anio, String filter, Pageable pageable);
+
+    @Query(value = "SELECT count(x) from DocenteEntity d " +
+            "JOIN d.docentexCursoEntities x " +
+            "JOIN x.aulaEntity au " +
+            "JOIN x.cursoEntity c " +
+            "JOIN x.anio_lectivoEntity a " +
+            "JOIN au.matriculaEntities m " +
+            "JOIN m.alumnoEntity al " +
+            "WHERE d=x.docenteEntity " +
+            "AND d.status = :status " +
+            "AND x.status = :status " +
+            "AND c.status = :status " +
+            "AND a.uniqueIdentifier = :anio " +
+            "AND al.uniqueIdentifier = :alumno " +
+            "AND (d.code like concat('%', :filter, '%') or x.code like concat('%', :filter, '%') or a.name like concat('%', :filter, '%'))")
+    Long findCountDocentexCurso(String status, String alumno, String anio, String filter);
 
     //Función para obtener un aula con su Identificado Único
     Optional<DocentexCursoEntity> findByUniqueIdentifier(String uniqueIdentifier);
@@ -44,6 +79,7 @@ public interface DocentexCursoRepository extends JpaRepository<DocentexCursoEnti
             "AND x.status = :status " +
             "AND d.status= :status ")
     Optional<List<DocentexCursoEntity>> findByDocente(Integer id_docente, String status);
+
     @Query(value = "SELECT x from DocenteEntity d " +
             "JOIN d.docentexCursoEntities x " +
             "JOIN x.cursoEntity c " +
@@ -81,4 +117,16 @@ public interface DocentexCursoRepository extends JpaRepository<DocentexCursoEnti
             "AND c.uniqueIdentifier = :idC " +
             "AND a.uniqueIdentifier = :idA ")
     boolean existsByDocenteCursoAula(String id, String idD, String idC, String idA, String status);
+
+    @Query(value="select count(*) from docentexcurso dc JOIN aula a ON a.id = dc.aula_id JOIN curso c ON c.id = dc.curso_id " +
+            "Where dc.tx_status = :status and a.tx_status = :status and c.tx_status = :status " +
+            "and c.tx_unique_identifier like concat('%', :curso, '%') " +
+            "and a.tx_unique_identifier like concat('%', :aula, '%') ", nativeQuery = true)
+    Long countFindByAulaCurso(String status, String aula, String curso);
+
+    @Query(value="select dc.* from docentexcurso dc JOIN aula a ON a.id = dc.aula_id JOIN curso c ON c.id = dc.curso_id " +
+            "Where dc.tx_status = :status and a.tx_status = :status and c.tx_status = :status " +
+            "and c.tx_unique_identifier like  concat('%', :curso, '%') " +
+            "and a.tx_unique_identifier like  concat('%', :aula, '%') ", nativeQuery = true)
+    Optional<List<DocentexCursoEntity>> findByAulaCurso(String status, String aula, String curso, Pageable pageable);
 }

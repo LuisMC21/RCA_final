@@ -37,6 +37,7 @@ public class AulaRESTController {
             @RequestParam(defaultValue = "") String filter,
             @RequestParam(defaultValue = "") String anio){
         return this.aulaService.getList(filter, anio);
+
     }
     @GetMapping("{id}")
     public ApiResponse<AulaDTO> one(@PathVariable String id) throws ResourceNotFoundException {

@@ -6,6 +6,8 @@ import com.rca.RCA.util.exceptions.AttributeException;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,6 +68,15 @@ public class AlumnoRESTController {
 
     @GetMapping("datosPersonales")
     public ResponseEntity<Resource> datosPersonales(@RequestParam String uniqueIdentifier){
-        return this.alumnoService.datosPersonales(uniqueIdentifier);
+
+        ResponseEntity<Resource> response = this.alumnoService.datosPersonales(uniqueIdentifier);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("inline", "datosPersonales.pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(response.getBody());
     }
 }

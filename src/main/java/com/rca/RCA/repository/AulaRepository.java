@@ -58,6 +58,7 @@ public interface AulaRepository extends JpaRepository<AulaEntity, Integer> {
             "ORDER BY g.name, s.name")
     Optional<List<AulaEntity>> findAulaxAnio(String status, String anio, String filter);
 
+
     //Función para obtener un aula con su Identificado Único
     @Query(value = "SELECT a FROM AulaEntity a " +
             "WHERE a.uniqueIdentifier= :id " +

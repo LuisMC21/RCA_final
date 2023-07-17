@@ -27,6 +27,26 @@ public class DocentexCursoRESTController {
         return this.docentexCursoService.getList(filter, page, size);
     }
 
+    @GetMapping("alau")
+    public ApiResponse<Pagination<DocentexCursoDTO>> list(
+            @RequestParam(defaultValue = "") String filter,
+            @RequestParam(defaultValue = "") String anio,
+            @RequestParam(defaultValue = "") String alumno,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size){
+        return this.docentexCursoService.getList(filter, alumno, anio, page, size);
+    }
+
+    @GetMapping("ac")
+    public ApiResponse<Pagination<DocentexCursoDTO>> listAc(
+            @RequestParam(defaultValue = "") String filter,
+            @RequestParam(defaultValue = "") String aula,
+            @RequestParam(defaultValue = "") String curso,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size){
+        return this.docentexCursoService.getListByAulaCurso(filter, aula, curso, page, size);
+    }
+
     @GetMapping("{id}")
     public ApiResponse<DocentexCursoDTO> one(@PathVariable String id) throws ResourceNotFoundException {
         return this.docentexCursoService.one(id);

@@ -25,7 +25,6 @@ public interface CursoRepository extends JpaRepository<CursoEntity, Integer> {
             "and (c.code like concat('%', :filter, '%') or c.name like concat('%', :filter, '%'))"+
             "order by c.name")
     Long findCountCurso(String status, String filter);
-
     @Query(value = "select c from CursoEntity c " +
             "JOIN c.docentexCursoEntities dxc " +
             "JOIN dxc.aulaEntity au " +
@@ -62,6 +61,7 @@ public interface CursoRepository extends JpaRepository<CursoEntity, Integer> {
             "AND anio.uniqueIdentifier = :anio " +
             "order by c.name")
     Optional<List<CursoEntity>> findCursoByAulaAnio(String status, String aula, String anio);
+
 
     //Función para obtener una sección con su Identificado Único
     @Query(value = "SELECT c FROM CursoEntity c " +

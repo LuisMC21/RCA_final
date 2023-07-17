@@ -29,6 +29,9 @@ public class AnioLectivoEntity extends AuditoryEntity{
     //Periodos del año
     @OneToMany(mappedBy = "anio_lectivoEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<PeriodoEntity> periodoEntities = new HashSet<>();
+    //Asignaturas del año
+    @OneToMany(mappedBy = "anio_lectivoEntity", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    private Set<DocentexCursoEntity> docentexCursoEntities = new HashSet<>();
 
     public AnioLectivoDTO getAnioLectivoDTO(){
         AnioLectivoDTO anio_lectivoDTO = new AnioLectivoDTO();

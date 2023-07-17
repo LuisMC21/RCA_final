@@ -83,6 +83,41 @@ public class AsistenciaService {
         return apiResponse;
     }
 
+    public ApiResponse<Pagination<AsistenciaDTO>> getList(String filter, int page, int size, String periodo, String aula, String curso) {
+        log.info("filter page size {} {} {}", filter, page, size);
+        ApiResponse<Pagination<AsistenciaDTO>> apiResponse = new ApiResponse<>();
+        Pagination<AsistenciaDTO> pagination = new Pagination<>();
+        pagination.setCountFilter(this.asistenciaRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, periodo, aula, curso));
+        if (pagination.getCountFilter() > 0) {
+            Pageable pageable = PageRequest.of(page, size);
+            List<AsistenciaEntity> AsistenciaEntities = this.asistenciaRepository.findEntities(ConstantsGeneric.CREATED_STATUS, periodo, aula, curso, pageable).orElse(new ArrayList<>());
+            pagination.setList(AsistenciaEntities.stream().map(AsistenciaEntity::getAsistenciaDTO).collect(Collectors.toList()));
+        }
+        pagination.setTotalPages(pagination.processAndGetTotalPages(size));
+        apiResponse.setData(pagination);
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+
+
+    public ApiResponse<Pagination<AsistenciaDTO>> getListWithAlumno(String filter, int page, int size, String periodo, String alumno, String curso) {
+        log.info("filter page size {} {} {}", filter, page, size);
+        ApiResponse<Pagination<AsistenciaDTO>> apiResponse = new ApiResponse<>();
+        Pagination<AsistenciaDTO> pagination = new Pagination<>();
+        pagination.setCountFilter(this.asistenciaRepository.findCountEntitiesWithAlumno(ConstantsGeneric.CREATED_STATUS, filter, periodo, alumno, curso));
+        if (pagination.getCountFilter() > 0) {
+            Pageable pageable = PageRequest.of(page, size);
+            List<AsistenciaEntity> AsistenciaEntities = this.asistenciaRepository.findEntitiesWithAlumno(ConstantsGeneric.CREATED_STATUS, filter, periodo, alumno, curso, pageable).orElse(new ArrayList<>());
+            pagination.setList(AsistenciaEntities.stream().map(AsistenciaEntity::getAsistenciaDTO).collect(Collectors.toList()));
+        }
+        pagination.setTotalPages(pagination.processAndGetTotalPages(size));
+        apiResponse.setData(pagination);
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+
     public ApiResponse<AsistenciaDTO> one(String id) throws ResourceNotFoundException {
         AsistenciaEntity asistenciaEntity=this.asistenciaRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Asistencia no encontrado"));
         ApiResponse<AsistenciaDTO> apiResponse = new ApiResponse<>();
@@ -166,43 +201,43 @@ public class AsistenciaService {
         return  apiResponse;
     }
 
-    public ResponseEntity<Resource> exportAsistencia(String id_alumno, String id_periodo, String id_aniolectivo) {
+    public ResponseEntity<Resource> exportAsistencia(String id_alumno, String id_periodo, String id_aniolectivo) throws ResourceNotFoundException {
         log.info("id_alumno id_periodo id_aniolectivo {} {} {}", id_alumno, id_periodo, id_aniolectivo);
-        Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(id_alumno);
-        Optional<AnioLectivoEntity> optionalAnioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
-        Optional<GradoEntity> optionalGradoEntity = this.matriculaRepository.findGradoMatriculado(id_alumno, id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
-        Optional<SeccionEntity> optionalSeccionEntity = this.matriculaRepository.findSeccionMatriculado(id_alumno, id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
-        Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(id_periodo, ConstantsGeneric.CREATED_STATUS);
-        if (optionalAlumnoEntity.isPresent() && (optionalAlumnoEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) &&
-                optionalAnioLectivoEntity.isPresent() && optionalAnioLectivoEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS) &&
-                optionalGradoEntity.isPresent() && optionalGradoEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS) &&
-                optionalSeccionEntity.isPresent() && optionalSeccionEntity.get().getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) {
+        AlumnoEntity alumnoEntity = this.alumnoRepository.findByUniqueIdentifier(id_alumno).orElseThrow(()-> new ResourceNotFoundException("Alumno no encontrado"));
+        AnioLectivoEntity anioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Año lectivo no encontrado"));
+        GradoEntity gradoEntity = this.matriculaRepository.findGradoMatriculado(id_alumno, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Grado no encontrado"));
+        SeccionEntity seccionEntity = this.matriculaRepository.findSeccionMatriculado(id_alumno, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Seccion no encontrada"));
+        PeriodoEntity periodoEntity = this.periodoRepository.findByUniqueIdentifier(id_periodo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Periodo no encontrado"));
+        if (alumnoEntity != null && (alumnoEntity.getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) &&
+                anioLectivoEntity != null && anioLectivoEntity.getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS) &&
+                gradoEntity !=null && gradoEntity.getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS) &&
+                seccionEntity != null && seccionEntity.getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) {
             try {
-                final AlumnoEntity alumnoEntity = optionalAlumnoEntity.get();
                 final File file = ResourceUtils.getFile("classpath:reportes/asistencias_alumno.jasper"); //la ruta del reporte
                 final File imgLogo = ResourceUtils.getFile("classpath:images/logoC.jpg"); //Ruta de la imagen
                 final JasperReport report = (JasperReport) JRLoader.loadObject(file);
                 //Se consultan los datos para el reporte de asistencias DTO
-                Optional<List<CursoEntity>> optionalCursoEntities = this.matriculaRepository.findCursosMatriculados(id_alumno, id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
-                Optional<List<AsistenciaEntity>> optionalAsistenciaEntities = this.asistenciaRepository.findAsistencias(id_alumno, id_periodo, id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
-                Optional<List<ClaseEntity>> optionalClaseEntities = this.asistenciaRepository.findClasesDeAsistencias(id_alumno, id_periodo, id_aniolectivo, ConstantsGeneric.CREATED_STATUS);
+                //List<CursoEntity> cursosEntities = this.matriculaRepository.findCursosMatriculados(id_alumno, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Cursos no encontrados"));
+                List<AsistenciaEntity> asistenciaEntities = this.asistenciaRepository.findAsistencias(id_alumno, id_periodo, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Asistencias no encontrados"));
+                //List<ClaseEntity> clasesEntities = this.asistenciaRepository.findClasesDeAsistencias(id_alumno, id_periodo, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Clases no encontrados"));
                 //Se agregan los datos para Reporte de Asistencias
                 List<ReporteAsistenciaAlumnoDTO> reporteAsistenciaAlumnoDTOS= new ArrayList<>();
-                for (int i = 0; i < optionalCursoEntities.get().size(); i++) {
+                for (int i = 0; i < asistenciaEntities.size(); i++) {
                     ReporteAsistenciaAlumnoDTO reporteAsistenciaAlumnoDTO = new ReporteAsistenciaAlumnoDTO();
-                    reporteAsistenciaAlumnoDTO.setCursoDTO(optionalCursoEntities.get().get(i).getCursoDTO());
-                    reporteAsistenciaAlumnoDTO.setAsistenciaDTO(optionalAsistenciaEntities.get().get(i).getAsistenciaDTO());
-                    reporteAsistenciaAlumnoDTO.setClaseDTO(optionalClaseEntities.get().get(i).getClaseDTO());
+                    reporteAsistenciaAlumnoDTO.setCursoDTO(asistenciaEntities.get(i).getClaseEntity().getDocentexCursoEntity().getCursoEntity().getCursoDTO());
+                    reporteAsistenciaAlumnoDTO.setAsistenciaDTO(asistenciaEntities.get(i).getAsistenciaDTO());
+                    reporteAsistenciaAlumnoDTO.setClaseDTO(asistenciaEntities.get(i).getClaseEntity().getClaseDTO());
                     reporteAsistenciaAlumnoDTOS.add(reporteAsistenciaAlumnoDTO);
                 }
+
                 //Se llenan los parámetros del reporte
                 final HashMap<String, Object> parameters = new HashMap<>();
                 parameters.put("logoEmpresa", new FileInputStream(imgLogo));
                 parameters.put("nombreAlumno", alumnoEntity.getNombresCompletosAl());
-                parameters.put("periodo", optionalPeriodoEntity.get().getName());
-                parameters.put("grado", optionalGradoEntity.get().getName().toString());
-                parameters.put("seccion", optionalSeccionEntity.get().getName().toString());
-                parameters.put("año", optionalAnioLectivoEntity.get().getName());
+                parameters.put("periodo", periodoEntity.getName());
+                parameters.put("grado", gradoEntity.getName().toString());
+                parameters.put("seccion", seccionEntity.getName().toString());
+                parameters.put("año", anioLectivoEntity.getName());
                 parameters.put("dsLA", new JRBeanArrayDataSource(reporteAsistenciaAlumnoDTOS.toArray()));
 
                 //Se imprime el reporte
