@@ -75,6 +75,22 @@ public class AulaService {
     }
 
     //Función para listar aulas-END
+<<<<<<< Updated upstream
+=======
+    //Función para listar aulas por año con paginación-START
+    public ApiResponse<List<AulaDTO>> getList(String filter, String anio) {
+        log.info("filter {}", filter);
+        ApiResponse<List<AulaDTO>> apiResponse = new ApiResponse<>();
+        List<AulaEntity> aulaEntities = this.aulaRepository.findAulaxAnio(ConstantsGeneric.CREATED_STATUS, anio, filter).orElse(new ArrayList<>());
+        List<AulaDTO> aulaDTOS = aulaEntities.stream().map(AulaEntity::getAulaDTO).collect(Collectors.toList());
+        apiResponse.setData(aulaDTOS);
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+
+    //Función para listar aulas-END
+>>>>>>> Stashed changes
     //Función para obtener un aula con ID- START
     public ApiResponse<AulaDTO> one(String id) throws ResourceNotFoundException {
         AulaEntity aulaEntity = this.aulaRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Aula no existe para eliminar"));
@@ -152,11 +168,8 @@ public class AulaService {
             this.matriculaService.delete(optionalMatriculaEntities.get().get(i).getUniqueIdentifier());
         }
         Optional<List<DocentexCursoEntity>> optionalDocentexCursoEntities = this.docentexCursoRepository.findByAula(aulaEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
-        System.out.println("1");
 
         for (int i = 0; i < optionalDocentexCursoEntities.get().size(); i++) {
-            System.out.println("2");
-
             optionalDocentexCursoEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
             optionalDocentexCursoEntities.get().get(i).setDeleteAt(aulaEntity.getDeleteAt());
             this.docentexCursoService.delete(optionalDocentexCursoEntities.get().get(i).getUniqueIdentifier());

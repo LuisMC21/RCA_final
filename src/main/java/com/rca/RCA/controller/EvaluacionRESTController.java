@@ -31,6 +31,37 @@ public class EvaluacionRESTController {
         return this.evaluacionService.getList(filter, page, size);
     }
 
+<<<<<<< Updated upstream
+=======
+    @GetMapping("epac")
+    public ApiResponse<Pagination<EvaluacionDTO>> list(
+            @RequestParam(defaultValue = "") String filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam String periodo,
+            @RequestParam String aula,
+            @RequestParam String curso
+    ) {
+        return this.evaluacionService.getList(filter, page, size, periodo, aula, curso);
+    }
+    @GetMapping("epwal")
+    public ApiResponse<Pagination<EvaluacionDTO>> list(
+            @RequestParam(defaultValue = "") String filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam String periodo,
+            @RequestParam String alumno
+    ) {
+        return this.evaluacionService.getList(filter, page, size, periodo, alumno);
+    }
+
+    @GetMapping("/generatedEvaluations/{id}/{filter}")
+    public ApiResponse<String> generatedEvaluations(@PathVariable String id_perido,
+                                                    @PathVariable String filter) throws ResourceNotFoundException {
+        return this.evaluacionService.generatedEvaluations(id_perido, filter);
+    }
+
+>>>>>>> Stashed changes
     @GetMapping("{id}")
     public ApiResponse<EvaluacionDTO> one(@PathVariable String id) throws ResourceNotFoundException {
         return this.evaluacionService.one(id);

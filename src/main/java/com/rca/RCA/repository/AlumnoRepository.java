@@ -24,9 +24,11 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
             "u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or u.numdoc like concat('%', :filter, '%'))")
     Optional<List<AlumnoEntity>> findEntities(String status, String filter, Pageable pageable);
 
-    @Query(value="SELECT a FROM MatriculaEntity m JOIN m.alumnoEntity a JOIN m.aulaEntity al JOIN m.anio_lectivoEntity an " +
-            "WHERE a = m.alumnoEntity and al = m.aulaEntity and an = m.anio_lectivoEntity " +
-            "and a.status = :status " +
+    @Query(value="SELECT a FROM MatriculaEntity m " +
+            "JOIN m.alumnoEntity a " +
+            "JOIN m.aulaEntity al " +
+            "JOIN m.anio_lectivoEntity an " +
+            "WHERE a.status = :status " +
             "and m.status = :status " +
             "and al.status = :status " +
             "and an.status = :status " +
@@ -43,6 +45,7 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
     Long findCountEntitiesAula(String status, String aula, String anio);
 
     //Función para contar los alumnos
+<<<<<<< Updated upstream
     @Query(value = "SELECT count(a) FROM UsuarioEntity u " +
             "JOIN u.alumnoEntity a " +
             "WHERE u = a.usuarioEntity " +
@@ -51,6 +54,16 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
             "AND (a.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or " +
             "u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or u.numdoc like concat('%', :filter, '%'))")
     Long findCountEntities(String status, String filter);
+=======
+    @Query(value = "Select a.* from alumno a JOIN matricula m ON a.id = m.alumno_id " +
+            "join aula al ON al.id = m.aula_id " +
+            "join docentexcurso dxc ON dxc.aula_id = al.id " +
+            "join curso c ON c.id = dxc.curso_id " +
+            "join anio_lectivo ale ON ale.id = m.anio_lectivo_id " +
+            "where a.tx_status = :status and al.tx_unique_identifier like concat('%', :aula, '%') and " +
+            "c.name like concat('%', :curso, '%') and ale.name like concat('%', :anio, '%')", nativeQuery = true)
+    Optional<List<AlumnoEntity>> findEntities(String status, String anio, String aula, String curso);
+>>>>>>> Stashed changes
 
     //Función para obtener un alumno por su identificador
     Optional<AlumnoEntity> findByUniqueIdentifier(String uniqueIdentifier);

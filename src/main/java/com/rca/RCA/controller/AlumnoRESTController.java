@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 import javax.management.AttributeNotFoundException;
+import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -34,6 +35,18 @@ public class AlumnoRESTController {
         return this.alumnoService.getList(filter, page, size);
     }
 
+<<<<<<< Updated upstream
+=======
+    @GetMapping("auc")
+    public ApiResponse<List<AlumnoDTO>> list(
+            @RequestParam String anio,
+            @RequestParam String aula,
+            @RequestParam String curso
+    ) {
+        return this.alumnoService.getList(anio, aula, curso);
+    }
+
+>>>>>>> Stashed changes
     @GetMapping("{id}")
     public ApiResponse<AlumnoDTO> one(@PathVariable String id) throws ResourceNotFoundException {
         return this.alumnoService.one(id);

@@ -91,6 +91,8 @@ public class MatriculaService {
         AlumnoEntity alumnoEntity=this.alumnoRepository.findByUniqueIdentifier(matriculaDTO.getAlumnoDTO().getId()).orElseThrow(()-> new ResourceNotFoundException("Alumno no existe"));
         AnioLectivoEntity anioLectivoEntity=this.anioLectivoRepository.findByUniqueIdentifier(matriculaDTO.getAnioLectivoDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Año lectivo no existe"));
         //Update in database
+
+
         matriculaEntity.setCode(Code.generateCode(Code.MAT_CODE, this.matriculaRepository.count() + 1, Code.MAT_LENGTH));
         matriculaEntity.setDate(matriculaDTO.getDate());
         matriculaEntity.setAulaEntity(aulaEntity);

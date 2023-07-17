@@ -92,6 +92,18 @@ public class AlumnoService {
         return apiResponse;
     }
 
+<<<<<<< Updated upstream
+=======
+    public ApiResponse<List<AlumnoDTO>> getList(String anio, String aula, String curso) {
+        ApiResponse<List<AlumnoDTO>> apiResponse = new ApiResponse<>();
+        List<AlumnoEntity> AlumnoEntities = this.alumnoRepository.findEntities(ConstantsGeneric.CREATED_STATUS, anio, aula, curso).orElse(new ArrayList<>());
+        List<AlumnoDTO> alumnoDTOS = AlumnoEntities.stream().map(AlumnoEntity::getAlumnoDTO).collect(Collectors.toList());
+        apiResponse.setData(alumnoDTOS);
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+>>>>>>> Stashed changes
     public ApiResponse<AlumnoDTO> one(String id) throws ResourceNotFoundException {
         AlumnoEntity alumnoEntity=this.alumnoRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Alumno no encontrado"));
         ApiResponse<AlumnoDTO> apiResponse = new ApiResponse<>();

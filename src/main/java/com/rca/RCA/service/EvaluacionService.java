@@ -43,6 +43,8 @@ public class EvaluacionService {
 
     private CursoRepository cursoRepository;
 
+    private AulaRepository aulaRepository;
+
     public EvaluacionService(EvaluacionRepository evaluacionRepository, AlumnoRepository alumnoRepository,
                              DocentexCursoRepository docentexCursoRepository, PeriodoRepository periodoRepository,
                              AnioLectivoRepository anioLectivoRepository, CursoRepository cursoRepository){
@@ -52,6 +54,21 @@ public class EvaluacionService {
         this.periodoRepository = periodoRepository;
         this.anioLectivoRepository = anioLectivoRepository;
         this.cursoRepository = cursoRepository;
+    }
+
+    public ApiResponse<String> generatedEvaluations(String id_periodo, String filter) throws ResourceNotFoundException {
+        ApiResponse<String> apiResponse = new ApiResponse<>();
+
+        PeriodoEntity periodoEntity = this.periodoRepository.findByUniqueIdentifier(id_periodo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Periodo no encontrado"));
+
+        List<AulaEntity> aulaEntities = this.aulaRepository.findAulaxAnio(ConstantsGeneric.CREATED_STATUS, periodoEntity.getAnio_lectivoEntity().getUniqueIdentifier(), filter).orElseThrow(()-> new ResourceNotFoundException("Aulas no encontradas"));
+
+        for (int i = 0; aulaEntities.size() > i; i++) {
+            List<CursoEntity> cursoEntities = this.cursoRepository.findCursoByAulaAnio(ConstantsGeneric.CREATED_STATUS, aulaEntities.get(i).getUniqueIdentifier(), periodoEntity.getAnio_lectivoEntity().getUniqueIdentifier()).orElseThrow(()-> new ResourceNotFoundException("Cursos no encontrados"));
+            List<AlumnoEntity> alumnoEntities = this.alumnoRepository.findEntities(ConstantsGeneric.CREATED_STATUS, periodoEntity.getAnio_lectivoEntity().getUniqueIdentifier(), aulaEntities.get(i).getUniqueIdentifier(), "").orElseThrow(()->new ResourceNotFoundException("Alumnos no encontrados"));
+
+        }
+        return apiResponse;
     }
 
     //Obtener Evaluaciones
