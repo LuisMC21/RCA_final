@@ -214,7 +214,7 @@ public class AsistenciaService {
                 seccionEntity != null && seccionEntity.getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) {
             try {
                 final File file = ResourceUtils.getFile("classpath:reportes/asistencias_alumno.jasper"); //la ruta del reporte
-                final File imgLogo = ResourceUtils.getFile("classpath:images/logoC.jpg"); //Ruta de la imagen
+                final File imgLogo = ResourceUtils.getFile("classpath:images/logo.png"); //Ruta de la imagen
                 final JasperReport report = (JasperReport) JRLoader.loadObject(file);
                 //Se consultan los datos para el reporte de asistencias DTO
                 //List<CursoEntity> cursosEntities = this.matriculaRepository.findCursosMatriculados(id_alumno, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Cursos no encontrados"));
@@ -273,7 +273,7 @@ public class AsistenciaService {
             DocenteEntity docenteEntity = this.docenteRepository.findAulaAnio(id_aula, id_curso, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElse(new DocenteEntity());
 
             final File file = ResourceUtils.getFile("classpath:reportes/asistencias_aula.jasper"); //la ruta del reporte
-            final File imgLogo = ResourceUtils.getFile("classpath:images/logoC.jpg"); //Ruta de la imagen
+            final File imgLogo = ResourceUtils.getFile("classpath:images/logo.png"); //Ruta de la imagen
             final JasperReport report = (JasperReport) JRLoader.loadObject(file);
             //Se consultan los datos para el reporte de asistencias DTO
             List<AlumnoEntity> alumnoEntities = this.aulaRepository.findAlumnosxAula(id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElse(new ArrayList<>());
