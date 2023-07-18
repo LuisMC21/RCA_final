@@ -81,10 +81,9 @@ public class MatriculaService {
 
     //Función para agregar una matricula- START
     public ApiResponse<MatriculaDTO> add(MatriculaDTO matriculaDTO) throws ResourceNotFoundException, AttributeException {
-        System.out.println(matriculaDTO.getDate());
+        log.info("Aula Alumno AnioLectivo {} {} {}", matriculaDTO.getAulaDTO().getId(), matriculaDTO.getAlumnoDTO().getId(), matriculaDTO.getAnioLectivoDTO().getId());
         if(matriculaRepository.existsByAuAlAn("", matriculaDTO.getAulaDTO().getId(),matriculaDTO.getAlumnoDTO().getId(), matriculaDTO.getAnioLectivoDTO().getId(), ConstantsGeneric.CREATED_STATUS))
             throw new AttributeException("La matrícula ya existe");
-        log.info("Aula Alumno AnioLectivo {} {} {}", matriculaDTO.getAulaDTO().getId(), matriculaDTO.getAlumnoDTO().getId(), matriculaDTO.getAnioLectivoDTO().getId());
         ApiResponse<MatriculaDTO> apiResponse = new ApiResponse<>();
         MatriculaEntity matriculaEntity = new MatriculaEntity();
         AulaEntity aulaEntity=this.aulaRepository.findByUniqueIdentifier(matriculaDTO.getAulaDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Aula no existe"));
