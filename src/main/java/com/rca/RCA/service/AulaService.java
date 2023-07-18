@@ -75,20 +75,14 @@ public class AulaService {
     }
 
     //Función para listar aulas-END
+
     //Función para listar aulas por año con paginación-START
-    public ApiResponse<Pagination<AulaDTO>> getList(String filter, String anio, int page, int size) {
-        log.info("filter page size {} {} {}", filter, page, size);
-        ApiResponse<Pagination<AulaDTO>> apiResponse = new ApiResponse<>();
-        Pagination<AulaDTO> pagination = new Pagination<>();
-        pagination.setCountFilter(this.aulaRepository.findCountAula(ConstantsGeneric.CREATED_STATUS, anio, filter));
-        if (pagination.getCountFilter() > 0) {
-            Pageable pageable = PageRequest.of(page, size);
-            List<AulaEntity> aulaEntities = this.aulaRepository.findAula(ConstantsGeneric.CREATED_STATUS, anio, filter, pageable).orElse(new ArrayList<>());
-            log.info(aulaEntities.size());
-            pagination.setList(aulaEntities.stream().map(AulaEntity::getAulaDTO).collect(Collectors.toList()));
-        }
-        pagination.setTotalPages(pagination.processAndGetTotalPages(size));
-        apiResponse.setData(pagination);
+    public ApiResponse<List<AulaDTO>> getList(String filter, String anio) {
+        log.info("filter {}", filter);
+        ApiResponse<List<AulaDTO>> apiResponse = new ApiResponse<>();
+        List<AulaEntity> aulaEntities = this.aulaRepository.findAulaxAnio(ConstantsGeneric.CREATED_STATUS, anio, filter).orElse(new ArrayList<>());
+        List<AulaDTO> aulaDTOS = aulaEntities.stream().map(AulaEntity::getAulaDTO).collect(Collectors.toList());
+        apiResponse.setData(aulaDTOS);
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
         return apiResponse;
@@ -172,11 +166,8 @@ public class AulaService {
             this.matriculaService.delete(optionalMatriculaEntities.get().get(i).getUniqueIdentifier());
         }
         Optional<List<DocentexCursoEntity>> optionalDocentexCursoEntities = this.docentexCursoRepository.findByAula(aulaEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
-        System.out.println("1");
 
         for (int i = 0; i < optionalDocentexCursoEntities.get().size(); i++) {
-            System.out.println("2");
-
             optionalDocentexCursoEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
             optionalDocentexCursoEntities.get().get(i).setDeleteAt(aulaEntity.getDeleteAt());
             this.docentexCursoService.delete(optionalDocentexCursoEntities.get().get(i).getUniqueIdentifier());

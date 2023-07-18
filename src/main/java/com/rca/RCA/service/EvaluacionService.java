@@ -5,7 +5,10 @@ import com.rca.RCA.repository.*;
 import com.rca.RCA.type.*;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
+import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.GlobalException;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -19,8 +22,10 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,10 +43,10 @@ public class EvaluacionService {
     private AlumnoRepository alumnoRepository;
     private DocentexCursoRepository docentexCursoRepository;
     private PeriodoRepository periodoRepository;
-
     private AnioLectivoRepository anioLectivoRepository;
-
     private CursoRepository cursoRepository;
+    private AulaRepository aulaRepository;
+    private EvaluacionService evaluacionService;
 
     public EvaluacionService(EvaluacionRepository evaluacionRepository, AlumnoRepository alumnoRepository,
                              DocentexCursoRepository docentexCursoRepository, PeriodoRepository periodoRepository,
@@ -52,6 +57,38 @@ public class EvaluacionService {
         this.periodoRepository = periodoRepository;
         this.anioLectivoRepository = anioLectivoRepository;
         this.cursoRepository = cursoRepository;
+    }
+
+    @Transactional(rollbackOn = {Exception.class, ResourceNotFoundException.class, AttributeException.class, AccessDeniedException.class, MethodArgumentNotValidException.class})
+    public ApiResponse<String> generatedEvaluations(String id_periodo, String filter) throws ResourceNotFoundException, AttributeException {
+        if(this.evaluacionRepository.findById_Periodo(id_periodo, ConstantsGeneric.CREATED_STATUS).isPresent())
+            throw new AttributeException("Evaluaciones existentes");
+
+
+        ApiResponse<String> apiResponse = new ApiResponse<>();
+
+        PeriodoEntity periodoEntity = this.periodoRepository.findByUniqueIdentifier(id_periodo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Periodo no encontrado"));
+
+        List<AulaEntity> aulaEntities = this.aulaRepository.findAulaxAnio(ConstantsGeneric.CREATED_STATUS, periodoEntity.getAnio_lectivoEntity().getUniqueIdentifier(), filter).orElseThrow(()-> new ResourceNotFoundException("Aulas no encontradas"));
+
+        for (int i = 0; i<aulaEntities.size(); i++) {
+            List<CursoEntity> cursoEntities = this.cursoRepository.findCursoByAulaAnio(ConstantsGeneric.CREATED_STATUS, aulaEntities.get(i).getUniqueIdentifier(), periodoEntity.getAnio_lectivoEntity().getUniqueIdentifier()).orElseThrow(()-> new ResourceNotFoundException("Cursos no encontrados"));
+            List<AlumnoEntity> alumnoEntities = this.alumnoRepository.findEntities(ConstantsGeneric.CREATED_STATUS, periodoEntity.getAnio_lectivoEntity().getUniqueIdentifier(), aulaEntities.get(i).getUniqueIdentifier(), "").orElseThrow(()->new ResourceNotFoundException("Alumnos no encontrados"));
+            for (int j = 0; j < cursoEntities.size(); j++) {
+                DocentexCursoEntity docentexCursoEntity = this.docentexCursoRepository.findByAulaCurso(ConstantsGeneric.CREATED_STATUS, aulaEntities.get(i).getUniqueIdentifier(), cursoEntities.get(j).getUniqueIdentifier()).orElseThrow(()-> new ResourceNotFoundException("Asignatura no encontrada"));
+                for (int k = 0; k < alumnoEntities.size(); k++) {
+                    EvaluacionDTO evaluacionDTO = new EvaluacionDTO();
+                    evaluacionDTO.setPeriodoDTO(periodoEntity.getPeriodoDTO());
+                    evaluacionDTO.setDocentexCursoDTO(docentexCursoEntity.getDocentexCursoDTO());
+                    evaluacionDTO.setAlumnoDTO(alumnoEntities.get(k).getAlumnoDTO());
+                    this.evaluacionService.add(evaluacionDTO);
+                }
+            }
+        }
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("Evaluaciones generadas");
+        apiResponse.setData("Correcto");
+        return apiResponse;
     }
 
     //Obtener Evaluaciones

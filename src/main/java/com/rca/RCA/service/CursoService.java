@@ -55,18 +55,11 @@ public class CursoService {
     //Función para listar cursos con paginación-END
 
     //Listar con año y aula
-    public ApiResponse<Pagination<CursoDTO>> getListByAulaAnio(String filter, String aula, String anio, int page, int size){
-        log.info("filter page size {} {} {}", filter, page, size);
-        ApiResponse<Pagination<CursoDTO>> apiResponse = new ApiResponse<>();
-        Pagination<CursoDTO> pagination = new Pagination<>();
-        pagination.setCountFilter(this.cursoRepository.findCountCursoByAulaAnio(ConstantsGeneric.CREATED_STATUS, filter, aula, anio));
-        if(pagination.getCountFilter()>0){
-            Pageable pageable= PageRequest.of(page, size);
-            List<CursoEntity> cursoEntities=this.cursoRepository.findCursoByAulaAnio(ConstantsGeneric.CREATED_STATUS, filter, aula, anio, pageable).orElse(new ArrayList<>());
-            pagination.setList(cursoEntities.stream().map(CursoEntity::getCursoDTO).collect(Collectors.toList()));
-        }
-        pagination.setTotalPages(pagination.processAndGetTotalPages(size));
-        apiResponse.setData(pagination);
+    public ApiResponse<List<CursoDTO>> getListByAulaAnio(String aula, String anio){
+        ApiResponse<List<CursoDTO>> apiResponse = new ApiResponse<>();
+            List<CursoEntity> cursoEntities=this.cursoRepository.findCursoByAulaAnio(ConstantsGeneric.CREATED_STATUS, aula, anio).orElse(new ArrayList<>());
+            List<CursoDTO> cursoDTOS = cursoEntities.stream().map(CursoEntity::getCursoDTO).collect(Collectors.toList());
+        apiResponse.setData(cursoDTOS);
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
         return apiResponse;

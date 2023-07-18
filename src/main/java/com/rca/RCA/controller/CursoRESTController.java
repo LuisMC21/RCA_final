@@ -10,6 +10,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/curso")
@@ -30,13 +32,10 @@ public class CursoRESTController {
     }
 
     @GetMapping("/aulaanio")
-    public ApiResponse<Pagination<CursoDTO>> list(
-            @RequestParam(defaultValue = "") String filter,
+    public ApiResponse<List<CursoDTO>> list(
             @RequestParam(defaultValue = "") String aula,
-            @RequestParam(defaultValue = "") String anio,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size){
-        return this.cursoService.getListByAulaAnio(filter, aula, anio, page, size);
+            @RequestParam(defaultValue = "") String anio){
+        return this.cursoService.getListByAulaAnio(aula, anio);
     }
 
     @GetMapping("{id}")
@@ -44,7 +43,7 @@ public class CursoRESTController {
         return this.cursoService.one(id);
     }
 
-        @PostMapping
+    @PostMapping
     public ApiResponse<CursoDTO> add(@RequestBody @Valid CursoDTO cursoDTO) throws AttributeException {
         return this.cursoService.add(cursoDTO);
     }

@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/aula")
@@ -29,13 +31,13 @@ public class AulaRESTController {
             @RequestParam(defaultValue = "10") int size){
         return this.aulaService.getList(filter, page, size);
     }
+
     @GetMapping("/anio")
-    public ApiResponse<Pagination<AulaDTO>> list(
+    public ApiResponse<List<AulaDTO>> list(
             @RequestParam(defaultValue = "") String filter,
-            @RequestParam(defaultValue = "") String anio,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size){
-        return this.aulaService.getList(filter, anio, page, size);
+            @RequestParam(defaultValue = "") String anio){
+        return this.aulaService.getList(filter, anio);
+
     }
     @GetMapping("{id}")
     public ApiResponse<AulaDTO> one(@PathVariable String id) throws ResourceNotFoundException {

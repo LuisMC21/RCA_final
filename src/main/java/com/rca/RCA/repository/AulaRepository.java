@@ -50,28 +50,14 @@ public interface AulaRepository extends JpaRepository<AulaEntity, Integer> {
             "WHERE s.status = :status " +
             "AND x.status = :status " +
             "AND g.status = :status " +
-            "AND a.uniqueIdentifier = :anio " +
+            "AND (a.uniqueIdentifier like concat('%', :anio, '%')) " +
             "AND (s.name like concat('%', :filter, '%') " +
             "or g.name like concat('%', :filter, '%') " +
             "or s.code like concat('%', :filter, '%') " +
             "or g.code like concat('%', :filter, '%')) " +
             "ORDER BY g.name, s.name")
-    Optional<List<AulaEntity>> findAula(String status, String anio, String filter, Pageable pageable);
-    @Query(value = "SELECT count(x) from GradoEntity g " +
-            "JOIN g.aulaEntities x " +
-            "JOIN x.seccionEntity s " +
-            "JOIN x.docentexCursoEntities dxc " +
-            "JOIN dxc.anio_lectivoEntity a " +
-            "WHERE s.status = :status " +
-            "AND x.status = :status " +
-            "AND g.status = :status " +
-            "AND a.uniqueIdentifier = :anio " +
-            "AND (s.name like concat('%', :filter, '%') " +
-            "or g.name like concat('%', :filter, '%') " +
-            "or s.code like concat('%', :filter, '%') " +
-            "or g.code like concat('%', :filter, '%')) " +
-            "ORDER BY g.name, s.name")
-    Long findCountAula(String status, String anio, String filter);
+    Optional<List<AulaEntity>> findAulaxAnio(String status, String anio, String filter);
+
 
     //Función para obtener un aula con su Identificado Único
     @Query(value = "SELECT a FROM AulaEntity a " +

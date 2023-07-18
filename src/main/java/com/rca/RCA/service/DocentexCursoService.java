@@ -84,19 +84,11 @@ public class DocentexCursoService {
         return apiResponse;
     }
 
-    public ApiResponse<Pagination<DocentexCursoDTO>> getListByAulaCurso(String filter,  String aula, String curso, int page, int size){
-        log.info("filter page size {} {} {}", filter, page, size);
-        ApiResponse<Pagination<DocentexCursoDTO>> apiResponse = new ApiResponse<>();
-        Pagination<DocentexCursoDTO> pagination = new Pagination<>();
-        pagination.setCountFilter(this.docentexCursoRepository.countFindByAulaCurso(ConstantsGeneric.CREATED_STATUS, aula, curso));
-        if(pagination.getCountFilter()>0){
-            Pageable pageable= PageRequest.of(page, size);
-            List<DocentexCursoEntity> docentexCursoEntities=this.docentexCursoRepository.findByAulaCurso(ConstantsGeneric.CREATED_STATUS, aula, curso, pageable).orElse(new ArrayList<>());
-            log.info(docentexCursoEntities.size());
-            pagination.setList(docentexCursoEntities.stream().map(DocentexCursoEntity::getDocentexCursoDTO).collect(Collectors.toList()));
-        }
-        pagination.setTotalPages(pagination.processAndGetTotalPages(size));
-        apiResponse.setData(pagination);
+    public ApiResponse<DocentexCursoDTO> getListByAulaCurso(String aula, String curso) throws ResourceNotFoundException {
+        ApiResponse<DocentexCursoDTO> apiResponse = new ApiResponse<>();
+        DocentexCursoDTO docentexCursoDTO =this.docentexCursoRepository.findByAulaCurso(ConstantsGeneric.CREATED_STATUS, aula, curso).orElseThrow(()-> new ResourceNotFoundException("Asignatura no encontrada")).getDocentexCursoDTO();
+
+        apiResponse.setData(docentexCursoDTO);
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
         return apiResponse;

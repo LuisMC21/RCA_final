@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 import javax.management.AttributeNotFoundException;
+import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -37,15 +38,12 @@ public class AlumnoRESTController {
     }
 
     @GetMapping("auc")
-    public ApiResponse<Pagination<AlumnoDTO>> list(
-            @RequestParam(defaultValue = "") String filter,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+    public ApiResponse<List<AlumnoDTO>> list(
             @RequestParam String anio,
             @RequestParam String aula,
             @RequestParam String curso
     ) {
-        return this.alumnoService.getList(filter, page, size, anio, aula, curso);
+        return this.alumnoService.getList(anio, aula, curso);
     }
 
     @GetMapping("{id}")
