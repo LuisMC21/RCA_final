@@ -97,7 +97,7 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
             "AND u.status = :status ")
     Optional<UsuarioEntity> idFindByUsername(String username,String status);
 
-    @Query(value = "SELECT d.code FROM UsuarioEntity u " +
+    @Query(value = "SELECT d.uniqueIdentifier FROM UsuarioEntity u " +
             "JOIN u.docenteEntity d " +
             "WHERE (u.nombreUsuario = :username OR u.email = :username) " +
             "AND u.status = :status ")
