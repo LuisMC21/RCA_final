@@ -122,7 +122,7 @@ public interface DocentexCursoRepository extends JpaRepository<DocentexCursoEnti
             "Where dc.tx_status = :status and a.tx_status = :status and c.tx_status = :status " +
             "and c.tx_unique_identifier like  concat('%', :curso, '%') " +
             "and a.tx_unique_identifier like  concat('%', :aula, '%') ", nativeQuery = true)
-    Optional<List<DocentexCursoEntity>> findByAulaCurso(String status, String aula, String curso, Pageable pageable);
+    Optional<DocentexCursoEntity> findByAulaCurso(String status, String aula, String curso);
 
     @Query(value="Select dc.* from docentexcurso dc JOIN docente d ON dc.docente_id = d.id JOIN anio_lectivo al " +
             "ON al.id = dc.anio_lectivo_id " +
@@ -139,5 +139,4 @@ public interface DocentexCursoRepository extends JpaRepository<DocentexCursoEnti
     Long countFindByDocenteAnio(String status, String docente, String anio);
 
 
-    Optional<DocentexCursoEntity> findByAulaCurso(String status, String aula, String curso);
 }
