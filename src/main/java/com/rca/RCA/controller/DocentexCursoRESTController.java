@@ -38,13 +38,10 @@ public class DocentexCursoRESTController {
     }
 
     @GetMapping("ac")
-    public ApiResponse<Pagination<DocentexCursoDTO>> listAc(
-            @RequestParam(defaultValue = "") String filter,
+    public ApiResponse<DocentexCursoDTO> findAc(
             @RequestParam(defaultValue = "") String aula,
-            @RequestParam(defaultValue = "") String curso,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size){
-        return this.docentexCursoService.getListByAulaCurso(filter, aula, curso, page, size);
+            @RequestParam(defaultValue = "") String curso) throws ResourceNotFoundException {
+        return this.docentexCursoService.getListByAulaCurso(aula, curso);
     }
 
     @GetMapping("{id}")

@@ -118,15 +118,9 @@ public interface DocentexCursoRepository extends JpaRepository<DocentexCursoEnti
             "AND a.uniqueIdentifier = :idA ")
     boolean existsByDocenteCursoAula(String id, String idD, String idC, String idA, String status);
 
-    @Query(value="select count(*) from docentexcurso dc JOIN aula a ON a.id = dc.aula_id JOIN curso c ON c.id = dc.curso_id " +
-            "Where dc.tx_status = :status and a.tx_status = :status and c.tx_status = :status " +
-            "and c.tx_unique_identifier like concat('%', :curso, '%') " +
-            "and a.tx_unique_identifier like concat('%', :aula, '%') ", nativeQuery = true)
-    Long countFindByAulaCurso(String status, String aula, String curso);
-
     @Query(value="select dc.* from docentexcurso dc JOIN aula a ON a.id = dc.aula_id JOIN curso c ON c.id = dc.curso_id " +
             "Where dc.tx_status = :status and a.tx_status = :status and c.tx_status = :status " +
             "and c.tx_unique_identifier like  concat('%', :curso, '%') " +
             "and a.tx_unique_identifier like  concat('%', :aula, '%') ", nativeQuery = true)
-    Optional<List<DocentexCursoEntity>> findByAulaCurso(String status, String aula, String curso, Pageable pageable);
+    Optional<DocentexCursoEntity> findByAulaCurso(String status, String aula, String curso);
 }

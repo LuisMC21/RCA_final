@@ -2,6 +2,7 @@ package com.rca.RCA.controller;
 
 import com.rca.RCA.service.EvaluacionService;
 import com.rca.RCA.type.*;
+import com.rca.RCA.util.exceptions.AttributeException;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -52,7 +53,7 @@ public class EvaluacionRESTController {
 
     @GetMapping("/generatedEvaluations/{id}/{filter}")
     public ApiResponse<String> generatedEvaluations(@PathVariable String id_perido,
-                                                    @PathVariable String filter) throws ResourceNotFoundException {
+                                                    @PathVariable String filter) throws ResourceNotFoundException, AttributeException {
         return this.evaluacionService.generatedEvaluations(id_perido, filter);
     }
 

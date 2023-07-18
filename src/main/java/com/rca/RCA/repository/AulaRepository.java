@@ -50,7 +50,7 @@ public interface AulaRepository extends JpaRepository<AulaEntity, Integer> {
             "WHERE s.status = :status " +
             "AND x.status = :status " +
             "AND g.status = :status " +
-            "AND a.uniqueIdentifier = :anio " +
+            "AND (a.uniqueIdentifier like concat('%', :anio, '%')) " +
             "AND (s.name like concat('%', :filter, '%') " +
             "or g.name like concat('%', :filter, '%') " +
             "or s.code like concat('%', :filter, '%') " +
