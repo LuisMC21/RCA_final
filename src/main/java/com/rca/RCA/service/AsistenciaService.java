@@ -278,6 +278,7 @@ public class AsistenciaService {
             //Se consultan los datos para el reporte de asistencias DTO
             List<AlumnoEntity> alumnoEntities = this.aulaRepository.findAlumnosxAula(id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElse(new ArrayList<>());
             //Se agregan los datos para Reporte de Asistencias
+            System.out.println(alumnoEntities.size());
             List<ReporteAsistenciaAulaDTO> reporteAsistenciaAulaDTOS= new ArrayList<>();
             int tasistencias = 0;
             int tfaltas = 0;
