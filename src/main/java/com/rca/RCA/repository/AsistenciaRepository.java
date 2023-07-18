@@ -81,32 +81,14 @@ public interface AsistenciaRepository extends JpaRepository<AsistenciaEntity, In
     //Obtener una asistencia por su identificador
     Optional<AsistenciaEntity> findByUniqueIdentifier(String uniqueIdentifier);
 
-    @Query(value = "SELECT ass FROM AnioLectivoEntity a " +
-                    "JOIN a.matriculaEntities l " +
-                    "JOIN l.alumnoEntity al " +
-                    "JOIN l.aulaEntity au " +
-                    "JOIN au.docentexCursoEntities dc " +
-                    "JOIN dc.docenteEntity d " +
-                    "JOIN dc.cursoEntity c " +
-                    "JOIN dc.claseEntities cl " +
+    @Query(value = "SELECT ass FROM AsistenciaEntity ass " +
+                    "JOIN ass.alumnoEntity al " +
+                    "JOIN ass.claseEntity cl " +
                     "JOIN cl.periodoEntity p " +
-                    "JOIN cl.asistenciaEntities ass " +
-                    "WHERE a=l.anio_lectivoEntity " +
-                    "AND al=l.alumnoEntity " +
-                    "AND au=l.aulaEntity " +
-                    "AND d= dc.docenteEntity " +
-                    "AND c= dc.cursoEntity " +
-                    "AND dc= cl.docentexCursoEntity " +
-                    "AND p= cl.periodoEntity " +
-                    "AND cl= ass.claseEntity " +
-                    "AND l.status = :status " +
-                    "AND d.status = :status " +
-                    "AND c.status = :status " +
+                    "JOIN p.anio_lectivoEntity a " +
+                    "WHERE ass.status = :status " +
                     "AND al.status = :status " +
                     "AND cl.status = :status " +
-                    "AND au.status = :status " +
-                    "AND dc.status = :status " +
-                    "AND ass.status = :status " +
                     "AND p.status = :status " +
                     "AND al.uniqueIdentifier = :id_alumno " +
                     "AND p.uniqueIdentifier = :id_periodo " +
