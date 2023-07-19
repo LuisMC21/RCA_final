@@ -63,6 +63,68 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
             "c.name like concat('%', :curso, '%') and ale.name like concat('%', :anio, '%')", nativeQuery = true)
     Optional<List<AlumnoEntity>> findEntities(String status, String anio, String aula, String curso);
 
+    @Query(value = "Select a.* from alumno a " +
+            "JOIN matricula m ON a.id = m.alumno_id " +
+            "JOIN user u ON u.id = a.user_id " +
+            "join aula al ON al.id = m.aula_id " +
+            "join docentexcurso dxc ON dxc.aula_id = al.id " +
+            "join curso c ON c.id = dxc.curso_id " +
+            "join anio_lectivo ale ON ale.id = m.anio_lectivo_id " +
+            "where a.tx_status = :status " +
+            "and u.numdoc like concat('%', :filter, '%') " +
+            "and u.pa_surname like concat('%', :filter, '%') " +
+            "and u.ma_surname like concat('%', :filter, '%') " +
+            "and al.tx_unique_identifier like concat('%', :aula, '%') " +
+            "and c.tx_unique_identifier like concat('%', :curso, '%') " +
+            "and ale.tx_unique_identifier like concat('%', :anio, '%')", nativeQuery = true)
+    Optional<List<AlumnoEntity>> findEntities2(String filter, String status, String anio, String aula, String curso, Pageable pageable);
+    @Query(value = "SELECT a FROM AlumnoEntity a " +
+            "JOIN a.matriculaEntities m " +
+            "JOIN a.usuarioEntity u " +
+            "JOIN m.aulaEntity au " +
+            "join au.docentexCursoEntities dxc " +
+            "join dxc.cursoEntity c " +
+            "JOIN m.anio_lectivoEntity ale " +
+            "where a.status = :status " +
+            "and (u.numdoc like concat('%', :filter, '%') " +
+            "or u.pa_surname like concat('%', :filter, '%') " +
+            "or u.ma_surname like concat('%', :filter, '%') )" +
+            "and au.uniqueIdentifier like concat('%', :aula, '%') " +
+            "and c.uniqueIdentifier like concat('%', :curso, '%') " +
+            "and ale.uniqueIdentifier like concat('%', :anio, '%')")
+    Optional<List<AlumnoEntity>> findEntities(String filter, String status, String anio, String aula, String curso, Pageable pageable);
+
+    @Query(value = "Select count(a.*) from alumno a " +
+            "JOIN matricula m ON a.id = m.alumno_id " +
+            "JOIN user u ON u.id = a.user_id " +
+            "join aula al ON al.id = m.aula_id " +
+            "join docentexcurso dxc ON dxc.aula_id = al.id " +
+            "join curso c ON c.id = dxc.curso_id " +
+            "join anio_lectivo ale ON ale.id = m.anio_lectivo_id " +
+            "where a.tx_status = :status " +
+            "and u.numdoc like concat('%', :filter, '%') " +
+            "and u.pa_surname like concat('%', :filter, '%') " +
+            "and u.ma_surname like concat('%', :filter, '%') " +
+            "and al.tx_unique_identifier like concat('%', :aula, '%') " +
+            "and c.tx_unique_identifier like concat('%', :curso, '%') " +
+            "and ale.tx_unique_identifier like concat('%', :anio, '%')", nativeQuery = true)
+    Long findCountEntities2(String filter, String status, String anio, String aula, String curso);
+
+    @Query(value = "SELECT count(a) FROM AlumnoEntity a " +
+            "JOIN a.matriculaEntities m " +
+            "JOIN a.usuarioEntity u " +
+            "JOIN m.aulaEntity au " +
+            "join au.docentexCursoEntities dxc " +
+            "join dxc.cursoEntity c " +
+            "JOIN m.anio_lectivoEntity ale " +
+            "where a.status = :status " +
+            "and (u.numdoc like concat('%', :filter, '%') " +
+            "or u.pa_surname like concat('%', :filter, '%') " +
+            "or u.ma_surname like concat('%', :filter, '%') )" +
+            "and au.uniqueIdentifier like concat('%', :aula, '%') " +
+            "and c.uniqueIdentifier like concat('%', :curso, '%') " +
+            "and ale.uniqueIdentifier like concat('%', :anio, '%')")
+    Long findCountEntities(String filter, String status, String anio, String aula, String curso);
 
     //Función para obtener un alumno por su identificador
     Optional<AlumnoEntity> findByUniqueIdentifier(String uniqueIdentifier);
