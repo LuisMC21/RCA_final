@@ -260,7 +260,6 @@ public class EvaluacionService {
                 final JasperReport report = (JasperReport) JRLoader.loadObject(file);
 
 
-
                 final HashMap<String, Object> parameters = new HashMap<>();
                 parameters.put("logoEmpresa", new FileInputStream(imgLogo));
                 parameters.put("apellidoPaterno", alumnoEntity.getUsuarioEntity().getPa_surname());
@@ -268,7 +267,7 @@ public class EvaluacionService {
                 parameters.put("nombres", alumnoEntity.getUsuarioEntity().getName());
                 parameters.put("Periodo", periodoEntity.getName());
                 parameters.put("anio", periodoEntity.getAnio_lectivoEntity().getName());
-                parameters.put("gradoSeccion", "3");
+                parameters.put("gradoSeccion", "3-A");
                 parameters.put("dsCursos",  new JRBeanCollectionDataSource(cursos));
 
                 JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
