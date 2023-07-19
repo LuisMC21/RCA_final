@@ -57,6 +57,5 @@ public class MatriculaRESTController {
     public ResponseEntity<Resource> exportMatricula(@RequestParam String id_alumno,
                                                     @RequestParam String id_aniolectivo) throws ResourceNotFoundException {
         return this.matriculaService.exportMatricula(id_alumno, id_aniolectivo);
-
     }
 }
