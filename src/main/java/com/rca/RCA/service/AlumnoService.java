@@ -102,6 +102,23 @@ public class AlumnoService {
         return apiResponse;
     }
 
+    public ApiResponse<Pagination<AlumnoDTO>> getListAlumnosAnioAulaCurso(String filter, String anio, String aula, String curso, int page, int size) {
+        ApiResponse<Pagination<AlumnoDTO>> apiResponse = new ApiResponse<>();
+        Pagination<AlumnoDTO> pagination = new Pagination<>();
+        pagination.setCountFilter(this.alumnoRepository.findCountEntities(filter, ConstantsGeneric.CREATED_STATUS,anio, aula, curso));
+        System.out.println(pagination.getCountFilter());
+        if (pagination.getCountFilter() > 0) {
+            Pageable pageable = PageRequest.of(page, size);
+            List<AlumnoEntity> AlumnoEntities = this.alumnoRepository.findEntities(filter, ConstantsGeneric.CREATED_STATUS, anio, aula, curso, pageable).orElse(new ArrayList<>());
+            pagination.setList(AlumnoEntities.stream().map(AlumnoEntity::getAlumnoDTO).collect(Collectors.toList()));
+        }
+        pagination.setTotalPages(pagination.processAndGetTotalPages(size));
+        apiResponse.setData(pagination);
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+
     public ApiResponse<AlumnoDTO> one(String id) throws ResourceNotFoundException {
         AlumnoEntity alumnoEntity=this.alumnoRepository.findByUniqueIdentifier(id).orElseThrow(()-> new ResourceNotFoundException("Alumno no encontrado"));
         ApiResponse<AlumnoDTO> apiResponse = new ApiResponse<>();
