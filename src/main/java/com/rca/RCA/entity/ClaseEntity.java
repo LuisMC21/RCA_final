@@ -8,6 +8,7 @@ import lombok.Data;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashSet;
@@ -67,5 +68,11 @@ public class ClaseEntity extends AuditoryEntity{
         this.setCreateAt(ClaseDTO.getCreateAt());
         this.setUpdateAt(ClaseDTO.getUpdateAt());
         this.setDeleteAt(ClaseDTO.getDeleteAt());
+    }
+
+    public String getFechaFormatString(){
+        return this.date != null ?
+                new SimpleDateFormat("dd-MM-yyyy").format(this.date) :
+                "---";
     }
 }
