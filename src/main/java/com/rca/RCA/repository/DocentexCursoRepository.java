@@ -138,5 +138,29 @@ public interface DocentexCursoRepository extends JpaRepository<DocentexCursoEnti
             "AND al.tx_unique_identifier LIKE concat('%',:anio,'%')", nativeQuery = true)
     Long countFindByDocenteAnio(String status, String docente, String anio);
 
+    @Query(value="Select dc.* from docentexcurso dc " +
+            "JOIN docente d ON dc.docente_id = d.id " +
+            "JOIN anio_lectivo al ON al.id = dc.anio_lectivo_id " +
+            "JOIN aula au ON au.id = dc.aula_id " +
+            "WHERE dc.tx_status = :status " +
+            "AND al.tx_status = :status " +
+            "AND au.tx_status = :status " +
+            "AND d.tx_status = :status " +
+            "AND d.tx_unique_identifier like concat('%',:docente,'%') " +
+            "AND au.tx_unique_identifier like concat('%',:aula,'%') " +
+            "AND al.tx_unique_identifier LIKE concat('%',:anio,'%')", nativeQuery = true)
+    Optional<List<DocentexCursoEntity>> findByDocenteAulaAnio(String status, String docente, String aula, String anio, Pageable pageable);
+    @Query(value="Select count(dc.*) from docentexcurso dc " +
+            "JOIN docente d ON dc.docente_id = d.id " +
+            "JOIN anio_lectivo al ON al.id = dc.anio_lectivo_id " +
+            "JOIN aula au ON au.id = dc.aula_id " +
+            "WHERE dc.tx_status = :status " +
+            "AND al.tx_status = :status " +
+            "AND au.tx_status = :status " +
+            "AND d.tx_status = :status " +
+            "AND d.tx_unique_identifier like concat('%',:docente,'%') " +
+            "AND au.tx_unique_identifier like concat('%',:aula,'%') " +
+            "AND al.tx_unique_identifier LIKE concat('%',:anio,'%')", nativeQuery = true)
+    Long countByDocenteAulaAnio(String status, String docente, String aula, String anio);
 
 }

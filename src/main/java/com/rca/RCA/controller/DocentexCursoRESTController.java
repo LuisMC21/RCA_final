@@ -47,6 +47,17 @@ public class DocentexCursoRESTController {
         return this.docentexCursoService.getListByDocenteAnio(filter, docente, anio, page, size);
     }
 
+    @GetMapping("/docenteaulaanio")
+    public ApiResponse<Pagination<DocentexCursoDTO>> listDocenteAnio(
+            @RequestParam(defaultValue = "") String filter,
+            @RequestParam(defaultValue = "") String docente,
+            @RequestParam(defaultValue = "") String aula,
+            @RequestParam(defaultValue = "") String anio,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size){
+        return this.docentexCursoService.getListByDocenteAulaAnio(filter, docente, aula, anio, page, size);
+    }
+
     @GetMapping("ac")
     public ApiResponse<DocentexCursoDTO> findAc(
             @RequestParam(defaultValue = "") String aula,
