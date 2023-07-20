@@ -148,4 +148,26 @@ public interface AsistenciaRepository extends JpaRepository<AsistenciaEntity, In
             "WHERE ass.status = :status " +
             "AND c.uniqueIdentifier = :id_clase")
     Optional<List<AsistenciaEntity>> findByClase(String id_clase, String status);
+
+    @Query(value = "SELECT ass FROM AsistenciaEntity ass " +
+            "JOIN ass.claseEntity c " +
+            "JOIN ass.alumnoEntity al " +
+            "JOIN al.usuarioEntity u " +
+            "WHERE ass.status = :status " +
+            "AND (u.name like concat('%', :filter, '%') " +
+            "OR u.pa_surname like concat('%', :filter, '%') " +
+            "OR u.numdoc like concat('%', :filter, '%')) " +
+            "AND c.uniqueIdentifier = :id_clase")
+    Optional<List<AsistenciaEntity>> findAsistenciaByClase(String filter, String id_clase, String status, Pageable pageable);
+    @Query(value = "SELECT count(ass) FROM AsistenciaEntity ass " +
+            "JOIN ass.claseEntity c " +
+            "JOIN ass.alumnoEntity al " +
+            "JOIN al.usuarioEntity u " +
+            "WHERE ass.status = :status " +
+            "AND (u.name like concat('%', :filter, '%') " +
+            "OR u.pa_surname like concat('%', :filter, '%') " +
+            "OR u.numdoc like concat('%', :filter, '%')) " +
+            "AND c.uniqueIdentifier = :id_clase")
+    Long findCountAsistenciaByClase(String  filter, String id_clase, String status);
+
 }

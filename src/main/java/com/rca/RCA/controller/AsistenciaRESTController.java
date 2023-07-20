@@ -34,7 +34,7 @@ public class AsistenciaRESTController {
         return this.asistenciaService.getList(filter, page, size);
     }
 
-    @GetMapping("apac")
+    @GetMapping("/apac")
     public ApiResponse<Pagination<AsistenciaDTO>> list(
             @RequestParam(defaultValue = "") String filter,
             @RequestParam(defaultValue = "0") int page,
@@ -56,6 +56,15 @@ public class AsistenciaRESTController {
             @RequestParam String curso
     ) {
         return this.asistenciaService.getListWithAlumno(filter, page, size, periodo, alumno, curso);
+    }
+    @GetMapping("/asbyclase")
+    public ApiResponse<Pagination<AsistenciaDTO>> getListByClase(
+            @RequestParam(defaultValue = "") String filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam String id_clase
+    ) {
+        return this.asistenciaService.getListByClase(filter, id_clase, page, size);
     }
 
     @PostMapping
