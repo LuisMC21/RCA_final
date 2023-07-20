@@ -6,9 +6,7 @@ import com.rca.RCA.type.*;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
 import com.rca.RCA.util.exceptions.AttributeException;
-import com.rca.RCA.util.exceptions.GlobalException;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -24,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
@@ -59,7 +58,7 @@ public class EvaluacionService {
         this.cursoRepository = cursoRepository;
     }
 
-    @Transactional(rollbackOn = {Exception.class, ResourceNotFoundException.class, AttributeException.class, AccessDeniedException.class, MethodArgumentNotValidException.class})
+    @Transactional(rollbackFor = {Exception.class, ResourceNotFoundException.class, AttributeException.class, AccessDeniedException.class, MethodArgumentNotValidException.class})
     public ApiResponse<String> generatedEvaluations(String id_periodo, String filter) throws ResourceNotFoundException, AttributeException {
         if(this.evaluacionRepository.findById_Periodo(id_periodo, ConstantsGeneric.CREATED_STATUS).isPresent())
             throw new AttributeException("Evaluaciones existentes");

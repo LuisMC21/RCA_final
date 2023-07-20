@@ -3,18 +3,17 @@ package com.rca.RCA.service;
 
 import com.rca.RCA.entity.*;
 import com.rca.RCA.repository.*;
-import com.rca.RCA.type.ApiResponse;
-import com.rca.RCA.type.GradoDTO;
-import com.rca.RCA.type.Pagination;
-import com.rca.RCA.type.ClaseDTO;
+import com.rca.RCA.type.*;
 import com.rca.RCA.util.Code;
 import com.rca.RCA.util.ConstantsGeneric;
+import com.rca.RCA.util.exceptions.AttributeException;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -39,6 +38,8 @@ public class ClaseService {
 
     @Autowired
     private AsistenciaRepository asistenciaRepository;
+    @Autowired
+    private AsistenciaService asistenciaService;
 
     public ClaseService(ClaseRepository claseRepository, AulaRepository aulaRepository,
                         DocentexCursoRepository docentexCursoRepository, PeriodoRepository periodoRepository,
@@ -96,28 +97,40 @@ public class ClaseService {
     }
 
     //Agregar Clase
-    public ApiResponse<ClaseDTO> add(ClaseDTO ClaseDTO) throws ResourceNotFoundException {
+    @Transactional(rollbackFor = {ResourceNotFoundException.class, AttributeException.class, Exception.class})
+    public ApiResponse<ClaseDTO> add(ClaseDTO claseDTO) throws ResourceNotFoundException {
         ApiResponse<ClaseDTO> apiResponse = new ApiResponse<>();
 
-        ClaseDTO.setId(UUID.randomUUID().toString());
-        ClaseDTO.setCode(Code.generateCode(Code.CLASS_CODE, this.claseRepository.count() + 1, Code.CLASS_LENGTH));
-        ClaseDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
-        ClaseDTO.setCreateAt(LocalDateTime.now());
+        claseDTO.setId(UUID.randomUUID().toString());
+        claseDTO.setCode(Code.generateCode(Code.CLASS_CODE, this.claseRepository.count() + 1, Code.CLASS_LENGTH));
+        claseDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
+        claseDTO.setCreateAt(LocalDateTime.now());
 
         //change dto to entity
-        ClaseEntity ClaseEntity = new ClaseEntity();
-        ClaseEntity.setClaseDTO(ClaseDTO);
+        ClaseEntity claseEntity = new ClaseEntity();
+        claseEntity.setClaseDTO(claseDTO);
 
         //set Periodo
-        PeriodoEntity PeriodoEntity = this.periodoRepository.findByUniqueIdentifier(ClaseDTO.getPeriodoDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Periodo no encontrado"));
+        PeriodoEntity PeriodoEntity = this.periodoRepository.findByUniqueIdentifier(claseDTO.getPeriodoDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Periodo no encontrado"));
 
         //Set docentexcurso
-        DocentexCursoEntity docentexCursoEntity = this.docentexCursoRepository.findByUniqueIdentifier(ClaseDTO.getDocentexCursoDTO().getId()).orElseThrow(()-> new ResourceNotFoundException("Docentexcurso no encontrado"));
+        DocentexCursoEntity docentexCursoEntity = this.docentexCursoRepository.findByUniqueIdentifier(claseDTO.getDocentexCursoDTO().getId()).orElseThrow(()-> new ResourceNotFoundException("Docentexcurso no encontrado"));
 
+        claseEntity.setPeriodoEntity(PeriodoEntity);
+        claseEntity.setDocentexCursoEntity(docentexCursoEntity);
 
-        ClaseEntity.setPeriodoEntity(PeriodoEntity);
-        ClaseEntity.setDocentexCursoEntity(docentexCursoEntity);
-        apiResponse.setData(this.claseRepository.save(ClaseEntity).getClaseDTO());
+        ClaseDTO claseDTO1 = this.claseRepository.save(claseEntity).getClaseDTO();
+        //Generar asistencias de la clase
+        List<AlumnoDTO> alumnoDTOS = this.claseRepository.findAlumnosxClase(ConstantsGeneric.CREATED_STATUS, docentexCursoEntity.getAnio_lectivoEntity().getUniqueIdentifier(), docentexCursoEntity.getAulaEntity().getUniqueIdentifier(), docentexCursoEntity.getCursoEntity().getUniqueIdentifier()).orElse(new ArrayList<>()).stream().map(AlumnoEntity::getAlumnoDTO).collect(Collectors.toList());
+
+        for(AlumnoDTO alumnoDTO2 : alumnoDTOS ){
+            AsistenciaDTO asistenciaDTO = new AsistenciaDTO();
+            asistenciaDTO.setClaseDTO(claseDTO1);
+            asistenciaDTO.setAlumnoDTO(alumnoDTO2);
+            asistenciaDTO.setState("PRESENTE");
+            this.asistenciaService.add(asistenciaDTO);
+        }
+        apiResponse.setData(claseDTO1);
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
         return apiResponse;

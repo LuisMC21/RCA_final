@@ -1,5 +1,6 @@
 package com.rca.RCA.repository;
 
+import com.rca.RCA.entity.AlumnoEntity;
 import com.rca.RCA.entity.ClaseEntity;
 import com.rca.RCA.entity.PeriodoEntity;
 import org.springframework.data.domain.Pageable;
@@ -48,6 +49,25 @@ public interface ClaseRepository extends JpaRepository<ClaseEntity, Integer> {
             "and cu.tx_unique_identifier like concat ('%',:curso,'%') " +
             "and p.tx_unique_identifier like concat ('%',:periodo,'%') and c.tx_status=:status", nativeQuery = true)
     Long findCountEntities(String status, String periodo, String aula, String curso);
+
+    @Query(value = "SELECT al FROM AlumnoEntity al " +
+            "JOIN al.matriculaEntities m " +
+            "JOIN m.aulaEntity au " +
+            "JOIN au.docentexCursoEntities dxc " +
+            "JOIN dxc.cursoEntity c " +
+            "JOIN dxc.anio_lectivoEntity a " +
+            "WHERE al.status = :status " +
+            "AND m.status = :status " +
+            "AND au.status = :status " +
+            "AND dxc.status = :status " +
+            "AND c.status = :status " +
+            "AND a.status = :status " +
+            "AND a.uniqueIdentifier = :anio " +
+            "AND au.uniqueIdentifier = :aula " +
+            "AND c.uniqueIdentifier = :curso")
+    Optional<List<AlumnoEntity>> findAlumnosxClase(String status, String anio, String aula, String curso);
+
+
 
     Optional<ClaseEntity> findByUniqueIdentifier(String uniqueIdentifier);
 
