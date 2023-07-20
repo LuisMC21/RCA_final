@@ -209,7 +209,7 @@ public class MatriculaService {
     public ResponseEntity<Resource> exportListaAlumnos(String uniqueIdentifierAula, String uniqueIdentifierAnio) throws ResourceNotFoundException {
 
         try{
-            List<AlumnoEntity> alumnoEntities = this.alumnoRepository.findByAulaPeriodo(uniqueIdentifierAula, uniqueIdentifierAnio).orElseThrow(()->new ResourceNotFoundException("Alumnos no encontrados"));
+            List<AlumnoEntity> alumnoEntities = this.alumnoRepository.findByAulaPeriodo(uniqueIdentifierAula, uniqueIdentifierAnio, ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Alumnos no encontrados"));
             AulaEntity aulaEntity = this.aulaRepository.findByUniqueIdentifier(uniqueIdentifierAula, ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Aula no encontrada"));
             AnioLectivoEntity anioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(uniqueIdentifierAnio, ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("Año lectivo no encontrado"));
             final File file = ResourceUtils.getFile("classpath:reportes/alumnosAula.jasper");
@@ -221,7 +221,7 @@ public class MatriculaService {
             parameters.put("Grado", String.valueOf(aulaEntity.getAulaDTO().getGradoDTO().getName()));
             parameters.put("Seccion", String.valueOf(aulaEntity.getAulaDTO().getSeccionDTO().getName()));
             parameters.put("Anio", anioLectivoEntity.getAnioLectivoDTO().getName());
-            parameters.put("dsAlumnosAula", new JRBeanCollectionDataSource((Collection<?>) this.alumnoRepository.findByAulaPeriodoI(uniqueIdentifierAula, uniqueIdentifierAnio)));
+            parameters.put("dsAlumnosAula", new JRBeanCollectionDataSource((Collection<?>) this.alumnoRepository.findByAulaPeriodoI(uniqueIdentifierAula, uniqueIdentifierAnio, ConstantsGeneric.CREATED_STATUS)));
 
             JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
             byte[] reporte = JasperExportManager.exportReportToPdf(jasperPrint);
