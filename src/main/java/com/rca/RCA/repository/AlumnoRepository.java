@@ -108,7 +108,7 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
     Long findCountEntities(String filter, String status, String anio, String aula, String curso);
 
     //Función para obtener un alumno por su identificador
-    @Query(value = "SELECT a FROM AlumnoEntity " +
+    @Query(value = "SELECT a FROM AlumnoEntity a " +
             "WHERE a.uniqueIdentifier = :uniqueIdentifier " +
             "AND a.status = 'CREATED' ")
     Optional<AlumnoEntity> findByUniqueIdentifier(String uniqueIdentifier);
