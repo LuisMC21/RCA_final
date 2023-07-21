@@ -119,7 +119,7 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
             "and au.status = :status " +
             "and (u.numdoc like concat('%', :filter, '%') " +
             "or u.pa_surname like concat('%', :filter, '%') " +
-            "or u.ma_surname like concat('%', :filter, '%') )" +
+            "or u.ma_surname like concat('%', :filter, '%'))  " +
             "and au.uniqueIdentifier like concat('%', :aula, '%') " +
             "and ale.uniqueIdentifier like concat('%', :anio, '%')")
     Long findCountEntities(String filter, String status, String anio, String aula);
