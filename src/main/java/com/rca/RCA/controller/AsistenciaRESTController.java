@@ -67,6 +67,19 @@ public class AsistenciaRESTController {
         return this.asistenciaService.getListByClase(filter, id_clase, page, size);
     }
 
+    @GetMapping("/asbypacc")
+    public ApiResponse<Pagination<AsistenciaDTO>> getListBypacc(
+            @RequestParam(defaultValue = "") String filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam String periodo,
+            @RequestParam String aula,
+            @RequestParam String curso,
+            @RequestParam String clase
+    ) {
+        return this.asistenciaService.getListByPeriodoAulaCursoClase(filter, periodo, aula, curso, clase, page, size);
+    }
+
     @PostMapping
     public ApiResponse<AsistenciaDTO> add(@RequestBody @Valid AsistenciaDTO AsistenciaDTO) throws ResourceNotFoundException {
         return this.asistenciaService.add(AsistenciaDTO);

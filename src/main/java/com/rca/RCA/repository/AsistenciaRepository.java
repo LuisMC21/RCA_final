@@ -170,4 +170,31 @@ public interface AsistenciaRepository extends JpaRepository<AsistenciaEntity, In
             "AND c.uniqueIdentifier = :id_clase")
     Long findCountAsistenciaByClase(String  filter, String id_clase, String status);
 
+    @Query(value="select distinct a.* from asistencia a JOIN clase c ON a.clase_id = c.id JOIN docentexcurso dc " +
+            "ON dc.id = docentexcurso_id JOIN aula al ON dc.aula_id = al.id JOIN curso cu ON dc.curso_id = cu.id " +
+            "JOIN anio_lectivo ale ON dc.anio_lectivo_id = ale.id JOIN periodo p ON ale.id = p.anio_lectivo_id " +
+            "JOIN alumno alu ON alu.id = a.alumno_id JOIN user usu ON usu.id = alu.user_id " +
+            "WHERE a.tx_status = :status and c.tx_status = :status and cu.tx_status = :status  " +
+            "AND  al.tx_status = :status AND ale.tx_status = :status AND dc.tx_status = :status  " +
+            "AND p.tx_status = :status AND c.tx_unique_identifier like concat ('%',:clase,'%') AND p.tx_unique_identifier " +
+            "like concat ('%',:periodo,'%')  AND cu.tx_unique_identifier like concat ('%',:curso,'%') AND al.tx_unique_identifier " +
+            "like concat ('%',:aula,'%') AND (usu.name like concat ('%',:filter,'%') OR usu.pa_surname like " +
+            "concat ('%',:filter,'%') OR usu.ma_surname like concat ('%',:filter,'%')) " +
+            " ", nativeQuery = true)
+    Optional<List<AsistenciaEntity>> findAsistenciaPeriodoAulaCursoClase(String status, String filter, String periodo, String aula, String curso, String clase, Pageable pageable);
+
+    @Query(value="select count(DISTINCT idattendance) from asistencia a JOIN clase c ON a.clase_id = c.id JOIN docentexcurso dc " +
+            "ON dc.id = docentexcurso_id JOIN aula al ON dc.aula_id = al.id JOIN curso cu ON dc.curso_id = cu.id " +
+            "JOIN anio_lectivo ale ON dc.anio_lectivo_id = ale.id JOIN periodo p ON ale.id = p.anio_lectivo_id " +
+            "JOIN alumno alu ON alu.id = a.alumno_id JOIN user usu ON usu.id = alu.user_id " +
+            "WHERE a.tx_status = :status and c.tx_status = :status and cu.tx_status = :status  " +
+            "AND  al.tx_status = :status AND ale.tx_status = :status AND dc.tx_status = :status  " +
+            "AND p.tx_status = :status AND c.tx_unique_identifier like concat ('%',:clase,'%') AND p.tx_unique_identifier " +
+            "like concat ('%',:periodo,'%')  AND cu.tx_unique_identifier like concat ('%',:curso,'%') AND al.tx_unique_identifier " +
+            "like concat ('%',:aula,'%') AND (usu.name like concat ('%',:filter,'%') OR usu.pa_surname like " +
+            "concat ('%',:filter,'%') OR usu.ma_surname like concat ('%',:filter,'%')) " +
+            " ", nativeQuery = true)
+    Long findCountAsistenciaPeriodoAulaCursoClase(String status, String filter, String periodo, String aula, String curso, String clase);
+
+
 }
