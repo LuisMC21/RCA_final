@@ -147,7 +147,7 @@ public class AlumnoService {
         AlumnoDTO.setCreateAt(LocalDateTime.now());
         //change dto to entity
         AlumnoEntity alumnoEntity = new AlumnoEntity();
-        alumnoEntity.setApoderadoEntity(this.apoderadoRepository.findByCode(AlumnoDTO.getApoderadoDTO().getCode()).orElseThrow(()-> new ResourceNotFoundException("Apoderado no encontrado")));
+        alumnoEntity.setApoderadoEntity(this.apoderadoRepository.findByUniqueIdentifier(AlumnoDTO.getApoderadoDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Apoderado no encontrado")));
 
         alumnoEntity.setAlumnoDTO(AlumnoDTO);
         alumnoEntity.setUsuarioEntity(this.usuarioRepository.findByUniqueIdentifier(apiResponseU.getData().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Hubo un error al  crear el usuario")));
