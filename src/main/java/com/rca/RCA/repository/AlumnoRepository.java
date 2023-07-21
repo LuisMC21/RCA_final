@@ -71,12 +71,12 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
             "join dxc.cursoEntity c " +
             "JOIN m.anio_lectivoEntity ale " +
             "where a.status = :status " +
-            "m.status = :status" +
-            "u.status = :status" +
-            "au.status = :status" +
-            "dxc.status = :status" +
-            "c.status = :status" +
-            "ale.status = :status" +
+            "m.status = :status " +
+            "u.status = :status " +
+            "au.status = :status " +
+            "dxc.status = :status " +
+            "c.status = :status " +
+            "ale.status = :status " +
             "and (u.numdoc like concat('%', :filter, '%') " +
             "or u.pa_surname like concat('%', :filter, '%') " +
             "or u.ma_surname like concat('%', :filter, '%'))  " +
@@ -93,12 +93,12 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
             "join dxc.cursoEntity c " +
             "JOIN m.anio_lectivoEntity ale " +
             "where a.status = :status " +
-            "m.status = :status" +
-            "u.status = :status" +
-            "au.status = :status" +
-            "dxc.status = :status" +
-            "c.status = :status" +
-            "ale.status = :status" +
+            "m.status = :status " +
+            "u.status = :status " +
+            "au.status = :status " +
+            "dxc.status = :status " +
+            "c.status = :status " +
+            "ale.status = :status " +
             "and (u.numdoc like concat('%', :filter, '%') " +
             "or u.pa_surname like concat('%', :filter, '%') " +
             "or u.ma_surname like concat('%', :filter, '%'))  " +
