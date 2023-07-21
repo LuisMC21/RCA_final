@@ -144,7 +144,7 @@ public class DocentexCursoService {
     //Función para agregar un curso asignado a un docente- START
     public ApiResponse<DocentexCursoDTO> add(DocentexCursoDTO docentexCursoDTO) throws ResourceNotFoundException, AttributeException {
         //Excepciones
-        if(docentexCursoRepository.existsByDocenteCursoAula(docentexCursoDTO.getId(), docentexCursoDTO.getDocenteDTO().getId(), docentexCursoDTO.getCursoDTO().getId(), docentexCursoDTO.getAulaDTO().getId(), ConstantsGeneric.CREATED_STATUS ))
+        if(docentexCursoRepository.existsByDocenteCursoAula("", docentexCursoDTO.getCursoDTO().getId(), docentexCursoDTO.getAulaDTO().getId(), docentexCursoDTO.getAnioLectivoDTO().getId(), ConstantsGeneric.CREATED_STATUS ))
             throw new AttributeException("Asignatura ya existe");
         log.info("Docente Curso Grado {} {} {}", docentexCursoDTO.getDocenteDTO().getId(), docentexCursoDTO.getCursoDTO().getId(), docentexCursoDTO.getAulaDTO().getId());
         ApiResponse<DocentexCursoDTO> apiResponse = new ApiResponse<>();
@@ -173,8 +173,10 @@ public class DocentexCursoService {
     public ApiResponse<DocentexCursoDTO> update(DocentexCursoDTO docentexCursoDTO) throws ResourceNotFoundException, AttributeException {
         if(docentexCursoDTO.getId().isBlank())
             throw new ResourceNotFoundException("Asignatura no existe");
-        if(docentexCursoRepository.existsByDocenteCursoAula(docentexCursoDTO.getId(), docentexCursoDTO.getDocenteDTO().getId(), docentexCursoDTO.getCursoDTO().getId(), docentexCursoDTO.getAulaDTO().getId(), ConstantsGeneric.CREATED_STATUS ))
+        if(docentexCursoRepository.existsByDocenteCursoAula(docentexCursoDTO.getId(), docentexCursoDTO.getCursoDTO().getId(), docentexCursoDTO.getAulaDTO().getId(),docentexCursoDTO.getAnioLectivoDTO().getId() , ConstantsGeneric.CREATED_STATUS ))
             throw new AttributeException("Asignatura ya existe");
+
+
         DocentexCursoEntity docentexCursoEntity = this.docentexCursoRepository.findByUniqueIdentifier(docentexCursoDTO.getId()).orElseThrow(()-> new ResourceNotFoundException("DocentexCurso no existe"));
 
         ApiResponse<DocentexCursoDTO> apiResponse = new ApiResponse<>();

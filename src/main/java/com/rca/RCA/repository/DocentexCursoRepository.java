@@ -111,12 +111,17 @@ public interface DocentexCursoRepository extends JpaRepository<DocentexCursoEnti
             "JOIN dxc.cursoEntity c " +
             "JOIN dxc.aulaEntity a " +
             "JOIN dxc.docenteEntity d " +
+            "JOIN dxc.anio_lectivoEntity anio " +
             "WHERE dxc.uniqueIdentifier != :id " +
             "AND dxc.status = :status " +
-            "AND d.uniqueIdentifier = :idD " +
+            "AND c.status = :status " +
+            "AND a.status = :status " +
+            "AND d.status = :status " +
+            "AND anio.status = :status " +
             "AND c.uniqueIdentifier = :idC " +
-            "AND a.uniqueIdentifier = :idA ")
-    boolean existsByDocenteCursoAula(String id, String idD, String idC, String idA, String status);
+            "AND a.uniqueIdentifier = :idA " +
+            "AND anio.uniqueIdentifier = :id_anio ")
+    boolean existsByDocenteCursoAula(String id, String idC, String idA, String id_anio, String status);
 
     @Query(value="select dc.* from docentexcurso dc JOIN aula a ON a.id = dc.aula_id JOIN curso c ON c.id = dc.curso_id " +
             "Where dc.tx_status = :status and a.tx_status = :status and c.tx_status = :status " +
