@@ -117,6 +117,23 @@ public class AsistenciaService {
         return apiResponse;
     }
 
+    public ApiResponse<Pagination<AsistenciaDTO>> getListByPeriodoAulaCursoClase(String filter, String periodo, String aula, String curso, String clase, int page, int size) {
+        log.info("filter page size {} {} {}", filter, page, size);
+        ApiResponse<Pagination<AsistenciaDTO>> apiResponse = new ApiResponse<>();
+        Pagination<AsistenciaDTO> pagination = new Pagination<>();
+        pagination.setCountFilter(this.asistenciaRepository.findCountAsistenciaPeriodoAulaCursoClase(ConstantsGeneric.CREATED_STATUS, filter, periodo, aula, curso, clase));
+        if (pagination.getCountFilter() > 0) {
+            Pageable pageable = PageRequest.of(page, size);
+            List<AsistenciaEntity> AsistenciaEntities = this.asistenciaRepository.findAsistenciaPeriodoAulaCursoClase(ConstantsGeneric.CREATED_STATUS, filter, periodo, aula, curso, clase, pageable).orElse(new ArrayList<>());
+            pagination.setList(AsistenciaEntities.stream().map(AsistenciaEntity::getAsistenciaDTO).collect(Collectors.toList()));
+        }
+        pagination.setTotalPages(pagination.processAndGetTotalPages(size));
+        apiResponse.setData(pagination);
+        apiResponse.setSuccessful(true);
+        apiResponse.setMessage("ok");
+        return apiResponse;
+    }
+
     public ApiResponse<Pagination<AsistenciaDTO>> getListWithAlumno(String filter, int page, int size, String periodo, String alumno, String curso) {
         log.info("filter page size {} {} {}", filter, page, size);
         ApiResponse<Pagination<AsistenciaDTO>> apiResponse = new ApiResponse<>();
