@@ -124,7 +124,8 @@ public class DocenteService {
 
         UsuarioDTO usuarioDTO = this.docenteRepository.findUserByDocente(docenteDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Usuario no existe")).getUsuarioDTO();
         usuarioDTO.setRol(docenteDTO.getUsuarioDTO().getRol());
-        ApiResponse<UsuarioDTO> apiResponseU = this.usuarioService.update(usuarioDTO);
+
+        ApiResponse<UsuarioDTO> apiResponseU = this.usuarioService.update(docenteDTO.getUsuarioDTO());
         ApiResponse<DocenteDTO> apiResponse = new ApiResponse<>();
         DocenteEntity docenteEntity = this.docenteRepository.findByUniqueIdentifier(docenteDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Docente no existe"));
         //Set update time
@@ -138,6 +139,7 @@ public class DocenteService {
         docenteEntity.getUsuarioEntity().setMa_surname(docenteDTO.getUsuarioDTO().getMa_surname());
         docenteEntity.getUsuarioEntity().setName(docenteDTO.getUsuarioDTO().getName());
         docenteEntity.getUsuarioEntity().setGra_inst(docenteDTO.getUsuarioDTO().getGra_inst());
+        docenteEntity.getUsuarioEntity().setTel(docenteDTO.getUsuarioDTO().getTel());
         docenteEntity.getUsuarioEntity().setEmail(docenteDTO.getUsuarioDTO().getEmail());
         if(docenteDTO.getUsuarioDTO().getPassword() != null)
             docenteEntity.getUsuarioEntity().setPassword(docenteDTO.getUsuarioDTO().getPassword());
