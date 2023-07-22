@@ -44,7 +44,7 @@ public class GradoRESTController {
     }
 
     @DeleteMapping("{id}")
-    public ApiResponse<GradoDTO> delete(@PathVariable String id) throws ResourceNotFoundException {
+    public ApiResponse<GradoDTO> delete(@PathVariable String id) throws ResourceNotFoundException, AttributeException {
         return this.gradoService.delete(id);
     }
 }

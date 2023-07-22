@@ -106,16 +106,15 @@ public class GradoService {
 
     //Función para cambiar estado a eliminado de un grado - START
     //id dto=uniqueIdentifier Entity
-    public ApiResponse<GradoDTO> delete(String id) throws ResourceNotFoundException {
+    public ApiResponse<GradoDTO> delete(String id) throws ResourceNotFoundException, AttributeException {
         ApiResponse<GradoDTO> apiResponse = new ApiResponse<>();
         GradoEntity gradoEntity=this.gradoRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Grado no encontrado"));
         gradoEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
         gradoEntity.setDeleteAt(LocalDateTime.now());
         //Eliminar lista de aulas del grado
-        Optional<List<AulaEntity>> optionalAulaEntities= this.aulaRepository.findById_Grado(gradoEntity.getId(), ConstantsGeneric.CREATED_STATUS);
-        for (int i = 0; i < optionalAulaEntities.get().size(); i++) {
-            this.aulaService.delete(optionalAulaEntities.get().get(i).getCode());
-        }
+        List<AulaEntity> aulaEntities= this.aulaRepository.findById_Grado(gradoEntity.getId(), ConstantsGeneric.CREATED_STATUS).orElse(new ArrayList<>());
+        if(aulaEntities.size()>0)
+            throw new AttributeException("El grado tiene un aula asignada, elimine el aula para poder eliminar");
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
         apiResponse.setData(this.gradoRepository.save(gradoEntity).getGradoDTO());
