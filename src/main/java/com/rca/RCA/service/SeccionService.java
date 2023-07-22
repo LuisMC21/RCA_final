@@ -107,17 +107,16 @@ public class SeccionService {
 
     //Función para cambiar estado a eliminado- START
     //id dto=uniqueIdentifier Entity
-    public ApiResponse<SeccionDTO> delete(String id) throws ResourceNotFoundException {
+    public ApiResponse<SeccionDTO> delete(String id) throws ResourceNotFoundException, AttributeException {
         SeccionEntity seccionEntity=this.seccionRepository.findByUniqueIdentifier(id, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Sección no existe"));
 
         ApiResponse<SeccionDTO> apiResponse = new ApiResponse<>();
         //Verifica que el id y el status sean válidos
         seccionEntity.setStatus(ConstantsGeneric.DELETED_STATUS);
         seccionEntity.setDeleteAt(LocalDateTime.now());
-        Optional<List<AulaEntity>> optionalAulaEntities= this.aulaRepository.findById_Seccion(seccionEntity.getId(), ConstantsGeneric.CREATED_STATUS);
-        for(int i=0; i<optionalAulaEntities.get().size(); i++){
-            this.aulaService.delete(optionalAulaEntities.get().get(i).getCode());
-        }
+        List<AulaEntity> aulaEntities= this.aulaRepository.findById_Seccion(seccionEntity.getId(), ConstantsGeneric.CREATED_STATUS).orElse(new ArrayList<>());
+        if(aulaEntities.size()>0 )
+            throw new AttributeException("La sección tiene aula asignada, elimine primero el aula");
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
         apiResponse.setData(this.seccionRepository.save(seccionEntity).getSeccionDTO());

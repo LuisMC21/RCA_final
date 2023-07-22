@@ -44,7 +44,7 @@ public class SeccionRESTController {
     }
 
     @DeleteMapping("{id}")
-    public ApiResponse<SeccionDTO> delete(@PathVariable String id) throws ResourceNotFoundException {
+    public ApiResponse<SeccionDTO> delete(@PathVariable String id) throws ResourceNotFoundException, AttributeException {
         return this.seccionService.delete(id);
     }
 }

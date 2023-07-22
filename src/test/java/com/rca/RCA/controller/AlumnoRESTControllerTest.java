@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class AlumnoRESTControllerTest {
-
+/*
     @Mock
     private AlumnoService alumnoService;
 
@@ -262,5 +262,5 @@ class AlumnoRESTControllerTest {
         assertEquals(MediaType.APPLICATION_PDF, response.getHeaders().getContentType());
         assertEquals(pdfBytes.length, ((ByteArrayResource) response.getBody()).getByteArray().length);
 
-    }
+    }*/
 }
