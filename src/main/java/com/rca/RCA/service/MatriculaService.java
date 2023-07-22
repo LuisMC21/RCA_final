@@ -155,7 +155,7 @@ public class MatriculaService {
         AulaEntity aulaEntity = this.matriculaRepository.findAulaMatriculado(id_alumno, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Aula  no existe"));
         try {
             final File file = ResourceUtils.getFile("classpath:reportes/ficha_matricula.jasper"); //la ruta del reporte
-            final File imgLogo = ResourceUtils.getFile("classpath:images/logoC.jpg"); //Ruta de la imagen
+            final File imgLogo = ResourceUtils.getFile("classpath:images/logo.png"); //Ruta de la imagen
             final JasperReport report = (JasperReport) JRLoader.loadObject(file);
 
             //Se consultan los datos para el reporte de cursos matriculados DTO
