@@ -77,6 +77,7 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
             "AND ale.status = :status " +
             "and (u.numdoc like concat('%', :filter, '%') " +
             "or u.pa_surname like concat('%', :filter, '%') " +
+            "or u.name like concat('%', :filter, '%') " +
             "or u.ma_surname like concat('%', :filter, '%'))  " +
             "and au.uniqueIdentifier like concat('%', :aula, '%') " +
             "and ale.uniqueIdentifier like concat('%', :anio, '%')")
@@ -96,6 +97,7 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
             "AND ale.status = :status " +
             "and (u.numdoc like concat('%', :filter, '%') " +
             "or u.pa_surname like concat('%', :filter, '%') " +
+            "or u.name like concat('%', :filter, '%') " +
             "or u.ma_surname like concat('%', :filter, '%'))  " +
             "and au.uniqueIdentifier like concat('%', :aula, '%') " +
             "and ale.uniqueIdentifier like concat('%', :anio, '%')")
