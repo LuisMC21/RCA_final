@@ -17,11 +17,24 @@ public interface EvaluacionRepository extends JpaRepository<EvaluacionEntity, In
             "join docentexcurso dxc on dxc.id = e.docentexcurso_id " +
             "join curso c on c.id = dxc.curso_id " +
             "join aula a on a.id = dxc.aula_id " +
-            "where c.tx_unique_identifier like concat('%', :curso, '%') " +
-            "and p.tx_unique_identifier like concat('%', :periodo, '%') " +
-            "and a.tx_unique_identifier like concat('%', :aula, '%') " +
+            "join alumno al on al.id = e.alumno_id " +
+            "join user u on u.id = al.user_id " +
+            "where p.tx_status = :status " +
+            "AND e.tx_status = :status " +
+            "AND c.tx_status = :status " +
+            "AND al.tx_status = :status " +
+            "AND a.tx_status = :status " +
+            "AND u.tx_status = :status " +
+            "AND dxc.tx_status = :status " +
+            "and (u.numdoc like concat('%', :filter, '%') " +
+            "or u.pa_surname like concat('%', :filter, '%') " +
+            "or u.name like concat('%', :filter, '%') " +
+            "or u.ma_surname like concat('%', :filter, '%'))  " +
+            "and  c.tx_unique_identifier like concat('%', :curso, '%') " +
+            "and p.tx_unique_identifier  like concat('%', :periodo, '%') " +
+            "and a.tx_unique_identifier  like concat('%', :aula, '%') " +
             "and e.tx_status = :status", nativeQuery = true)
-    Optional<List<EvaluacionEntity>> findEntities(String status, String periodo, String aula, String curso,Pageable pageable);
+    Optional<List<EvaluacionEntity>> findEntities(String filter, String status, String periodo, String aula, String curso,Pageable pageable);
 
 
     @Query(value = "SELECT e FROM EvaluacionEntity e " +
@@ -70,11 +83,24 @@ public interface EvaluacionRepository extends JpaRepository<EvaluacionEntity, In
             "join docentexcurso dxc on dxc.id = e.docentexcurso_id " +
             "join curso c on c.id = dxc.curso_id " +
             "join aula a on a.id = dxc.aula_id " +
-            "where c.tx_unique_identifier like concat('%', :curso, '%') " +
+            "join alumno al on al.id = e.alumno_id " +
+            "join user u on u.id = al.user_id " +
+            "where p.tx_status = :status " +
+            "AND e.tx_status = :status " +
+            "AND c.tx_status = :status " +
+            "AND al.tx_status = :status " +
+            "AND a.tx_status = :status " +
+            "AND u.tx_status = :status " +
+            "AND dxc.tx_status = :status " +
+            "and (u.numdoc like concat('%', :filter, '%') " +
+            "or u.pa_surname like concat('%', :filter, '%') " +
+            "or u.name like concat('%', :filter, '%') " +
+            "or u.ma_surname like concat('%', :filter, '%'))  " +
+            "and  c.tx_unique_identifier like concat('%', :curso, '%') " +
             "and p.tx_unique_identifier  like concat('%', :periodo, '%') " +
             "and a.tx_unique_identifier  like concat('%', :aula, '%') " +
             "and e.tx_status = :status", nativeQuery = true)
-    Long findCountEntities(String status, String periodo, String aula, String curso);
+    Long findCountEntities(String filter, String status, String periodo, String aula, String curso);
 
 
     Optional<EvaluacionEntity> findByUniqueIdentifier(String uniqueIdentifier);

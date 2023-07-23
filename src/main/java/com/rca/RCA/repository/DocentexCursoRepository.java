@@ -21,7 +21,8 @@ public interface DocentexCursoRepository extends JpaRepository<DocentexCursoEnti
             "AND d.status = :status " +
             "AND x.status = :status " +
             "AND c.status = :status " +
-            "AND (d.code like concat('%', :filter, '%') or x.code like concat('%', :filter, '%') or a.name like concat('%', :filter, '%'))")
+            "AND (d.code like concat('%', :filter, '%') or x.code like concat('%', :filter, '%') or a.name like concat('%', :filter, '%') " +
+             "or c.name like concat('%', :filter, '%'))")
     Long findCountDocentexCurso(String status, String filter);
 
     //Función para listar las aulas existentes y activas de un grado, con filtro de código y nombre

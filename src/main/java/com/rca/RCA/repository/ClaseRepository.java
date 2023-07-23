@@ -33,22 +33,28 @@ public interface ClaseRepository extends JpaRepository<ClaseEntity, Integer> {
             "join docentexcurso dxc on dxc.id = c.docentexcurso_id " +
             "join curso cu on cu.id = dxc.curso_id " +
             "join aula a on a.id = dxc.aula_id " +
-            "Where c.tx_status = 'CREATED' " +
+            "Where c.tx_status = :status and dxc.tx_status = :status and cu.tx_status =:status " +
+            "and a.tx_status =:status and p.tx_status=:status " +
+            "and (c.name like concat('%', :filter, '%') " +
+            "or c.date like concat('%', :filter, '%')) " +
             "and a.tx_unique_identifier like concat ('%',:aula,'%') " +
             "and cu.tx_unique_identifier like concat ('%',:curso,'%') " +
             "and p.tx_unique_identifier like concat ('%',:periodo,'%') and c.tx_status=:status", nativeQuery = true)
-    Optional<List<ClaseEntity>> findEntities(String status, String periodo, String aula, String curso, Pageable pageable);
+    Optional<List<ClaseEntity>> findEntities(String filter, String status, String periodo, String aula, String curso, Pageable pageable);
 
     @Query(value = "Select count(*) from clase c " +
             "join periodo p on p.id = c.periodo_id " +
             "join docentexcurso dxc on dxc.id = c.docentexcurso_id " +
             "join curso cu on cu.id = dxc.curso_id " +
             "join aula a on a.id = dxc.aula_id " +
-            "Where c.tx_status = 'CREATED' " +
+            "Where c.tx_status = :status and dxc.tx_status = :status and cu.tx_status =:status " +
+            "and a.tx_status =:status and p.tx_status=:status " +
+            "and (c.name like concat('%', :filter, '%') " +
+            "or c.date like concat('%', :filter, '%')) " +
             "and a.tx_unique_identifier like concat ('%',:aula,'%') " +
             "and cu.tx_unique_identifier like concat ('%',:curso,'%') " +
             "and p.tx_unique_identifier like concat ('%',:periodo,'%') and c.tx_status=:status", nativeQuery = true)
-    Long findCountEntities(String status, String periodo, String aula, String curso);
+    Long findCountEntities(String filter, String status, String periodo, String aula, String curso);
 
     @Query(value = "SELECT al FROM AlumnoEntity al " +
             "JOIN al.matriculaEntities m " +

@@ -112,10 +112,10 @@ public class EvaluacionService {
         log.info("filter page size {} {} {}", filter, page, size);
         ApiResponse<Pagination<EvaluacionDTO>> apiResponse = new ApiResponse<>();
         Pagination<EvaluacionDTO> pagination = new Pagination<>();
-        pagination.setCountFilter(this.evaluacionRepository.findCountEntities(ConstantsGeneric.CREATED_STATUS, periodo, aula, curso));
+        pagination.setCountFilter(this.evaluacionRepository.findCountEntities(filter, ConstantsGeneric.CREATED_STATUS, periodo, aula, curso));
         if (pagination.getCountFilter() > 0) {
             Pageable pageable = PageRequest.of(page, size);
-            List<EvaluacionEntity> EvaluacionEntities = this.evaluacionRepository.findEntities(ConstantsGeneric.CREATED_STATUS, periodo, aula, curso,pageable).orElse(new ArrayList<>());
+            List<EvaluacionEntity> EvaluacionEntities = this.evaluacionRepository.findEntities(filter,ConstantsGeneric.CREATED_STATUS, periodo, aula, curso,pageable).orElse(new ArrayList<>());
             pagination.setList(EvaluacionEntities.stream().map(EvaluacionEntity::getEvaluacionDTO).collect(Collectors.toList()));
         }
         pagination.setTotalPages(pagination.processAndGetTotalPages(size));
