@@ -34,9 +34,9 @@ public class UsuarioEntity extends AuditoryEntity{
     private Date birthdate;
     @Column(name = "type_doc")
     private String type_doc;
-    @Column(name = "numdoc", unique = true)
+    @Column(name = "numdoc")
     private String numdoc;
-    @Column(name = "tel", unique = true)
+    @Column(name = "tel")
     private String tel;
     @Column(name = "gra_inst")
     private String gra_inst;
