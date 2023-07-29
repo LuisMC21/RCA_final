@@ -44,6 +44,7 @@ public class EvaluacionService {
     private PeriodoRepository periodoRepository;
     private AnioLectivoRepository anioLectivoRepository;
     private CursoRepository cursoRepository;
+    @Autowired
     private AulaRepository aulaRepository;
     private EvaluacionService evaluacionService;
 
@@ -60,9 +61,8 @@ public class EvaluacionService {
 
     @Transactional(rollbackFor = {Exception.class, ResourceNotFoundException.class, AttributeException.class, AccessDeniedException.class, MethodArgumentNotValidException.class})
     public ApiResponse<String> generatedEvaluations(String id_periodo, String filter) throws ResourceNotFoundException, AttributeException {
-        if(this.evaluacionRepository.findById_Periodo(id_periodo, ConstantsGeneric.CREATED_STATUS).isPresent())
+        if(this.evaluacionRepository.findById_Periodo(id_periodo, ConstantsGeneric.CREATED_STATUS).orElse(new ArrayList<>()).size()>0)
             throw new AttributeException("Evaluaciones existentes");
-
 
         ApiResponse<String> apiResponse = new ApiResponse<>();
 
@@ -71,16 +71,22 @@ public class EvaluacionService {
         List<AulaEntity> aulaEntities = this.aulaRepository.findAulaxAnio(ConstantsGeneric.CREATED_STATUS, periodoEntity.getAnio_lectivoEntity().getUniqueIdentifier(), filter).orElseThrow(()-> new ResourceNotFoundException("Aulas no encontradas"));
 
         for (int i = 0; i<aulaEntities.size(); i++) {
+            System.out.println(aulaEntities.get(i).getAulaDTO().getGradoDTO().getName() + "-" + aulaEntities.get(i).getAulaDTO().getSeccionDTO().getName());
             List<CursoEntity> cursoEntities = this.cursoRepository.findCursoByAulaAnio(ConstantsGeneric.CREATED_STATUS, aulaEntities.get(i).getUniqueIdentifier(), periodoEntity.getAnio_lectivoEntity().getUniqueIdentifier()).orElseThrow(()-> new ResourceNotFoundException("Cursos no encontrados"));
+            System.out.println("cursos: " + cursoEntities.size());
             List<AlumnoEntity> alumnoEntities = this.alumnoRepository.findEntities(ConstantsGeneric.CREATED_STATUS, periodoEntity.getAnio_lectivoEntity().getUniqueIdentifier(), aulaEntities.get(i).getUniqueIdentifier(), "").orElseThrow(()->new ResourceNotFoundException("Alumnos no encontrados"));
+            System.out.println("alumnos: "+ alumnoEntities.size());
             for (int j = 0; j < cursoEntities.size(); j++) {
+                System.out.println(cursoEntities.get(j).getName());
                 DocentexCursoEntity docentexCursoEntity = this.docentexCursoRepository.findByAulaCurso(ConstantsGeneric.CREATED_STATUS, aulaEntities.get(i).getUniqueIdentifier(), cursoEntities.get(j).getUniqueIdentifier()).orElseThrow(()-> new ResourceNotFoundException("Asignatura no encontrada"));
                 for (int k = 0; k < alumnoEntities.size(); k++) {
+                    System.out.println("hay alumnos");
                     EvaluacionDTO evaluacionDTO = new EvaluacionDTO();
                     evaluacionDTO.setPeriodoDTO(periodoEntity.getPeriodoDTO());
                     evaluacionDTO.setDocentexCursoDTO(docentexCursoEntity.getDocentexCursoDTO());
                     evaluacionDTO.setAlumnoDTO(alumnoEntities.get(k).getAlumnoDTO());
-                    this.evaluacionService.add(evaluacionDTO);
+                    ApiResponse<EvaluacionDTO> api = this.add(evaluacionDTO);
+                    System.out.println(api.getMessage());
                 }
             }
         }

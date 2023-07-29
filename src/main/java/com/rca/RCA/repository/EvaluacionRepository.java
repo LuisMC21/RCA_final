@@ -107,8 +107,7 @@ public interface EvaluacionRepository extends JpaRepository<EvaluacionEntity, In
 
     @Query(value = "SELECT e FROM PeriodoEntity p " +
             "JOIN p.evaluacionEntities e " +
-            "WHERE p=e.periodoEntity " +
-            "AND p.uniqueIdentifier= :id_periodo " +
+            "WHERE p.uniqueIdentifier= :id_periodo " +
             "AND e.status= :status " +
             "AND p.status= :status ")
     Optional<List<EvaluacionEntity>> findById_Periodo(String id_periodo, String status);

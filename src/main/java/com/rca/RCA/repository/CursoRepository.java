@@ -57,6 +57,9 @@ public interface CursoRepository extends JpaRepository<CursoEntity, Integer> {
             "JOIN dxc.aulaEntity au " +
             "JOIN dxc.anio_lectivoEntity anio " +
             "where c.status = :status " +
+            "AND dxc.status = :status " +
+            "AND au.status = :status " +
+            "AND anio.status = :status " +
             "AND au.uniqueIdentifier = :aula " +
             "AND anio.uniqueIdentifier = :anio " +
             "order by c.name")

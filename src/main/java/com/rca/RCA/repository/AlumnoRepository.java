@@ -59,8 +59,10 @@ public interface AlumnoRepository extends JpaRepository<AlumnoEntity, Integer> {
             "join docentexcurso dxc ON dxc.aula_id = al.id " +
             "join curso c ON c.id = dxc.curso_id " +
             "join anio_lectivo ale ON ale.id = m.anio_lectivo_id " +
-            "where a.tx_status = :status and al.tx_unique_identifier like concat('%', :aula, '%') and " +
-            "c.name like concat('%', :curso, '%') and ale.name like concat('%', :anio, '%')", nativeQuery = true)
+            "where a.tx_status = :status " +
+            "and al.tx_unique_identifier like concat('%', :aula, '%') and " +
+            "c.tx_unique_identifier like concat('%', :curso, '%') " +
+            "and ale.tx_unique_identifier like concat('%', :anio, '%')", nativeQuery = true)
     Optional<List<AlumnoEntity>> findEntities(String status, String anio, String aula, String curso);
 
     @Query(value = "SELECT a FROM AlumnoEntity a " +
