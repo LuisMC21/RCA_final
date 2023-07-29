@@ -51,10 +51,10 @@ public class EvaluacionRESTController {
         return this.evaluacionService.getList(filter, page, size, periodo, alumno);
     }
 
-    @GetMapping("/generatedEvaluations/{id}/{filter}")
-    public ApiResponse<String> generatedEvaluations(@PathVariable String id_perido,
-                                                    @PathVariable String filter) throws ResourceNotFoundException, AttributeException {
-        return this.evaluacionService.generatedEvaluations(id_perido, filter);
+    @GetMapping("generatedEvaluations")
+    public ApiResponse<String> generatedEvaluations(@RequestParam String id_periodo,
+                                                    @RequestParam(defaultValue = "") String filter) throws ResourceNotFoundException, AttributeException {
+        return this.evaluacionService.generatedEvaluations(id_periodo, filter);
     }
 
     @GetMapping("{id}")
