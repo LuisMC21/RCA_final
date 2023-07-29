@@ -24,7 +24,9 @@ public interface DocenteRepository extends JpaRepository<DocenteEntity, Integer>
             "WHERE u = d.usuarioEntity " +
             "AND d.status = :status " +
             "AND u.status = :status " +
-            "AND (d.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or u.numdoc like concat('%', :filter, '%'))")
+            "AND (d.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') " +
+            "or u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') " +
+            "or u.numdoc like concat('%', :filter, '%') or d.uniqueIdentifier like concat('%', :filter, '%'))")
     Optional<List<DocenteEntity>> findDocente(String status, String filter, Pageable pageable);
 
   //Función para contar los docentes activass con filro de código, nombre o documento de identidad
@@ -33,7 +35,9 @@ public interface DocenteRepository extends JpaRepository<DocenteEntity, Integer>
             "WHERE u = d.usuarioEntity " +
             "AND d.status = :status " +
             "AND u.status = :status " +
-            "AND (d.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or u.numdoc like concat('%', :filter, '%'))")
+            "AND (d.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') " +
+            "or u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') " +
+            "or u.numdoc like concat('%', :filter, '%') or d.uniqueIdentifier like concat('%', :filter, '%'))")
     Long findCountDocente(String status, String filter);
 
     //Función para obtener un docente con su Identificado Único
