@@ -12,7 +12,7 @@ import java.time.LocalDate;
 public class MatriculaDTO extends AuditoryDTO{
     private String code;
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @NotNull (message = "La fecha de matrícula no puede estar vacía") @Past
+    @NotNull (message = "La fecha de matrícula no puede estar vacía")
     private LocalDate date;
     private AulaDTO aulaDTO;
     private AnioLectivoDTO anioLectivoDTO;

@@ -159,18 +159,18 @@ public class AulaService {
         aulaEntity.setDeleteAt(LocalDateTime.now());
 
         //Eliminar lista de matriculas del aula
-        Optional<List<MatriculaEntity>> optionalMatriculaEntities = this.matriculaRepository.findByAula(aulaEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
-        for (int i = 0; i < optionalMatriculaEntities.get().size(); i++) {
-            optionalMatriculaEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-            optionalMatriculaEntities.get().get(i).setDeleteAt(aulaEntity.getDeleteAt());
-            this.matriculaService.delete(optionalMatriculaEntities.get().get(i).getUniqueIdentifier());
+        List<MatriculaEntity> matriculaEntities = this.matriculaRepository.findByAula(aulaEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS).orElse(new ArrayList<>());
+        for (int i = 0; i < matriculaEntities.size(); i++) {
+            matriculaEntities.get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+            matriculaEntities.get(i).setDeleteAt(aulaEntity.getDeleteAt());
+            this.matriculaService.delete(matriculaEntities.get(i).getUniqueIdentifier());
         }
-        Optional<List<DocentexCursoEntity>> optionalDocentexCursoEntities = this.docentexCursoRepository.findByAula(aulaEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS);
+        List<DocentexCursoEntity> docentexCursoEntities = this.docentexCursoRepository.findByAula(aulaEntity.getUniqueIdentifier(), ConstantsGeneric.CREATED_STATUS).orElse(new ArrayList<>());
 
-        for (int i = 0; i < optionalDocentexCursoEntities.get().size(); i++) {
-            optionalDocentexCursoEntities.get().get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
-            optionalDocentexCursoEntities.get().get(i).setDeleteAt(aulaEntity.getDeleteAt());
-            this.docentexCursoService.delete(optionalDocentexCursoEntities.get().get(i).getUniqueIdentifier());
+        for (int i = 0; i < docentexCursoEntities.size(); i++) {
+            docentexCursoEntities.get(i).setStatus(ConstantsGeneric.DELETED_STATUS);
+            docentexCursoEntities.get(i).setDeleteAt(aulaEntity.getDeleteAt());
+            this.docentexCursoService.delete(docentexCursoEntities.get(i).getUniqueIdentifier());
         }
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
