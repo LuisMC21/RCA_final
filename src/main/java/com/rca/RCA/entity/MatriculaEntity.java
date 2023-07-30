@@ -22,7 +22,7 @@ public class MatriculaEntity extends AuditoryEntity{
     private String code;
     //Fecha
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Column(name = "date") @Past
+    @Column(name = "date")
     private LocalDate date;
     //Sección y grado
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

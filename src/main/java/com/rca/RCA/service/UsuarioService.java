@@ -105,8 +105,6 @@ public class UsuarioService {
         usuarioEntity.setGra_inst(usuarioDTO.getGra_inst());
         usuarioEntity.setEmail(usuarioDTO.getEmail());
         usuarioEntity.setTel(usuarioDTO.getTel());
-        log.info(usuarioDTO.getRol());
-        System.out.println(usuarioEntity.getUsuarioDTO());
         //set category
         if(usuarioDTO.getRol().equalsIgnoreCase("ADMINISTRADOR")){
             usuarioEntity.getRoles().add(this.rolRepository.findByRolNombre(RolNombre.ROLE_ADMIN).get());
