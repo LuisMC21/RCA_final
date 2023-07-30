@@ -19,19 +19,25 @@ import java.util.Optional;
 public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>{
 
     //Función para obtener un usaurio con filtro por codigo,nombre, apellidos
-    @Query(value = "select u from UsuarioEntity u " +
-            "where u.status = :status " +
-            "and (u.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or " +
-            "u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or " +
-            "u.numdoc like concat('%', :filter, '%') or u.uniqueIdentifier like concat('%', :filter, '%'))")
+    @Query(value = "SELECT u.* " +
+            "FROM user u " +
+            "JOIN usuario_rol ur ON u.id = ur.usuario_id " +
+            "JOIN role r ON r.id = ur.rol_id " +
+            "WHERE r.rol_nombre = 'ROLE_ADMIN' " +
+            "AND u.tx_status = :status " +
+            "AND (u.name like concat ('%',:filter,'%') or u.pa_surname like concat ('%',:filter,'%') or u.ma_surname like concat ('%',:filter,'%') " +
+            "or u.numdoc like concat ('%',:filter,'%'))", nativeQuery = true)
     Optional<List<UsuarioEntity>> findEntities(String status, String filter, Pageable pageable);
 
     //Función para contar los usuarios
-    @Query(value = "select count(u) from UsuarioEntity u " +
-            "where u.status = :status " +
-            "and (u.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or " +
-            "u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or " +
-            "u.numdoc like concat('%', :filter, '%') or u.uniqueIdentifier like concat('%', :filter, '%'))")
+    @Query(value = "SELECT count(*) " +
+            "FROM user u " +
+            "JOIN usuario_rol ur ON u.id = ur.usuario_id " +
+            "JOIN role r ON r.id = ur.rol_id " +
+            "WHERE r.rol_nombre = 'ROLE_ADMIN' " +
+            "AND u.tx_status = :status " +
+            "AND (u.name like concat ('%',:filter,'%') or u.pa_surname like concat ('%',:filter,'%') or u.ma_surname like concat ('%',:filter,'%') " +
+            "or u.numdoc like concat ('%',:filter,'%'))", nativeQuery = true)
     Long findCountEntities(String status, String filter);
 
     @Query(value = "select count(*) from usuario u JOIN rol r where r.id = u.rol_id " +
