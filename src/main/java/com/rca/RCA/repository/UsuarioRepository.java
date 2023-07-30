@@ -23,7 +23,7 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
             "where u.status = :status " +
             "and (u.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or " +
             "u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or " +
-            "u.numdoc like concat('%', :filter, '%'))")
+            "u.numdoc like concat('%', :filter, '%') or u.uniqueIdentifier like concat('%', :filter, '%'))")
     Optional<List<UsuarioEntity>> findEntities(String status, String filter, Pageable pageable);
 
     //Función para contar los usuarios
@@ -31,7 +31,7 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer>
             "where u.status = :status " +
             "and (u.code like concat('%', :filter, '%') or u.pa_surname like concat('%', :filter, '%') or " +
             "u.ma_surname like concat('%', :filter, '%') or u.name like concat('%', :filter, '%') or " +
-            "u.numdoc like concat('%', :filter, '%'))")
+            "u.numdoc like concat('%', :filter, '%') or u.uniqueIdentifier like concat('%', :filter, '%'))")
     Long findCountEntities(String status, String filter);
 
     @Query(value = "select count(*) from usuario u JOIN rol r where r.id = u.rol_id " +
