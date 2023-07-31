@@ -78,7 +78,8 @@ public class EvaluacionService {
             System.out.println("alumnos: "+ alumnoEntities.size());
             for (int j = 0; j < cursoEntities.size(); j++) {
                 System.out.println(cursoEntities.get(j).getName());
-                DocentexCursoEntity docentexCursoEntity = this.docentexCursoRepository.findByAulaCurso(ConstantsGeneric.CREATED_STATUS, aulaEntities.get(i).getUniqueIdentifier(), cursoEntities.get(j).getUniqueIdentifier()).orElseThrow(()-> new ResourceNotFoundException("Asignatura no encontrada"));
+                DocentexCursoEntity docentexCursoEntity = this.docentexCursoRepository.
+                        findByAulaCurso(ConstantsGeneric.CREATED_STATUS, periodoEntity.getAnio_lectivoEntity().getUniqueIdentifier(),aulaEntities.get(i).getUniqueIdentifier(), cursoEntities.get(j).getUniqueIdentifier()).orElseThrow(()-> new ResourceNotFoundException("Asignatura no encontrada"));
                 for (int k = 0; k < alumnoEntities.size(); k++) {
                     System.out.println("hay alumnos");
                     EvaluacionDTO evaluacionDTO = new EvaluacionDTO();

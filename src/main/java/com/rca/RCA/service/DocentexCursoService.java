@@ -84,9 +84,9 @@ public class DocentexCursoService {
         return apiResponse;
     }
 
-    public ApiResponse<DocentexCursoDTO> getListByAulaCurso(String aula, String curso) throws ResourceNotFoundException {
+    public ApiResponse<DocentexCursoDTO> getListByAulaCurso(String anio, String aula, String curso) throws ResourceNotFoundException {
         ApiResponse<DocentexCursoDTO> apiResponse = new ApiResponse<>();
-        DocentexCursoDTO docentexCursoDTO =this.docentexCursoRepository.findByAulaCurso(ConstantsGeneric.CREATED_STATUS, aula, curso).orElseThrow(()-> new ResourceNotFoundException("Asignatura no encontrada")).getDocentexCursoDTO();
+        DocentexCursoDTO docentexCursoDTO =this.docentexCursoRepository.findByAulaCurso(ConstantsGeneric.CREATED_STATUS, anio, aula, curso).orElseThrow(()-> new ResourceNotFoundException("Asignatura no encontrada")).getDocentexCursoDTO();
 
         apiResponse.setData(docentexCursoDTO);
         apiResponse.setSuccessful(true);

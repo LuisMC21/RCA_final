@@ -60,9 +60,10 @@ public class DocentexCursoRESTController {
 
     @GetMapping("ac")
     public ApiResponse<DocentexCursoDTO> findAc(
+            @RequestParam(defaultValue = "") String anio,
             @RequestParam(defaultValue = "") String aula,
             @RequestParam(defaultValue = "") String curso) throws ResourceNotFoundException {
-        return this.docentexCursoService.getListByAulaCurso(aula, curso);
+        return this.docentexCursoService.getListByAulaCurso(anio, aula, curso);
     }
 
     @GetMapping("{id}")
