@@ -125,10 +125,12 @@ public interface DocentexCursoRepository extends JpaRepository<DocentexCursoEnti
     boolean existsByDocenteCursoAula(String id, String idC, String idA, String id_anio, String status);
 
     @Query(value="select dc.* from docentexcurso dc JOIN aula a ON a.id = dc.aula_id JOIN curso c ON c.id = dc.curso_id " +
-            "Where dc.tx_status = :status and a.tx_status = :status and c.tx_status = :status " +
+            "JOIN anio_lectivo al ON al.id = dc.anio_lectivo_id " +
+            "Where dc.tx_status = :status and a.tx_status = :status and c.tx_status = :status and al.tx_status = :status " +
             "and c.tx_unique_identifier like  concat('%', :curso, '%') " +
+            "and al.tx_unique_identifier like concat('%', :anio, '%') " +
             "and a.tx_unique_identifier like  concat('%', :aula, '%') ", nativeQuery = true)
-    Optional<DocentexCursoEntity> findByAulaCurso(String status, String aula, String curso);
+    Optional<DocentexCursoEntity> findByAulaCurso(String status, String anio, String aula, String curso);
 
     @Query(value="Select dc.* from docentexcurso dc JOIN docente d ON dc.docente_id = d.id JOIN anio_lectivo al " +
             "ON al.id = dc.anio_lectivo_id " +
