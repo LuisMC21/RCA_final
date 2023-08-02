@@ -319,6 +319,7 @@ public class AsistenciaService {
                 ReporteAsistenciaAulaDTO reporteAsistenciaAulaDTO = new ReporteAsistenciaAulaDTO();
                 reporteAsistenciaAulaDTO.setAlumno(alumnoEntity.getNombresCompletosAl());
                 reporteAsistenciaAulaDTO.setAsistencias(this.asistenciaRepository.countAsistenciasAulaAño(alumnoEntity.getUniqueIdentifier(), "PRESENTE", id_curso, id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS));
+                System.out.println("asistencias: "+reporteAsistenciaAulaDTO.getAsistencias());
                 tasistencias += reporteAsistenciaAulaDTO.getAsistencias();
                 reporteAsistenciaAulaDTO.setFaltas(this.asistenciaRepository.countAsistenciasAulaAño(alumnoEntity.getUniqueIdentifier(), "AUSENTE", id_curso, id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS));
                 tfaltas += reporteAsistenciaAulaDTO.getFaltas();
@@ -353,8 +354,6 @@ public class AsistenciaService {
                         .build();
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentDisposition(contentDisposition);
-            log.info("1");
-
             return ResponseEntity.ok().contentLength(reporte.length)
                         .contentType(MediaType.APPLICATION_PDF)
                         .headers(headers).body(new ByteArrayResource(reporte));

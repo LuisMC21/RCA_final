@@ -102,8 +102,7 @@ public interface AsistenciaRepository extends JpaRepository<AsistenciaEntity, In
             "JOIN cl.docentexCursoEntity dxc " +
             "JOIN dxc.cursoEntity c " +
             "JOIN dxc.aulaEntity au " +
-            "JOIN al.matriculaEntities m " +
-            "JOIN m.anio_lectivoEntity a " +
+            "JOIN dxc.anio_lectivoEntity a " +
             "WHERE ass.status = :status " +
             "AND ass.state = :state " +
             "AND al.uniqueIdentifier = :id_alumno " +
