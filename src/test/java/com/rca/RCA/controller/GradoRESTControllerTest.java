@@ -135,7 +135,7 @@ class GradoRESTControllerTest {
 
     @DisplayName("Test para eliminar un grado")
     @Test
-    void delete() throws ResourceNotFoundException {
+    void delete() throws ResourceNotFoundException, AttributeException {
         // given
         ApiResponse<GradoDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);

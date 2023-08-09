@@ -1,8 +1,5 @@
 package com.rca.RCA.controller;
 
-import com.rca.RCA.entity.AulaEntity;
-import com.rca.RCA.entity.GradoEntity;
-import com.rca.RCA.entity.SeccionEntity;
 import com.rca.RCA.service.AsistenciaService;
 import com.rca.RCA.type.*;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
@@ -18,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
+import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-/*
+
 class AsistenciaRESTControllerTest {
 
     @Mock
@@ -64,7 +62,7 @@ class AsistenciaRESTControllerTest {
         claseDTO.setId(UUID.randomUUID().toString());
         claseDTO.setStatus("CREATED");
         claseDTO.setCode("AUL001");
-        claseDTO.setDate("2020-10-09");
+        claseDTO.setDate(Date.valueOf("2020-10-09"));
 
         asistenciaDTO.setClaseDTO(claseDTO);
         asistenciaDTO.setAlumnoDTO(alumnoDTO);
@@ -94,7 +92,7 @@ class AsistenciaRESTControllerTest {
         claseDTO2.setId(UUID.randomUUID().toString());
         claseDTO2.setStatus("CREATED");
         claseDTO2.setCode("AUL001");
-        claseDTO2.setDate("2020-10-09");
+        claseDTO2.setDate(Date.valueOf("2020-10-09"));
 
         asistenciaDTOS.add(asistenciaDTO2);
 
@@ -179,7 +177,7 @@ class AsistenciaRESTControllerTest {
         claseDTO2.setId(UUID.randomUUID().toString());
         claseDTO2.setStatus("CREATED");
         claseDTO2.setCode("AUL001");
-        claseDTO2.setDate("2020-10-09");
+        claseDTO2.setDate(Date.valueOf("2020-10-09"));
 
         asistenciaDTO2.setClaseDTO(claseDTO2);
 
@@ -226,7 +224,7 @@ class AsistenciaRESTControllerTest {
 
     @DisplayName("Test para el reporte de asistencias de un alumno")
     @Test
-    void exportAsistencia() {
+    void exportAsistencia() throws ResourceNotFoundException {
         PeriodoDTO periodoDTO = new PeriodoDTO();
         periodoDTO.setId(UUID.randomUUID().toString());
 
@@ -249,4 +247,3 @@ class AsistenciaRESTControllerTest {
         assertEquals(pdfBytes.length, ((ByteArrayResource) response.getBody()).getByteArray().length);
     }
 }
-*/

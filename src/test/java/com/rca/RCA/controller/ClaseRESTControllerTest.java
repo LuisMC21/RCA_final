@@ -146,7 +146,7 @@ class ClaseRESTControllerTest {
     void update() throws ResourceNotFoundException {
         //given
         ClaseDTO claseDTO2 = claseDTO;
-        claseDTO2.setDate("2020-11-10");
+        claseDTO2.setDate(Date.valueOf("2020-10-30"));
 
         ApiResponse<ClaseDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);

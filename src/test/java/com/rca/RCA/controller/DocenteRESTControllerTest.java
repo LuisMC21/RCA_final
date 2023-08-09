@@ -169,7 +169,7 @@ class DocenteRESTControllerTest {
 
     @DisplayName("Test para actualizar un docente")
     @Test
-    void update() throws ResourceNotFoundException {
+    void update() throws ResourceNotFoundException, AttributeException {
         //given
         DocenteDTO docenteDTO2 = new DocenteDTO();
         docenteDTO2.setSpecialty("CIENCIAS");

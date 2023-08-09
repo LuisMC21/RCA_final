@@ -28,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-/*
+
 class EvaluacionRESTControllerTest {
 
     @Mock
@@ -129,7 +129,7 @@ class EvaluacionRESTControllerTest {
 
     @DisplayName("Test para agregar una evaluacion")
     @Test
-    void add() {
+    void add() throws ResourceNotFoundException {
         // given
         ApiResponse<EvaluacionDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
@@ -206,14 +206,14 @@ class EvaluacionRESTControllerTest {
         AnioLectivoDTO anioLectivoDTO = new AnioLectivoDTO();
         anioLectivoDTO.setId(UUID.randomUUID().toString());
         byte[] pdfBytes = new byte[100];
-        when(evaluacionService.exportBoletaNotas(anyString(), anyString(), anyString())).thenReturn(
+        when(evaluacionService.exportBoletaNotas(anyString(), anyString())).thenReturn(
                 ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_PDF)
                         .body(new ByteArrayResource(pdfBytes))
         );
 
         // when
-        ResponseEntity<Resource> response = evaluacionRESTController.notas(periodoDTO.getId(), anioLectivoDTO.getId(), alumnoDTO.getId());
+        ResponseEntity<Resource> response = evaluacionRESTController.notas(periodoDTO.getId(), alumnoDTO.getId());
         // then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_PDF, response.getHeaders().getContentType());
@@ -244,4 +244,4 @@ class EvaluacionRESTControllerTest {
         assertEquals(MediaType.APPLICATION_PDF, response.getHeaders().getContentType());
         assertEquals(pdfBytes.length, ((ByteArrayResource) response.getBody()).getByteArray().length);
         }
-}*/
+}

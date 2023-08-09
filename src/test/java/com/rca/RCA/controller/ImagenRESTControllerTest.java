@@ -152,7 +152,7 @@ class ImagenRESTControllerTest {
 
     @DisplayName("Test para actualizar una imagen")
     @Test
-    void update() throws ResourceNotFoundException {
+    void update() throws ResourceNotFoundException, AttributeException {
         //given
         ImagenDTO imagenDTO2 = imagenDTO;
         imagenDTO2.setName("Logo 2");

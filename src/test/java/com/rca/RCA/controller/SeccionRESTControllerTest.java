@@ -163,7 +163,7 @@ class SeccionRESTControllerTest {
 
     @DisplayName("Test para eliminar una sección")
     @Test
-    void delete() throws ResourceNotFoundException {
+    void delete() throws ResourceNotFoundException, AttributeException {
         // given
         ApiResponse<SeccionDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);

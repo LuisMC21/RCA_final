@@ -6,6 +6,7 @@ import com.rca.RCA.auth.service.LoginService;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.UsuarioDTO;
 import com.rca.RCA.util.exceptions.AttributeException;
+import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,6 @@ class AuthControllerTest {
         MockitoAnnotations.openMocks(this);
         jwtDto = new JwtDto();
         jwtDto.setToken("epmasdlasñdsapd781283u12jio3lkn12bkj2b131920");
-        jwtDto.setUsername("user@gmail.com");
 
         loginUsuario = new LoginUsuario();
         loginUsuario.setNombreUsuario("user@gmail.com");
@@ -67,7 +67,7 @@ class AuthControllerTest {
 
     @DisplayName("Test para agregar un usuario")
     @Test
-    void add() throws AttributeException {
+    void add() throws AttributeException, ResourceNotFoundException {
         // given
         ApiResponse<UsuarioDTO> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
@@ -89,9 +89,10 @@ class AuthControllerTest {
         verify(loginService).add(this.usuarioDTO);
     }
 
-    /*@DisplayName("Test para login")
+
+    @DisplayName("Test para login")
     @Test
-    void login() throws AttributeException {
+    void login() throws AttributeException, ResourceNotFoundException {
         //given
         ApiResponse<JwtDto> expectedApiResponse = new ApiResponse<>();
         expectedApiResponse.setSuccessful(true);
@@ -106,8 +107,8 @@ class AuthControllerTest {
         // Then
         assertTrue(actualApiResponse.isSuccessful());
         assertEquals(expectedApiResponse, actualApiResponse);
-        assertThat(actualApiResponse.getData().getEmailorUser()).isEqualTo(expectedApiResponse.getData().getEmailorUser());
+        assertThat(actualApiResponse.getData().getToken()).isEqualTo(expectedApiResponse.getData().getToken());
 
         verify(loginService, times(1)).login(loginUsuario);
-    }*/
+    }
 }
