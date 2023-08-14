@@ -110,12 +110,16 @@ public class PeriodoService {
 
         ApiResponse<PeriodoDTO> apiResponse = new ApiResponse<>();
         PeriodoEntity periodoEntity = this.periodoRepository.findByUniqueIdentifier(periodoDTO.getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Periodo no existe"));
+
+        AnioLectivoEntity anioLectivoEntity= this.anioLectivoRepository.findByUniqueIdentifier(periodoDTO.getAnio_lectivoDTO().getId(), ConstantsGeneric.CREATED_STATUS).orElseThrow(() -> new ResourceNotFoundException("Año lectivo no existe"));
+
         periodoDTO.setUpdateAt(LocalDateTime.now());
         //Set update data
         periodoEntity.setName(periodoDTO.getName());
         periodoEntity.setDate_start(periodoDTO.getDate_start());
         periodoEntity.setDate_end(periodoDTO.getDate_end());
         periodoEntity.setUpdateAt(periodoDTO.getUpdateAt());
+        periodoEntity.setAnio_lectivoEntity(anioLectivoEntity);
         //Update in database
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
