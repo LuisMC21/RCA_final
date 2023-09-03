@@ -64,23 +64,25 @@ public class ApoderadoService {
     }
 
     //Agregar Apoderado
-    public ApiResponse<ApoderadoDTO> add(ApoderadoDTO ApoderadoDTO) throws AttributeException, ResourceNotFoundException {
+    public ApiResponse<ApoderadoDTO> add(ApoderadoDTO apoderadoDTO) throws AttributeException, ResourceNotFoundException {
         ApiResponse<ApoderadoDTO> apiResponse = new ApiResponse<>();
 
         //Excepciones
-        if(apoderadoRepository.existsByEmail(ConstantsGeneric.CREATED_STATUS, ApoderadoDTO.getEmail(), ApoderadoDTO.getId()))
+        if(apoderadoRepository.existsByEmail(ConstantsGeneric.CREATED_STATUS, apoderadoDTO.getEmail(), ""))
             throw new AttributeException("El email ya existe");
+        if(apoderadoRepository.existsByTel(ConstantsGeneric.CREATED_STATUS, apoderadoDTO.getTel(), ""))
+            throw new AttributeException("El teléfono ya existe");
 
         //Add data DTO
-        ApoderadoDTO.setId(UUID.randomUUID().toString());
-        ApoderadoDTO.setCode(Code.generateCode(Code.APO_CODE, this.apoderadoRepository.count() + 1, Code.APO_LENGTH));
-        ApoderadoDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
-        ApoderadoDTO.setCreateAt(LocalDateTime.now());
+        apoderadoDTO.setId(UUID.randomUUID().toString());
+        apoderadoDTO.setCode(Code.generateCode(Code.APO_CODE, this.apoderadoRepository.count() + 1, Code.APO_LENGTH));
+        apoderadoDTO.setStatus(ConstantsGeneric.CREATED_STATUS);
+        apoderadoDTO.setCreateAt(LocalDateTime.now());
 
         //change dto to entity
-        ApoderadoEntity ApoderadoEntity = new ApoderadoEntity();
-        ApoderadoEntity.setApoderadoDTO(ApoderadoDTO);
-        apiResponse.setData(this.apoderadoRepository.save(ApoderadoEntity).getApoderadoDTO());
+        ApoderadoEntity apoderadoEntity = new ApoderadoEntity();
+        apoderadoEntity.setApoderadoDTO(apoderadoDTO);
+        apiResponse.setData(this.apoderadoRepository.save(apoderadoEntity).getApoderadoDTO());
         apiResponse.setSuccessful(true);
         apiResponse.setMessage("ok");
         return apiResponse;
