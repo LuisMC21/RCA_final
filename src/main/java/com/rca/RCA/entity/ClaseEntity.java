@@ -25,7 +25,7 @@ public class ClaseEntity extends AuditoryEntity{
     private Integer id;
     @Column(name = "code", length = 15)
     private String code;
-    @JsonFormat(pattern = "YYYY-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "YYYY-MM-dd")
     @Column(name = "date")
     private Date date;
 

@@ -12,9 +12,7 @@ public class AlumnoDTO extends AuditoryDTO{
     private String namecon_pri;
     @NotBlank
     private String telcon_pri;
-    @NotBlank
     private String namecon_sec;
-    @NotBlank
     private String telcon_sec;
     @NotBlank
     private String vaccine;
