@@ -50,13 +50,15 @@ public class EvaluacionService {
 
     public EvaluacionService(EvaluacionRepository evaluacionRepository, AlumnoRepository alumnoRepository,
                              DocentexCursoRepository docentexCursoRepository, PeriodoRepository periodoRepository,
-                             AnioLectivoRepository anioLectivoRepository, CursoRepository cursoRepository){
+                             AnioLectivoRepository anioLectivoRepository, CursoRepository cursoRepository,
+                             AulaRepository aulaRepository){
         this.evaluacionRepository = evaluacionRepository;
         this.alumnoRepository = alumnoRepository;
         this.docentexCursoRepository = docentexCursoRepository;
         this.periodoRepository = periodoRepository;
         this.anioLectivoRepository = anioLectivoRepository;
         this.cursoRepository = cursoRepository;
+        this.aulaRepository = aulaRepository;
     }
 
     @Transactional(rollbackFor = {Exception.class, ResourceNotFoundException.class, AttributeException.class, AccessDeniedException.class, MethodArgumentNotValidException.class})
@@ -247,7 +249,9 @@ public class EvaluacionService {
     public ResponseEntity<Resource> exportBoletaNotas(String periodo, String alumno) {
         Optional<AlumnoEntity> optionalAlumnoEntity = this.alumnoRepository.findByUniqueIdentifier(alumno);
         Optional<PeriodoEntity> optionalPeriodoEntity = this.periodoRepository.findByUniqueIdentifier(periodo, ConstantsGeneric.CREATED_STATUS);
-        if (optionalAlumnoEntity.isPresent() && optionalPeriodoEntity.isPresent()){
+        Optional<AulaEntity> optionalAulaEntity = this.aulaRepository.findByAlumnoPeriodo(periodo, alumno);
+
+        if (optionalAlumnoEntity.isPresent() && optionalPeriodoEntity.isPresent() && optionalAulaEntity.isPresent()){
 
             List<Object[]> tuples = this.evaluacionRepository.findByAlumnoPeriodoAnio(alumno, periodo);
             List<CursoEvaluacionDTO> cursos = new ArrayList<>();
@@ -262,19 +266,20 @@ public class EvaluacionService {
             try{
                 final PeriodoEntity periodoEntity = optionalPeriodoEntity.get();
                 final AlumnoEntity alumnoEntity = optionalAlumnoEntity.get();
+                final AulaEntity aulaEntity = optionalAulaEntity.get();
                 final File file = ResourceUtils.getFile("classpath:reportes/cursosEvaluacion.jasper");
                 final File imgLogo = ResourceUtils.getFile("classpath:images/logo.png");
                 final JasperReport report = (JasperReport) JRLoader.loadObject(file);
 
-
                 final HashMap<String, Object> parameters = new HashMap<>();
                 parameters.put("logoEmpresa", new FileInputStream(imgLogo));
-                parameters.put("apellidoPaterno", alumnoEntity.getUsuarioEntity().getPa_surname());
-                parameters.put("apellidoMaterno", alumnoEntity.getUsuarioEntity().getMa_surname());
-                parameters.put("nombres", alumnoEntity.getUsuarioEntity().getName());
+                parameters.put("nombres", alumnoEntity.getUsuarioEntity().getName() + " " +
+                        alumnoEntity.getUsuarioEntity().getPa_surname() + " "+
+                        alumnoEntity.getUsuarioEntity().getMa_surname());
                 parameters.put("Periodo", periodoEntity.getName());
                 parameters.put("anio", periodoEntity.getAnio_lectivoEntity().getName());
-                parameters.put("gradoSeccion", "3-A");
+                parameters.put("gradoSeccion", aulaEntity.getGradoEntity().getName().toString() + "-"+
+                        aulaEntity.getSeccionEntity().getName().toString());
                 parameters.put("dsCursos",  new JRBeanCollectionDataSource(cursos));
 
                 JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
