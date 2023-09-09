@@ -113,4 +113,17 @@ public interface AulaRepository extends JpaRepository<AulaEntity, Integer> {
             "AND ua.status= :status " +
             "AND an.status= :status ")
     Optional<List<AlumnoEntity>> findAlumnosxAula(String id_aula, String id_anio, String status);
+
+    @Query(value = "SELECT a.* from aula a JOIN matricula m ON m.aula_id = a.id JOIN anio_lectivo al ON " +
+            "al.id = m.anio_lectivo_id JOIN alumno alu ON alu.id = m.alumno_id JOIN periodo p ON " +
+            "p.anio_lectivo_id = al.id WHERE alu.tx_unique_identifier " +
+            "like concat('%', :alumno, '%') AND " +
+            "p.tx_unique_identifier like concat('%', :periodo, '%') AND a.tx_status = 'CREATED' " +
+            "AND m.tx_status = 'CREATED' AND al.tx_status = 'CREATED' AND alu.tx_status = 'CREATED' " +
+            "AND p.tx_status = 'CREATED'", nativeQuery = true)
+    Optional<AulaEntity> findByAlumnoPeriodo(String periodo, String alumno);
+
     }
+
+
+
