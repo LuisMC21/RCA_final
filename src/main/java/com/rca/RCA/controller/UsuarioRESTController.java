@@ -1,5 +1,6 @@
 package com.rca.RCA.controller;
 
+import com.rca.RCA.auth.dto.ChangePasswordDTO;
 import com.rca.RCA.service.UsuarioService;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.GradoDTO;
@@ -45,5 +46,10 @@ public class UsuarioRESTController {
     @DeleteMapping("{id}")
     public ApiResponse<UsuarioDTO> delete(@PathVariable String id) {
         return this.usuarioService.delete(id);
+    }
+
+    @PutMapping("/changepassword")
+    public ApiResponse<UsuarioDTO> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) throws ResourceNotFoundException {
+        return this.usuarioService.changePassword(changePasswordDTO);
     }
 }

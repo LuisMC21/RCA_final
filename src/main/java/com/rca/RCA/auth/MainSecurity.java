@@ -58,7 +58,7 @@ public class MainSecurity  {
                 .requestMatchers(HttpMethod.GET, "/images/**").permitAll()
                 .requestMatchers(HttpMethod.PUT, "/images/**").permitAll()
                 //permitidos sin auth el método get
-                .anyRequest().authenticated();
+                .anyRequest().permitAll();
         // Permite el acceso a la carpeta de recursos específica sin autenticación
         http.exceptionHandling().authenticationEntryPoint(jwtEntryPoint);
         http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);

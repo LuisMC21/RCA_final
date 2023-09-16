@@ -1,5 +1,6 @@
 package com.rca.RCA.service;
 
+import com.rca.RCA.auth.dto.ChangePasswordDTO;
 import com.rca.RCA.auth.entity.Rol;
 //import com.rca.RCA.entity.RolEntity;
 import com.rca.RCA.auth.enums.RolNombre;
@@ -46,6 +47,7 @@ public class UsuarioService {
 
     @Autowired
     private NoticiaRepository noticiaRepository;
+
 
     public UsuarioService(UsuarioRepository usuarioRepository, RolRepository rolRepository){
         this.usuarioRepository = usuarioRepository;
@@ -160,7 +162,18 @@ public class UsuarioService {
         return apiResponse;
     }
 
-
+    public ApiResponse<UsuarioDTO> changePassword(ChangePasswordDTO changePasswordDTO) throws ResourceNotFoundException {
+        ApiResponse<UsuarioDTO> apiResponse = new ApiResponse<>();
+        UsuarioEntity usuarioEntity = this.usuarioRepository.findByUniqueIdentifier(changePasswordDTO.getIdUser(), ConstantsGeneric.CREATED_STATUS).orElseThrow(()->new ResourceNotFoundException("El usuario no existe"));
+        usuarioEntity.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
+        UsuarioDTO usuarioDTO = this.usuarioRepository.save(usuarioEntity).getUsuarioDTO();
+        usuarioDTO.setPassword("Contraseña Cifrada");
+        apiResponse.setData(usuarioDTO);
+        apiResponse.setSuccessful(true);
+        apiResponse.setCode("CHANGE_PASSWORD");
+        apiResponse.setMessage("Contraseña actualizada correctamente");
+        return apiResponse;
+    }
 }
 
 
