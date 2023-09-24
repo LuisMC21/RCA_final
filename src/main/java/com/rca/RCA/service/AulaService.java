@@ -14,6 +14,7 @@ import net.sf.jasperreports.engine.data.JRBeanArrayDataSource;
 import net.sf.jasperreports.engine.util.JRLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ContentDisposition;
@@ -27,6 +28,7 @@ import org.springframework.core.io.Resource;
 import jakarta.validation.constraints.NotNull;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -184,9 +186,10 @@ public class AulaService {
         AulaEntity aulaEntity = this.aulaRepository.findByUniqueIdentifier(id_aula, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Aula no existe"));
         AnioLectivoEntity anioLectivoEntity = this.anioLectivoRepository.findByUniqueIdentifier(id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("Aula no existe"));
         try {
-            final File file = ResourceUtils.getFile("classpath:reportes/lista_apoderados.jasper"); //la ruta del reporte
-            final File imgLogo = ResourceUtils.getFile("classpath:images/logoC.jpg"); //Ruta de la imagen
-            final JasperReport report = (JasperReport) JRLoader.loadObject(file);
+            Resource resource  = new ClassPathResource("reportes/lista_apoderados.jasper"); //la ruta del reporte
+            Resource imagen = new ClassPathResource("images/logoC.jpg"); //Ruta de la imagen
+            final JasperReport report = (JasperReport) JRLoader.loadObject(resource.getInputStream());
+            InputStream imagenStream = imagen.getInputStream();
             //Se consultan los datos para el reporte de apoderados DTO
             List<AlumnoEntity> alumnoEntities = this.aulaRepository.findAlumnosxAula(id_aula, id_aniolectivo, ConstantsGeneric.CREATED_STATUS).orElseThrow(()-> new ResourceNotFoundException("No contiene alumnos"));
 
@@ -201,7 +204,7 @@ public class AulaService {
 
             //Se llenan los parámetros del reporte
             final HashMap<String, Object> parameters = new HashMap<>();
-            parameters.put("logoEmpresa", new FileInputStream(imgLogo));
+            parameters.put("logoEmpresa", imagenStream);
             parameters.put("grado", aulaEntity.getAulaDTO().getGradoDTO().getName().toString());
             parameters.put("seccion", aulaEntity.getAulaDTO().getSeccionDTO().getName().toString());
             parameters.put("año", anioLectivoEntity.getName());

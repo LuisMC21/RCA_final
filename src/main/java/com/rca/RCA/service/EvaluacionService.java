@@ -13,6 +13,7 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.util.JRLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -267,12 +269,13 @@ public class EvaluacionService {
                 final PeriodoEntity periodoEntity = optionalPeriodoEntity.get();
                 final AlumnoEntity alumnoEntity = optionalAlumnoEntity.get();
                 final AulaEntity aulaEntity = optionalAulaEntity.get();
-                final File file = ResourceUtils.getFile("classpath:reportes/cursosEvaluacion.jasper");
-                final File imgLogo = ResourceUtils.getFile("classpath:images/logo.png");
-                final JasperReport report = (JasperReport) JRLoader.loadObject(file);
+                Resource resource  = new ClassPathResource("reportes/cursosEvaluacion.jasper");
+                Resource imagen  = new ClassPathResource("images/logo.png");
+                final JasperReport report = (JasperReport) JRLoader.loadObject(resource.getInputStream());
+                InputStream imagenStream = imagen.getInputStream();
 
                 final HashMap<String, Object> parameters = new HashMap<>();
-                parameters.put("logoEmpresa", new FileInputStream(imgLogo));
+                parameters.put("logoEmpresa", imagenStream);
                 parameters.put("nombres", alumnoEntity.getUsuarioEntity().getName() + " " +
                         alumnoEntity.getUsuarioEntity().getPa_surname() + " "+
                         alumnoEntity.getUsuarioEntity().getMa_surname());
@@ -328,14 +331,15 @@ public class EvaluacionService {
             try{
                 final PeriodoEntity periodoEntity = optionalPeriodoEntity.get();
                 final CursoEntity cursoEntity = optionalCursoEntity.get();
-                final File file = ResourceUtils.getFile("classpath:reportes/notasCurso.jasper");
-                final File imgLogo = ResourceUtils.getFile("classpath:images/logo.png");
-                final JasperReport report = (JasperReport) JRLoader.loadObject(file);
+                Resource resource  = new ClassPathResource("reportes/notasCurso.jasper");
+                Resource imagen  = new ClassPathResource("images/logo.png");
+                final JasperReport report = (JasperReport) JRLoader.loadObject(resource.getInputStream());
+                InputStream imagenStream = imagen.getInputStream();
 
 
 
                 final HashMap<String, Object> parameters = new HashMap<>();
-                parameters.put("logoEmpresa", new FileInputStream(imgLogo));
+                parameters.put("logoEmpresa", imagenStream);
                 parameters.put("curso", cursoEntity.getName());
                 parameters.put("Periodo", periodoEntity.getName());
                 parameters.put("anio", periodoEntity.getAnio_lectivoEntity().getName());

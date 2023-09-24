@@ -20,6 +20,7 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.util.JRLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +34,7 @@ import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -248,9 +250,10 @@ public class AlumnoService {
                 final AlumnoEntity alumnoEntity = optionalAlumnoEntity.get();
                 final ApoderadoEntity apoderadoEntity = alumnoEntity.getApoderadoEntity();
                 final UsuarioEntity usuarioEntity = alumnoEntity.getUsuarioEntity();
-                final File file = ResourceUtils.getFile("classpath:reportes/datosPersonales.jasper");
-                final File imgLogo = ResourceUtils.getFile("classpath:images/logo.png");
-                final JasperReport report = (JasperReport) JRLoader.loadObject(file);
+                Resource resource  = new ClassPathResource("reportes/datosPersonales.jasper");
+                Resource imagen = new ClassPathResource("images/logo.png");
+                final JasperReport report = (JasperReport) JRLoader.loadObject(resource.getInputStream());
+                InputStream imagenStream = imagen.getInputStream();
 
 
 
@@ -265,7 +268,7 @@ public class AlumnoService {
                 parameters.put("numDocAlu", usuarioEntity.getNumdoc());
                 parameters.put("telAlu", usuarioEntity.getTel());
                 parameters.put("vacunas", alumnoEntity.getVaccine());
-                parameters.put("logo", new FileInputStream(imgLogo));
+                parameters.put("logo", imagenStream);
                 parameters.put("nombreCon1", alumnoEntity.getNamecon_pri());
                 parameters.put("nombreCon2", alumnoEntity.getNamecon_sec());
                 parameters.put("telCon1", alumnoEntity.getTelcon_pri());
