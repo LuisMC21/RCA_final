@@ -5,6 +5,7 @@ import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.GradoDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.AsistenciaDTO;
+import com.rca.RCA.util.Code;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = Code.RUTA_FRONT)
 @RestController
 @RequestMapping("/asistencia")
 public class AsistenciaRESTController {

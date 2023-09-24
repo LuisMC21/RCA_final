@@ -4,13 +4,14 @@ import com.rca.RCA.service.AnioLectivoService;
 import com.rca.RCA.type.AnioLectivoDTO;
 import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.Pagination;
+import com.rca.RCA.util.Code;
 import com.rca.RCA.util.exceptions.AttributeException;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = Code.RUTA_FRONT)
 @RestController
 @RequestMapping("/aniolectivo")
 public class AnioLectivoRESTController {

@@ -3,6 +3,7 @@ package com.rca.RCA.controller;
 import com.rca.RCA.entity.ImagenEntity;
 import com.rca.RCA.service.ImagenService;
 import com.rca.RCA.type.*;
+import com.rca.RCA.util.Code;
 import com.rca.RCA.util.exceptions.AttributeException;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,7 @@ import jakarta.validation.Valid;
 
 import java.io.IOException;
 
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = Code.RUTA_FRONT)
 @RestController
 @RequestMapping("/imagen")
 public class ImagenRESTController {

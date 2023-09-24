@@ -2,13 +2,14 @@ package com.rca.RCA.controller;
 
 import com.rca.RCA.service.EvaluacionService;
 import com.rca.RCA.type.*;
+import com.rca.RCA.util.Code;
 import com.rca.RCA.util.exceptions.AttributeException;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = Code.RUTA_FRONT)
 @RestController
 @RequestMapping("/evaluacion")
 public class EvaluacionRESTController {

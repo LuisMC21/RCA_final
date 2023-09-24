@@ -5,13 +5,14 @@ import com.rca.RCA.type.ApiResponse;
 import com.rca.RCA.type.DocenteDTO;
 import com.rca.RCA.type.Pagination;
 import com.rca.RCA.type.UsuarioDTO;
+import com.rca.RCA.util.Code;
 import com.rca.RCA.util.exceptions.AttributeException;
 import com.rca.RCA.util.exceptions.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = Code.RUTA_FRONT)
 @RestController
 @RequestMapping("/docente")
 public class DocenteRESTController {

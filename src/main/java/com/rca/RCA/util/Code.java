@@ -59,7 +59,9 @@ public class Code {
 
     public static final String RUTA_IMAGENES = "src/main/resources/images";
 
-    public static final String RUTA_SERVIDOR = "http://localhost:8080/";
+    public static final String RUTA_SERVIDOR = "http://rcafinal-production.up.railway.app/";
+
+    public static final String RUTA_FRONT = "https://650fba1451dc691e92f8b31e--taupe-taiyaki-30754d.netlify.app/portal/home";
 
 
     public static String generateCode(String prefix, long current, int maxLength) {
