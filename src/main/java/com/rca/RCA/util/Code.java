@@ -61,7 +61,7 @@ public class Code {
 
     public static final String RUTA_SERVIDOR = "https://rcafinal-production.up.railway.app/";
 
-    public static final String RUTA_FRONT = "https://650fcc594dc51425bf77f641--preeminent-muffin-5c90ed.netlify.app/";
+    public static final String RUTA_FRONT = "https://65109cd56686c81ac39ab733--warm-paletas-9cb349.netlify.app/";
 
 
     public static String generateCode(String prefix, long current, int maxLength) {
