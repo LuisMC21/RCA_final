@@ -69,9 +69,11 @@ public class ApoderadoService {
 
         //Excepciones
         if(apoderadoRepository.existsByEmail(ConstantsGeneric.CREATED_STATUS, apoderadoDTO.getEmail(), ""))
-            throw new AttributeException("El email ya existe");
+            throw new AttributeException("El email ya se encuentra registrado");
         if(apoderadoRepository.existsByTel(ConstantsGeneric.CREATED_STATUS, apoderadoDTO.getTel(), ""))
-            throw new AttributeException("El teléfono ya existe");
+            throw new AttributeException("El teléfono ya se encuentra registrado");
+        if(apoderadoRepository.existsByNumdoc(ConstantsGeneric.CREATED_STATUS, apoderadoDTO.getNumdoc(), ""))
+            throw new AttributeException("El número de documento ya se encuentra registrado");
 
         //Add data DTO
         apoderadoDTO.setId(UUID.randomUUID().toString());

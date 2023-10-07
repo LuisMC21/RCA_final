@@ -18,7 +18,6 @@ public class UsuarioDTO extends AuditoryDTO{
     private String pa_surname;
     @NotBlank (message = "Apellido materno de usuario no puede estar vacío")
     private String ma_surname;
-    @NotNull (message = "Fecha de nacimiento no puede estar vacía")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date birthdate;
     @NotBlank (message = "Tipo de documento no puede estar vacío")

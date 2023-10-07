@@ -52,4 +52,12 @@ public interface ApoderadoRepository extends JpaRepository<ApoderadoEntity, Inte
             "and a.tel = :tel " +
             "and a.uniqueIdentifier != :id ")
     boolean existsByTel(String status, String tel, String id);
+
+    @Query(value = "select count(a)>0 from ApoderadoEntity a " +
+            "where a.status = :status " +
+            "and a.numdoc = :numdoc " +
+            "and a.uniqueIdentifier != :id ")
+    boolean existsByNumdoc(String status, String numdoc, String id);
+
+
 }
