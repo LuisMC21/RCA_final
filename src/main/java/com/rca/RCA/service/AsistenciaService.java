@@ -248,7 +248,7 @@ public class AsistenciaService {
                 gradoEntity !=null && gradoEntity.getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS) &&
                 seccionEntity != null && seccionEntity.getStatus().equalsIgnoreCase(ConstantsGeneric.CREATED_STATUS)) {
             try {
-                Resource resource  = new ClassPathResource(":reportes/asistencias_alumno.jasper"); //la ruta del reporte
+                Resource resource  = new ClassPathResource("reportes/asistencias_alumno.jasper"); //la ruta del reporte
                 Resource imagen  = new ClassPathResource("images/logo.png"); //Ruta de la imagen
                 final JasperReport report = (JasperReport) JRLoader.loadObject(resource.getInputStream());
                 InputStream imagenStream = imagen.getInputStream();
